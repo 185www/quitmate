@@ -1,65 +1,43 @@
 import '../../domain/entity/relapse_plan.dart';
-import '../../domain/repository/plan_repository.dart';
 import '../database/app_database.dart';
 
-class PlanRepositoryImpl implements PlanRepository {
+class PlanRepository {
   final AppDatabase _database;
+  PlanRepository(this._database);
 
-  PlanRepositoryImpl(this._database);
-
-  @override
   Future<List<RelapsePlanItem>> getPlansForUser(int userId) async {
     final plans = await _database.getRelapsePlansForUser(userId);
-    return plans
-        .map((p) => RelapsePlanItem(
-              id: p.id,
-              userId: p.userId,
-              situation: p.situation,
-              trigger: p.trigger,
-              copingPlan: p.copingPlan,
-              priority: p.priority,
-              isTemplate: p.isTemplate,
-            ))
-        .toList();
+    return plans.map((p) => _mapToPlan(p)).toList();
   }
 
-  @override
   Future<List<RelapsePlanItem>> getTemplatePlans() async {
     final plans = await _database.getTemplatePlans();
-    return plans
-        .map((p) => RelapsePlanItem(
-              id: p.id,
-              userId: p.userId,
-              situation: p.situation,
-              trigger: p.trigger,
-              copingPlan: p.copingPlan,
-              priority: p.priority,
-              isTemplate: p.isTemplate,
-            ))
-        .toList();
+    return plans.map((p) => _mapToPlan(p)).toList();
   }
 
-  @override
   Future<int> insertPlan(RelapsePlanItem plan) async {
-    return await _database.insertRelapsePlan(
-      RelapsePlanCompanion.insert(
-        userId: plan.userId,
-        situation: plan.situation,
-        trigger: plan.trigger != null ? Value(plan.trigger!) : const Value.absent(),
-        copingPlan: plan.copingPlan,
-        priority: Value(plan.priority),
-        isTemplate: Value(plan.isTemplate),
-      ),
-    );
+    return _database.insertRelapsePlan({
+      'user_id': plan.userId,
+      'situation': plan.situation,
+      'trigger': plan.trigger,
+      'coping_plan': plan.copingPlan,
+      'priority': plan.priority,
+      'is_template': plan.isTemplate ? 1 : 0,
+    });
   }
 
-  @override
-  Future<bool> updatePlan(RelapsePlanItem plan) async {
-    return true;
-  }
-
-  @override
   Future<bool> deletePlan(int id) async {
-    return await _database.deleteRelapsePlan(id);
+    final rows = await _database.deleteRelapsePlan(id);
+    return rows > 0;
   }
+
+  RelapsePlanItem _mapToPlan(Map<String, dynamic> p) => RelapsePlanItem(
+    id: p['id'] as int,
+    userId: p['user_id'] as int,
+    situation: p['situation'] as String,
+    trigger: p['trigger'] as String?,
+    copingPlan: p['coping_plan'] as String,
+    priority: p['priority'] as int? ?? 0,
+    isTemplate: (p['is_template'] as int?) == 1,
+  );
 }

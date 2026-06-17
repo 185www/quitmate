@@ -1,43 +1,22 @@
 import '../entity/badge.dart';
-import '../repository/badge_repository.dart';
-import '../repository/log_repository.dart';
+import '../../data/repository/badge_repository_impl.dart';
+import '../../data/repository/log_repository_impl.dart';
 
 class BadgeUseCase {
   final BadgeRepository _badgeRepository;
   final LogRepository _logRepository;
-
   BadgeUseCase(this._badgeRepository, this._logRepository);
 
-  Future<List<AppBadge>> getAllBadges() async {
-    return _badgeRepository.getAllBadges();
-  }
-
-  Future<List<AppBadge>> getEarnedBadges() async {
-    return _badgeRepository.getEarnedBadges();
-  }
-
-  Future<int> getEarnedCount() async {
-    return _badgeRepository.getEarnedCount();
-  }
+  Future<List<AppBadge>> getAllBadges() => _badgeRepository.getAllBadges();
+  Future<List<AppBadge>> getEarnedBadges() => _badgeRepository.getEarnedBadges();
+  Future<int> getEarnedCount() => _badgeRepository.getEarnedCount();
 
   Future<void> evaluateBadges(int userId) async {
     final streak = await _logRepository.getStreakDays(userId);
-    final totalLogs = await _logRepository.getTotalLogsCount(userId);
-
-    final badgeRules = <String, bool Function()>{
-      'day_1': () => streak >= 1,
-      'day_7': () => streak >= 7,
-      'day_30': () => streak >= 30,
-      'day_90': () => streak >= 90,
-      'day_365': () => streak >= 365,
-      'log_7': () => totalLogs >= 7,
-      'log_30': () => totalLogs >= 30,
-    };
-
-    for (final entry in badgeRules.entries) {
-      if (entry.value()) {
-        await _badgeRepository.earnBadge(entry.key);
-      }
-    }
+    if (streak >= 1) await _badgeRepository.earnBadge('day_1');
+    if (streak >= 7) await _badgeRepository.earnBadge('day_7');
+    if (streak >= 30) await _badgeRepository.earnBadge('day_30');
+    if (streak >= 90) await _badgeRepository.earnBadge('day_90');
+    if (streak >= 365) await _badgeRepository.earnBadge('day_365');
   }
 }

@@ -1,50 +1,36 @@
 import '../../domain/entity/badge.dart';
-import '../../domain/repository/badge_repository.dart';
 import '../database/app_database.dart';
 
-class BadgeRepositoryImpl implements BadgeRepository {
+class BadgeRepository {
   final AppDatabase _database;
+  BadgeRepository(this._database);
 
-  BadgeRepositoryImpl(this._database);
-
-  @override
   Future<List<AppBadge>> getAllBadges() async {
     final badges = await _database.getAllBadges();
-    return badges
-        .map((b) => AppBadge(
-              id: b.id,
-              code: b.code,
-              name: b.name,
-              description: b.description,
-              iconAsset: b.iconAsset,
-              earnedAt: b.earnedAt,
-            ))
-        .toList();
+    return badges.map((b) => _mapToBadge(b)).toList();
   }
 
-  @override
   Future<List<AppBadge>> getEarnedBadges() async {
     final badges = await _database.getEarnedBadges();
-    return badges
-        .map((b) => AppBadge(
-              id: b.id,
-              code: b.code,
-              name: b.name,
-              description: b.description,
-              iconAsset: b.iconAsset,
-              earnedAt: b.earnedAt,
-            ))
-        .toList();
+    return badges.map((b) => _mapToBadge(b)).toList();
   }
 
-  @override
   Future<bool> earnBadge(String code) async {
-    return await _database.earnBadge(code);
+    final rows = await _database.earnBadge(code);
+    return rows > 0;
   }
 
-  @override
   Future<int> getEarnedCount() async {
-    final earned = await getEarnedBadges();
-    return earned.length;
+    final badges = await getEarnedBadges();
+    return badges.length;
   }
+
+  AppBadge _mapToBadge(Map<String, dynamic> b) => AppBadge(
+    id: b['id'] as int,
+    code: b['code'] as String,
+    name: b['name'] as String,
+    description: b['description'] as String,
+    iconAsset: b['icon_asset'] as String,
+    earnedAt: b['earned_at'] != null ? DateTime.parse(b['earned_at'] as String) : null,
+  );
 }

@@ -1,40 +1,14 @@
 import '../entity/content.dart';
-import '../repository/content_repository.dart';
+import '../../data/repository/content_repository_impl.dart';
 
 class ContentUseCase {
-  final ContentRepository _contentRepository;
+  final ContentRepositoryImpl _repository;
+  ContentUseCase(this._repository);
 
-  ContentUseCase(this._contentRepository);
-
-  Future<List<Course>> getCourses() {
-    return _contentRepository.getCourses();
-  }
-
-  Future<Course?> getCourse(String courseId) {
-    return _contentRepository.getCourse(courseId);
-  }
-
-  Future<List<AssessmentQuestion>> getAssessmentQuestions(String type) {
-    return _contentRepository.getAssessmentQuestions(type);
-  }
-
-  Future<List<UrgeAlternative>> getUrgeAlternatives() {
-    return _contentRepository.getUrgeAlternatives();
-  }
-
-  Future<List<RelapseTemplate>> getRelapseTemplates() {
-    return _contentRepository.getRelapseTemplates();
-  }
-
-  Future<List<LifestyleRecommendation>> getLifestyleRecommendations() {
-    return _contentRepository.getLifestyleRecommendations();
-  }
-
-  Future<List<SkillContent>> getSkillContents() {
-    return _contentRepository.getSkillContents();
-  }
-
-  Future<SkillContent?> getSkillContent(String skillId) {
-    return _contentRepository.getSkillContent(skillId);
-  }
+  Future<List<Course>> getCourses() => _repository.getCourses();
+  Future<Course?> getCourse(String courseId) => _repository.getCourse(courseId);
+  Future<List<AssessmentQuestion>> getAssessmentQuestions(String type) => _repository.getAssessmentQuestions(type);
+  Future<List<UrgeAlternative>> getUrgeAlternatives() => _repository.getUrgeAlternatives();
+  Future<List<RelapseTemplate>> getRelapseTemplates() => _repository.getRelapseTemplates();
+  Future<List<LifestyleRecommendation>> getLifestyleRecommendations() => _repository.getLifestyleRecommendations();
 }

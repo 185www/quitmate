@@ -1,48 +1,58 @@
 import '../../domain/entity/user.dart';
-import '../../domain/repository/user_repository.dart';
 import '../database/app_database.dart';
 import '../../core/security/encryption_service.dart';
 
-class UserRepositoryImpl implements UserRepository {
+class UserRepository {
   final AppDatabase _database;
   final EncryptionService _encryptionService;
-  UserRepositoryImpl(this._database, this._encryptionService);
+  UserRepository(this._database, this._encryptionService);
 
-  @override
   Future<User?> getCurrentUser() async {
     final profile = await _database.getFirstUserProfile();
     if (profile == null) return null;
-    return User(id: profile.id, targetType: TargetType.values.byName(profile.targetType), quitDate: profile.quitDate, stage: UserStage.values[profile.stage], createdAt: profile.createdAt, updatedAt: profile.updatedAt);
+    return User(
+      id: profile['id'] as int,
+      targetType: TargetType.values.byName(profile['target_type'] as String),
+      quitDate: profile['quit_date'] != null ? DateTime.parse(profile['quit_date'] as String) : null,
+      stage: UserStage.values[profile['stage'] as int? ?? 0],
+      createdAt: DateTime.parse(profile['created_at'] as String),
+      updatedAt: DateTime.parse(profile['updated_at'] as String),
+    );
   }
 
-  @override
   Future<User> createUser({required TargetType targetType, DateTime? quitDate}) async {
     final now = DateTime.now();
-    final id = await _database.createUserProfile(UserProfileCompanion.insert(targetType: targetType.name, quitDate: quitDate, createdAt: now, updatedAt: now));
+    final id = await _database.createUserProfile({
+      'target_type': targetType.name,
+      'quit_date': quitDate?.toIso8601String(),
+      'stage': UserStage.preContemplation.index,
+      'created_at': now.toIso8601String(),
+      'updated_at': now.toIso8601String(),
+    });
     return User(id: id, targetType: targetType, quitDate: quitDate, stage: UserStage.preContemplation, createdAt: now, updatedAt: now);
   }
 
-  @override
   Future<User> updateUser({required int id, TargetType? targetType, DateTime? quitDate, UserStage? stage}) async {
-    final now = DateTime.now();
-    await _database.updateUserProfile(UserProfileCompanion(id: Value(id), targetType: targetType != null ? Value(targetType.name) : const Value.absent(), quitDate: Value(quitDate), stage: stage != null ? Value(stage.index) : const Value.absent(), updatedAt: Value(now)));
-    final profile = await _database.getFirstUserProfile();
-    return User(id: profile!.id, targetType: TargetType.values.byName(profile.targetType), quitDate: profile.quitDate, stage: UserStage.values[profile.stage], createdAt: profile.createdAt, updatedAt: profile.updatedAt);
+    final values = <String, dynamic>{'updated_at': DateTime.now().toIso8601String()};
+    if (targetType != null) values['target_type'] = targetType.name;
+    if (quitDate != null) values['quit_date'] = quitDate.toIso8601String();
+    if (stage != null) values['stage'] = stage.index;
+    await _database.updateUserProfile(id, values);
+    final user = await getCurrentUser();
+    return user!;
   }
 
-  @override
   Future<void> savePreferences(Map<String, dynamic> preferences) async {
     final encrypted = await _encryptionService.encryptJson(preferences);
     final user = await getCurrentUser();
     if (user != null) {
-      await _database.updateUserProfile(UserProfileCompanion(id: Value(user.id), preferencesEncrypted: Value(encrypted['encrypted'])));
+      await _database.updateUserProfile(user.id, {'preferences_encrypted': encrypted['encrypted']});
     }
   }
 
-  @override
   Future<Map<String, dynamic>> getPreferences() async {
     final profile = await _database.getFirstUserProfile();
-    if (profile?.preferencesEncrypted == null) return {};
-    return await _encryptionService.decryptJson({'encrypted': profile!.preferencesEncrypted});
+    if (profile == null || profile['preferences_encrypted'] == null) return {};
+    return await _encryptionService.decryptJson({'encrypted': profile['preferences_encrypted'] as String});
   }
 }
