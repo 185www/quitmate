@@ -1,0 +1,12 @@
+{
+  "alternatives": [
+    {"id": "water", "title": "喝一杯水", "description": "喝水可以缓解口腔渴望，帮助身体排毒", "category": "饮食"},
+    {"id": "walk", "title": "散步5分钟", "description": "轻微运动帮助转移注意力，释放内啡肽", "category": "运动"},
+    {"id": "breathe", "title": "深呼吸练习", "description": "做10次深呼吸，4秒吸气，7秒屏气，8秒呼气", "category": "放松"},
+    {"id": "music", "title": "听音乐", "description": "听一首喜欢的歌，让心情放松", "category": "娱乐"},
+    {"id": "call", "title": "打电话给朋友", "description": "与支持你的人聊天，获得鼓励", "category": "社交"},
+    {"id": "chew", "title": "嚼口香糖", "description": "咀嚼动作可以缓解口腔渴望", "category": "饮食"},
+    {"id": "delay", "title": "等待5分钟", "description": "告诉自己再等5分钟，渴望通常会消退", "category": "心理"},
+    {"id": "write", "title": "写下你的感受", "description": "把此刻的感受写在日记里", "category": "心理"}
+  ]
+}

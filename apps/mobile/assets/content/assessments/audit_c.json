@@ -1,0 +1,9 @@
+{
+  "id": "audit_c",
+  "title": "AUDIT-C 酒精使用障碍筛查",
+  "questions": [
+    {"id": "q1", "text": "你多久喝一次含酒精的饮料？", "options": [{"text": "从不", "score": 0}, {"text": "每月或更少", "score": 1}, {"text": "每月", "score": 2}, {"text": "每周", "score": 3}, {"text": "每天或几乎每天", "score": 4}]},
+    {"id": "q2", "text": "你一天喝多少标准杯？", "options": [{"text": "1-2杯", "score": 0}, {"text": "3-4杯", "score": 1}, {"text": "5-6杯", "score": 2}, {"text": "7-9杯", "score": 3}, {"text": "10杯以上", "score": 4}]},
+    {"id": "q3", "text": "你多久一次一次喝6杯以上？", "options": [{"text": "从不", "score": 0}, {"text": "less than monthly", "score": 1}, {"text": "每月", "score": 2}, {"text": "每周", "score": 3}, {"text": "每天或几乎每天", "score": 4}]}
+  ]
+}

@@ -1,0 +1,28 @@
+name: CI
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  build-debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: apps/mobile
+      - name: Build Debug APK
+        run: flutter build apk --debug
+        working-directory: apps/mobile
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: quitmate-debug
+          path: apps/mobile/build/app/outputs/flutter-apk/app-debug.apk

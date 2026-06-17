@@ -1,0 +1,44 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+      - name: Install dependencies
+        run: flutter pub get
+        working-directory: apps/mobile
+      - name: Build App Bundle
+        run: flutter build appbundle --release --obfuscate --split-debug-info=build/symbols
+        working-directory: apps/mobile
+      - name: Build APKs (per ABI)
+        run: flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/symbols
+        working-directory: apps/mobile
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: QuitMate v${{ steps.version.outputs.VERSION }}
+          body: |
+            ## QuitMate v${{ steps.version.outputs.VERSION }}
+            ### 下载
+            - **APK ARM64**: app-arm64-v8a-release.apk
+            - **APK ARMv7**: app-armeabi-v7a-release.apk
+            - **AAB**: app-release.aab
+          files: |
+            apps/mobile/build/app/outputs/bundle/release/app-release.aab
+            apps/mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+            apps/mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+          generate_release_notes: true

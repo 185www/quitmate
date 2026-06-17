@@ -1,0 +1,12 @@
+{
+  "id": "ftnd",
+  "title": "FTND 尼古丁依赖量表",
+  "questions": [
+    {"id": "q1", "text": "你醒来后多久抽第一支烟？", "options": [{"text": "5分钟内", "score": 3}, {"text": "6-30分钟", "score": 2}, {"text": "31-60分钟", "score": 1}, {"text": "60分钟以上", "score": 0}]},
+    {"id": "q2", "text": "在禁止吸烟的场所，忍住不吸烟是否困难？", "options": [{"text": "是", "score": 1}, {"text": "否", "score": 0}]},
+    {"id": "q3", "text": "你放弃哪一支烟最困难？", "options": [{"text": "早晨第一支", "score": 1}, {"text": "其他", "score": 0}]},
+    {"id": "q4", "text": "你每天抽多少支烟？", "options": [{"text": "10支以下", "score": 0}, {"text": "11-20支", "score": 1}, {"text": "21-30支", "score": 2}, {"text": "31支以上", "score": 3}]},
+    {"id": "q5", "text": "你早晨比其他时间吸烟更频繁吗？", "options": [{"text": "是", "score": 1}, {"text": "否", "score": 0}]},
+    {"id": "q6", "text": "如果你生病卧床，是否仍然吸烟？", "options": [{"text": "是", "score": 1}, {"text": "否", "score": 0}]}
+  ]
+}
