@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../data/database/app_database.dart';
-import '../repository/user_repository_impl.dart';
-import '../repository/log_repository_impl.dart';
-import '../repository/badge_repository_impl.dart';
-import '../repository/plan_repository_impl.dart';
-import '../repository/content_repository_impl.dart';
+import '../../data/repository/user_repository_impl.dart';
+import '../../data/repository/log_repository_impl.dart';
+import '../../data/repository/badge_repository_impl.dart';
+import '../../data/repository/plan_repository_impl.dart';
+import '../../data/repository/content_repository_impl.dart';
 import '../../domain/usecase/user_usecase.dart';
 import '../../domain/usecase/log_usecase.dart';
 import '../../domain/usecase/badge_usecase.dart';
@@ -15,6 +15,7 @@ import '../../core/theme/app_theme.dart';
 import '../../core/notifications/notification_service.dart';
 import '../../core/security/encryption_service.dart';
 import '../../data/source/content_loader.dart';
+import '../../core/router/app_router.dart';
 
 final appDatabaseProvider = Provider((ref) => AppDatabase());
 final encryptionServiceProvider = Provider((ref) => EncryptionService());
