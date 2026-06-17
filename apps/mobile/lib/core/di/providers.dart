@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../data/database/app_database.dart';
 import '../../data/repository/user_repository_impl.dart';
 import '../../data/repository/log_repository_impl.dart';
