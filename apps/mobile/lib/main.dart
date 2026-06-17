@@ -31,7 +31,7 @@ class QuitMateApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'QuitMate',
       debugShowCheckedModeBanner: false,
-      routerConfig: router,
+      routerConfig: router.router,
       theme: theme.lightTheme,
       darkTheme: theme.darkTheme,
       themeMode: ThemeMode.system,
