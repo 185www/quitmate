@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/di/providers.dart';
 import 'core/error/app_error_handler.dart';
 import 'core/notifications/notification_service.dart';
+import 'core/widgets/widget_service.dart';
+
+const _widgetChannel = MethodChannel('quitmate/widget');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,11 +25,33 @@ void main() async {
   );
 }
 
-class QuitMateApp extends ConsumerWidget {
+class QuitMateApp extends ConsumerStatefulWidget {
   const QuitMateApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<QuitMateApp> createState() => _QuitMateAppState();
+}
+
+class _QuitMateAppState extends ConsumerState<QuitMateApp> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _handleWidgetRoute());
+  }
+
+  Future<void> _handleWidgetRoute() async {
+    try {
+      final route = await _widgetChannel.invokeMethod<String>('getPendingRoute');
+      if (route != null && route.isNotEmpty && mounted) {
+        context.go(route);
+      }
+      final user = await ref.read(userUseCaseProvider).getCurrentUser();
+      await WidgetService.updateWidget(user);
+    } catch (_) {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
     final theme = ref.watch(appThemeProvider);
 

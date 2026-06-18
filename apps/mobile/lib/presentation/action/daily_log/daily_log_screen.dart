@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/widgets/widget_service.dart';
 import '../../../domain/entity/daily_log.dart';
 
 class DailyLogScreen extends ConsumerStatefulWidget {
@@ -74,6 +75,8 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
         consumption: _consumption,
         notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
+      final user = await ref.read(userUseCaseProvider).getCurrentUser();
+      await WidgetService.updateWidget(user);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
