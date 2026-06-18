@@ -190,8 +190,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
           '建立支持系统：谁可以在关键时刻帮助你？',
         ],
         reference:
-            '诱因识别与应对规划是CBT复发预防模型的核心 (Witkiewitz & Marlatt, 2004)',
-      },
+             '诱因识别与应对规划是CBT复发预防模型的核心 (Witkiewitz & Marlatt, 2004)',
+      ),
     ];
 
     return Scaffold(
