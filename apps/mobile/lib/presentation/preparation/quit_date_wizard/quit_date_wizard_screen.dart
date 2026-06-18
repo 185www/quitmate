@@ -44,7 +44,8 @@ class _QuitDateWizardScreenState extends ConsumerState<QuitDateWizardScreen> {
       } else {
         setState(() => _loading = false);
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('QuitDateWizard: 加载用户失败: $e');
       setState(() => _loading = false);
     }
   }

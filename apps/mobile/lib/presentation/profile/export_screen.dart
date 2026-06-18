@@ -90,7 +90,7 @@ class ExportScreen extends ConsumerWidget {
 
       final data = {
         'exportDate': DateTime.now().toIso8601String(),
-        'version': '1.0.0',
+        'version': '1.3.0',
         'appName': 'QuitMate',
         'user': user != null
             ? {
@@ -219,7 +219,7 @@ class ExportScreen extends ConsumerWidget {
       buffer.writeln('• Cochrane Database - CBT有效性');
       buffer.writeln('• Ussher et al. - 运动减少渴求强度');
       buffer.writeln();
-      buffer.writeln('数据来源: QuitMate v1.0.0');
+      buffer.writeln('数据来源: QuitMate v1.3.0');
       buffer.writeln('═══════════════════════════════════════');
 
       await Share.share(buffer.toString(), subject: 'QuitMate数据报告');

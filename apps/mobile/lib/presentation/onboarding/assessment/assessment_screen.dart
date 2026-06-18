@@ -16,8 +16,31 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
   final List<int?> _auditAnswers = List.filled(3, null);
   TargetType _targetType = TargetType.smoking;
   bool _saving = false;
+  bool _loading = true;
 
-  final _ftndQuestions = [
+  List<Map<String, dynamic>> _ftndQuestions = [];
+  List<Map<String, dynamic>> _auditQuestions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadQuestionsFromAssets();
+  }
+
+  Future<void> _loadQuestionsFromAssets() async {
+    try {
+      final contentLoader = ref.read(contentLoaderProvider);
+      _ftndQuestions = await contentLoader.loadAssessmentQuestions('ftnd');
+      _auditQuestions = await contentLoader.loadAssessmentQuestions('audit_c');
+    } catch (e) {
+      // Fallback: if JSON loading fails, use hardcoded questions
+      _ftndQuestions = _fallbackFtndQuestions();
+      _auditQuestions = _fallbackAuditQuestions();
+    }
+    if (mounted) setState(() => _loading = false);
+  }
+
+  List<Map<String, dynamic>> _fallbackFtndQuestions() => [
     {
       'text': '醒后多久吸第一支烟？',
       'options': [
@@ -28,7 +51,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
       ],
     },
     {
-      'text': '在禁烟场所（如图书馆、电影院）是否难以控制不吸烟？',
+      'text': '在禁烟场所是否难以控制不吸烟？',
       'options': [
         {'text': '是', 'score': 1},
         {'text': '否', 'score': 0},
@@ -66,7 +89,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
     },
   ];
 
-  final _auditQuestions = [
+  List<Map<String, dynamic>> _fallbackAuditQuestions() => [
     {
       'text': '您喝酒的频率是？',
       'options': [
@@ -119,6 +142,17 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
 
   bool get _auditComplete => _auditAnswers.every((a) => a != null);
 
+  bool get _canSave {
+    switch (_targetType) {
+      case TargetType.smoking:
+        return _ftndComplete;
+      case TargetType.alcohol:
+        return _auditComplete;
+      case TargetType.both:
+        return _ftndComplete && _auditComplete;
+    }
+  }
+
   String _ftndInterpretation(int score) {
     if (score <= 3) return '轻度依赖';
     if (score <= 6) return '中度依赖';
@@ -158,6 +192,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
             auditScore: _targetType != TargetType.smoking ? _auditScore : null,
             targetType: _targetType,
           );
+      // Award assessment badge
+      await ref.read(badgeRepositoryProvider).earnBadge('assessment_done');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('评估结果已保存')),
@@ -177,6 +213,13 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('自我评估')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('自我评估')),
       body: ListView(
@@ -199,13 +242,21 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                     selected: {_targetType},
                     onSelectionChanged: (v) => setState(() => _targetType = v.first),
                   ),
+                  if (_targetType == TargetType.both)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        '同时戒烟戒酒需要完成两项评估',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
           if (_targetType != TargetType.alcohol) ..._buildFtndSection(context),
-          if (_targetType != TargetType.alcohol && _targetType != TargetType.smoking) const SizedBox(height: 24),
+          if (_targetType == TargetType.both) const SizedBox(height: 24),
           if (_targetType != TargetType.smoking) ..._buildAuditSection(context),
           const SizedBox(height: 24),
           _buildResultsSection(context),
@@ -214,7 +265,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
             child: SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: _ftndComplete || _auditComplete ? _save : null,
+                onPressed: _canSave ? _save : null,
                 child: _saving
                     ? const SizedBox(
                         width: 20,
@@ -264,7 +315,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
               const SizedBox(height: 16),
               ...List.generate(_ftndQuestions.length, (i) {
                 final q = _ftndQuestions[i];
-                final options = q['options'] as List<Map<String, dynamic>>;
+                final options = (q['options'] as List).cast<Map<String, dynamic>>();
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Column(
@@ -276,11 +327,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                       ),
                       const SizedBox(height: 8),
                       ...options.map((opt) {
-                        final score = opt['score'] as int;
-                        final selected = _ftndAnswers[i] == score;
+                        final optScore = opt['score'] as int;
                         return RadioListTile<int>(
                           title: Text(opt['text'] as String),
-                          value: score,
+                          value: optScore,
                           groupValue: _ftndAnswers[i],
                           onChanged: (v) => setState(() => _ftndAnswers[i] = v),
                           dense: true,
@@ -331,7 +381,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
               const SizedBox(height: 16),
               ...List.generate(_auditQuestions.length, (i) {
                 final q = _auditQuestions[i];
-                final options = q['options'] as List<Map<String, dynamic>>;
+                final options = (q['options'] as List).cast<Map<String, dynamic>>();
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Column(
@@ -343,11 +393,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                       ),
                       const SizedBox(height: 8),
                       ...options.map((opt) {
-                        final score = opt['score'] as int;
-                        final selected = _auditAnswers[i] == score;
+                        final optScore = opt['score'] as int;
                         return RadioListTile<int>(
                           title: Text(opt['text'] as String),
-                          value: score,
+                          value: optScore,
                           groupValue: _auditAnswers[i],
                           onChanged: (v) => setState(() => _auditAnswers[i] = v),
                           dense: true,

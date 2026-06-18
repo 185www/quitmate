@@ -47,7 +47,9 @@ class _QuitMateAppState extends ConsumerState<QuitMateApp> {
       }
       final user = await ref.read(userUseCaseProvider).getCurrentUser();
       await WidgetService.updateWidget(user);
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('Main: 处理小组件路由失败: $e');
+    }
   }
 
   @override

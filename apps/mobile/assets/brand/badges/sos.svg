@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <!-- Alert / Emergency icon -->
+  <path d="M12,2 L1,21 L23,21 Z" fill="#4CAF50" stroke="#4CAF50" stroke-width="0.5" stroke-linejoin="round" />
+  <rect x="11" y="9" width="2" height="6" rx="1" fill="white" />
+  <circle cx="12" cy="18" r="1.2" fill="white" />
+</svg>

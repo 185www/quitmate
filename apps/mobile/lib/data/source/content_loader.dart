@@ -41,13 +41,6 @@ class ContentLoader {
     } catch (e) { return []; }
   }
 
-  Future<Map<String, dynamic>> loadSkillContent(String skillId) async {
-    try {
-      final content = await rootBundle.loadString('assets/content/skills/$skillId.json');
-      return jsonDecode(content) as Map<String, dynamic>;
-    } catch (e) { return {}; }
-  }
-
   Future<List<Map<String, dynamic>>> loadLifestyleRecommendations() async {
     try {
       final content = await rootBundle.loadString('assets/content/lifestyle/recommendations.json');

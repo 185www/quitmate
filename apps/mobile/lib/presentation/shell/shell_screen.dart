@@ -77,7 +77,11 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
   void _loadData() {
     final uc = ref.read(userUseCaseProvider);
     final lc = ref.read(logUseCaseProvider);
-    _userFuture = uc.getCurrentUser();
+    _userFuture = uc.getCurrentUser().then((user) async {
+      // Check and auto-advance user stage based on days since quit
+      final updated = await uc.checkAndAdvanceStage();
+      return updated ?? user;
+    });
     _todayLogFuture = lc.getTodayLog();
     if (mounted) setState(() {});
   }

@@ -32,7 +32,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       } else {
         setState(() => _loadingPreferences = false);
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('SkillsLab: 加载完成状态失败: $e');
       setState(() => _loadingPreferences = false);
     }
   }
@@ -74,7 +75,9 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
           );
         }
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('SkillsLab: 保存完成状态失败: $e');
+    }
   }
 
   @override

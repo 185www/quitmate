@@ -36,6 +36,30 @@ class UserUseCase {
     return _repository.updateUser(id: user.id, stage: nextStage);
   }
 
+  /// Automatically advance stage based on days since quit.
+  /// Returns the (possibly updated) user, or null if no user exists.
+  Future<User?> checkAndAdvanceStage() async {
+    final user = await _repository.getCurrentUser();
+    if (user == null) return null;
+    if (!user.hasQuitDate) return user;
+
+    final days = user.daysSinceQuit;
+    UserStage targetStage;
+
+    if (days >= 30) {
+      targetStage = UserStage.maintenance;
+    } else if (user.hasQuitDate) {
+      targetStage = UserStage.action;
+    } else {
+      return user;
+    }
+
+    if (user.stage.index < targetStage.index) {
+      return _repository.updateUser(id: user.id, stage: targetStage);
+    }
+    return user;
+  }
+
   UserStage _getNextStage(UserStage current) {
     switch (current) {
       case UserStage.preContemplation: return UserStage.contemplation;

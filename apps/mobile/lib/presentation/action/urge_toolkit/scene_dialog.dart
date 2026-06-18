@@ -40,7 +40,14 @@ class _SceneCaptureDialogState extends ConsumerState<SceneCaptureDialog> {
             socialContext: _social,
             activity: _activity,
           );
-    } catch (_) {}
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('保存场景记录失败: $e')),
+        );
+      }
+      return;
+    }
     if (mounted) Navigator.of(context).pop();
   }
 

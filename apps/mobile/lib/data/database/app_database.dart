@@ -16,7 +16,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: (db, version) async => _createTables(db),
       onUpgrade: (db, oldV, newV) async {
         if (oldV < 2) {
@@ -26,6 +26,9 @@ class AppDatabase {
           for (final col in ['location', 'social_context', 'activity']) {
             try { await db.execute('ALTER TABLE craving_log ADD COLUMN $col TEXT'); } catch (_) {}
           }
+        }
+        if (oldV < 4) {
+          try { await db.execute('DROP TABLE IF EXISTS notification_schedule'); } catch (_) {}
         }
       },
     );
@@ -100,20 +103,6 @@ class AppDatabase {
         priority INTEGER DEFAULT 0,
         is_template INTEGER DEFAULT 0,
         category TEXT
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS notification_schedule (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        notification_id TEXT UNIQUE NOT NULL,
-        title TEXT NOT NULL,
-        body TEXT NOT NULL,
-        type INTEGER NOT NULL,
-        payload TEXT,
-        scheduled_at TEXT,
-        cron_expr TEXT,
-        enabled INTEGER DEFAULT 1
       )
     ''');
 
@@ -224,21 +213,5 @@ class AppDatabase {
   Future<int> deleteRelapsePlan(int id) async {
     final db = await database;
     return db.delete('relapse_plan', where: 'id = ?', whereArgs: [id]);
-  }
-
-  // Notifications
-  Future<int> insertNotificationSchedule(Map<String, dynamic> schedule) async {
-    final db = await database;
-    return db.insert('notification_schedule', schedule);
-  }
-
-  Future<List<Map<String, dynamic>>> getEnabledNotifications() async {
-    final db = await database;
-    return db.query('notification_schedule', where: 'enabled = 1');
-  }
-
-  Future<int> toggleNotification(String notificationId, bool enabled) async {
-    final db = await database;
-    return db.update('notification_schedule', {'enabled': enabled ? 1 : 0}, where: 'notification_id = ?', whereArgs: [notificationId]);
   }
 }
