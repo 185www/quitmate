@@ -69,12 +69,12 @@ class CravingRepository {
       if (act != null && act.isNotEmpty) activities[act] = (activities[act] ?? 0) + 1;
     }
 
-    MapEntry<String, int> sort(MapEntry<String, int> a, MapEntry<String, int> b) => b.value.compareTo(a.value);
+    int _sort(MapEntry<String, int> a, MapEntry<String, int> b) => b.value.compareTo(a.value);
 
     return {
-      'locations': locations.entries.toList()..sort(sort),
-      'socials': socials.entries.toList()..sort(sort),
-      'activities': activities.entries.toList()..sort(sort),
+      'locations': locations.entries.toList()..sort(_sort),
+      'socials': socials.entries.toList()..sort(_sort),
+      'activities': activities.entries.toList()..sort(_sort),
     };
   }
 

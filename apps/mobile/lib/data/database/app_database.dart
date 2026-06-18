@@ -19,7 +19,9 @@ class AppDatabase {
       version: 3,
       onCreate: (db, version) async => _createTables(db),
       onUpgrade: (db, oldV, newV) async {
-        if (oldV < 2) { _createTables(db); return; }
+        if (oldV < 2) {
+          await db.execute('CREATE TABLE IF NOT EXISTS badge (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT UNIQUE NOT NULL, name TEXT NOT NULL, description TEXT NOT NULL, icon_asset TEXT NOT NULL, earned_at TEXT)');
+        }
         if (oldV < 3) {
           for (final col in ['location', 'social_context', 'activity']) {
             try { await db.execute('ALTER TABLE craving_log ADD COLUMN $col TEXT'); } catch (_) {}
@@ -70,7 +72,10 @@ class AppDatabase {
         trigger TEXT,
         context TEXT,
         coping_used TEXT,
-        resolved INTEGER DEFAULT 0
+        resolved INTEGER DEFAULT 0,
+        location TEXT,
+        social_context TEXT,
+        activity TEXT
       )
     ''');
 
