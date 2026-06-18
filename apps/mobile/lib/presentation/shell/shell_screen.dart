@@ -63,13 +63,10 @@ class DashboardTab extends ConsumerStatefulWidget {
 
 class _DashboardTabState extends ConsumerState<DashboardTab> {
   Future<User?>? _userFuture;
-  Future<int>? _streakFuture;
-  Future<List<DailyLogEntry>>? _recentLogsFuture;
-  Future<List<AppBadge>>? _badgesFuture;
   Future<DailyLogEntry?>? _todayLogFuture;
 
-  int _selectedMood = 3;
-  int _selectedUrge = 3;
+  int _selectedMood = 2;
+  int _selectedUrge = 1;
 
   @override
   void initState() {
@@ -80,31 +77,14 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
   void _loadData() {
     final uc = ref.read(userUseCaseProvider);
     final lc = ref.read(logUseCaseProvider);
-    final bc = ref.read(badgeUseCaseProvider);
     _userFuture = uc.getCurrentUser();
-    _streakFuture = lc.getStreakDays();
-    _recentLogsFuture = lc.getRecentLogs(limit: 7);
-    _badgesFuture = bc.getEarnedBadges();
     _todayLogFuture = lc.getTodayLog();
     if (mounted) setState(() {});
   }
 
-  int _calcLevel(int xp) {
-    int level = 1;
-    while (level * level * 100 <= xp) level++;
-    return level;
-  }
-
-  int _nextXp(int level) => level * 100;
-
   Future<void> _saveCheckin() async {
     final lc = ref.read(logUseCaseProvider);
-    final uc = ref.read(userUseCaseProvider);
     await lc.logToday(mood: _selectedMood, urgeLevel: _selectedUrge);
-    final prefs = await uc.getPreferences();
-    final xp = (prefs['total_xp'] as int? ?? 0) + 10;
-    prefs['total_xp'] = xp;
-    await uc.savePreferences(prefs);
     _loadData();
   }
 
@@ -119,12 +99,12 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
             padding: const EdgeInsets.only(bottom: 32),
             child: Column(
               children: [
-                _buildStreakCard(),
+                _buildGreeting(),
                 _buildBodyRecovery(),
+                _buildStatCards(),
                 _buildCheckin(),
                 _buildSosButton(),
-                _buildLevelBadges(),
-                _buildTrend(),
+                _buildTimeline(),
               ],
             ),
           ),
@@ -133,88 +113,42 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
     );
   }
 
-  Widget _buildStreakCard() {
+  Widget _buildGreeting() {
     return FutureBuilder<User?>(
       future: _userFuture,
       builder: (context, snap) {
         final user = snap.data;
         if (snap.connectionState == ConnectionState.waiting) {
-          return const SizedBox(height: 180, child: Center(child: CircularProgressIndicator()));
+          return const SizedBox(height: 120, child: Center(child: CircularProgressIndicator()));
         }
         if (user == null || !user.hasQuitDate) {
-          return Container(
-            margin: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(colors: [Color(0xFFFF6B35), Color(0xFFF7C948)]),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () => context.push('/onboarding/assessment'),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-                  child: Column(
-                    children: [
-                      const Text('🔥', style: TextStyle(fontSize: 48)),
-                      const SizedBox(height: 12),
-                      Text('开始你的旅程', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
+            child: Column(
+              children: [
+                Text('开始你的旅程', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w300)),
+                const SizedBox(height: 4),
+                Text('设定一个目标', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => context.push('/onboarding/assessment'),
+                  child: const Text('开始'),
                 ),
-              ),
+              ],
             ),
           );
         }
         final days = user.daysSinceQuit;
-        final saved = user.dailyCost * days;
-        return FutureBuilder<int>(
-          future: _streakFuture,
-          builder: (context, ssnap) {
-            final streak = ssnap.data ?? 0;
-            return Container(
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: streak > 0
-                      ? [const Color(0xFFFF4500), const Color(0xFFFF8C00)]
-                      : [const Color(0xFFFF6B35), const Color(0xFFF7C948)],
-                ),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 24),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text('🔥', style: TextStyle(fontSize: 40 + (streak > 3 ? 8 : streak > 0 ? 4 : 0))),
-                        if (streak > 1) ...[
-                          const SizedBox(width: 4),
-                          Text('🔥' * (streak > 3 ? 3 : streak), style: const TextStyle(fontSize: 14)),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Text('Day $days', style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2)),
-                    const SizedBox(height: 6),
-                    Text('已节省 ¥${saved.toStringAsFixed(0)}', style: TextStyle(fontSize: 16, color: Colors.white.withOpacity(0.9))),
-                    if (streak > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                          decoration: BoxDecoration(color: Colors.white.withOpacity(0.25), borderRadius: BorderRadius.circular(12)),
-                          child: Text('🔥 连续 $streak 天', style: const TextStyle(color: Colors.white, fontSize: 13)),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            );
-          },
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('第 $days 天', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w200, height: 1.1)),
+              const SizedBox(height: 4),
+              Text('你的身体正在恢复', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            ],
+          ),
         );
       },
     );
@@ -228,49 +162,93 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
         if (user == null || !user.hasQuitDate) return const SizedBox.shrink();
         final days = user.daysSinceQuit;
         final milestones = HealthMilestone.milestones;
-        Map<String, dynamic>? current, next;
+        Map<String, dynamic>? current;
         for (int i = milestones.length - 1; i >= 0; i--) {
           if (milestones[i]['days'] <= days) {
             current = milestones[i];
-            if (i + 1 < milestones.length) next = milestones[i + 1];
             break;
           }
         }
         final pct = (current?['pct'] as int? ?? 0).toDouble();
         return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: pct / 100,
+                  minHeight: 6,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  valueColor: AlwaysStoppedAnimation(Theme.of(context).colorScheme.primary),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text('身体恢复 ${pct.toInt()}%', style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)),
+              if (current != null) ...[
+                const SizedBox(height: 2),
+                Text('${current['organ']} — ${current['title']}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatCards() {
+    return FutureBuilder<User?>(
+      future: _userFuture,
+      builder: (context, snap) {
+        final user = snap.data;
+        if (user == null || !user.hasQuitDate) return const SizedBox.shrink();
+        final days = user.daysSinceQuit;
+        final saved = user.dailyCost * days;
+        final lifeMinutes = user.dailyLifeRegainedMinutes * days;
+        final lifeDays = (lifeMinutes / 1440).toStringAsFixed(0);
+        return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Text('🫁', style: TextStyle(fontSize: 22)),
-                      const SizedBox(width: 8),
-                      Text('身体恢复 ${pct.toInt()}%', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: pct / 100,
-                      minHeight: 10,
-                      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      valueColor: AlwaysStoppedAnimation(
-                        pct < 50 ? Colors.orange : pct < 80 ? Colors.green : Colors.teal,
-                      ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                    child: Column(
+                      children: [
+                        const Text('💰', style: TextStyle(fontSize: 28)),
+                        const SizedBox(height: 4),
+                        Text('已节省', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        const SizedBox(height: 2),
+                        Text('¥${saved.toStringAsFixed(0)}',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      ],
                     ),
                   ),
-                  if (next != null) ...[
-                    const SizedBox(height: 6),
-                    Text('下一里程碑: ${next['title']}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                  ],
-                ],
+                ),
               ),
-            ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                    child: Column(
+                      children: [
+                        const Text('❤️', style: TextStyle(fontSize: 28)),
+                        const SizedBox(height: 4),
+                        Text('生命', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        const SizedBox(height: 2),
+                        Text('+$lifeDays 天',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         );
       },
@@ -281,7 +259,8 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
     return FutureBuilder<DailyLogEntry?>(
       future: _todayLogFuture,
       builder: (context, snap) {
-        final logged = snap.data != null;
+        final log = snap.data;
+        final logged = log != null;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: Card(
@@ -290,59 +269,70 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('今日打卡', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
                   if (logged) ...[
-                    const Center(child: Text('✅ 已记录', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green))),
-                  ] else ...[
-                    Text('心情', style: Theme.of(context).textTheme.bodySmall),
-                    const SizedBox(height: 4),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: ['😢', '😐', '🙂', '😊', '🤩'].asMap().entries.map((e) {
-                        final i = e.key + 1;
-                        return GestureDetector(
-                          onTap: () => setState(() => _selectedMood = i),
-                          child: AnimatedOpacity(
-                            opacity: _selectedMood == i ? 1 : 0.4,
-                            duration: const Duration(milliseconds: 200),
-                            child: Text(e.value, style: TextStyle(fontSize: _selectedMood == i ? 34 : 26)),
-                          ),
-                        );
-                      }).toList(),
+                      children: [
+                        const Text('✅', style: TextStyle(fontSize: 20)),
+                        const SizedBox(width: 8),
+                        Text('今日已记录', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    Text('渴望程度', style: Theme.of(context).textTheme.bodySmall),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: List.generate(5, (i) {
-                        final level = i + 1;
-                        final colors = [Colors.green, Colors.lightGreen, Colors.amber, Colors.orange, Colors.red];
-                        return GestureDetector(
-                          onTap: () => setState(() => _selectedUrge = level),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            width: 34,
-                            height: 34,
-                            decoration: BoxDecoration(
-                              color: _selectedUrge >= level ? colors[i] : Colors.grey.shade300,
-                              shape: BoxShape.circle,
+                      children: [
+                        Text('心情: ', style: Theme.of(context).textTheme.bodySmall),
+                        Text(['😢', '😐', '😊'][(log.mood - 1).clamp(0, 2)], style: const TextStyle(fontSize: 24)),
+                        const SizedBox(width: 24),
+                        Text('渴望: ', style: Theme.of(context).textTheme.bodySmall),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: log.urgeLevel != null && log.urgeLevel! > 5
+                                ? Colors.orange.shade50
+                                : Colors.green.shade50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            log.urgeLevel != null
+                                ? (log.urgeLevel! <= 3 ? '无渴望' : log.urgeLevel! <= 6 ? '有点想' : '非常想')
+                                : '无',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: log.urgeLevel != null && log.urgeLevel! > 5
+                                  ? Colors.orange.shade800
+                                  : Colors.green.shade800,
                             ),
-                            child: Center(child: Text('$level', style: TextStyle(color: _selectedUrge >= level ? Colors.white : Colors.grey, fontSize: 12))),
                           ),
-                        );
-                      }),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 10),
+                  ] else ...[
+                    Text('今天感觉怎么样？', style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500)),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _moodButton('😢', 1),
+                        _moodButton('😐', 2),
+                        _moodButton('😊', 3),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _urgePill('无渴望', 1),
+                        _urgePill('有点想', 4),
+                        _urgePill('非常想', 8),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
                     Center(
                       child: SizedBox(
-                        height: 30,
-                        child: TextButton.icon(
+                        height: 32,
+                        child: TextButton(
                           onPressed: _saveCheckin,
-                          icon: const Icon(Icons.save, size: 14),
-                          label: const Text('保存', style: TextStyle(fontSize: 12)),
-                          style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 12)),
+                          child: const Text('保存', style: TextStyle(fontSize: 13)),
                         ),
                       ),
                     ),
@@ -356,160 +346,143 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
     );
   }
 
-  Widget _buildSosButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: ElevatedButton.icon(
-          onPressed: () => context.push('/action/urge-toolkit'),
-          icon: const Icon(Icons.warning_amber_rounded, size: 26),
-          label: const Text('SOS 紧急应对', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red.shade600,
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            elevation: 3,
+  Widget _moodButton(String emoji, int value) {
+    final selected = _selectedMood == value;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedMood = value),
+      child: AnimatedOpacity(
+        opacity: selected ? 1 : 0.35,
+        duration: const Duration(milliseconds: 200),
+        child: Text(emoji, style: TextStyle(fontSize: selected ? 36 : 28)),
+      ),
+    );
+  }
+
+  Widget _urgePill(String label, int value) {
+    final selected = _selectedUrge == value;
+    return GestureDetector(
+      onTap: () => setState(() => _selectedUrge = value),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected
+              ? Theme.of(context).colorScheme.primaryContainer
+              : Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+          border: selected
+              ? Border.all(color: Theme.of(context).colorScheme.primary, width: 1.5)
+              : null,
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 13,
+            color: selected
+                ? Theme.of(context).colorScheme.onPrimaryContainer
+                : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildLevelBadges() {
-    return FutureBuilder<List<AppBadge>>(
-      future: _badgesFuture,
+  Widget _buildSosButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: ElevatedButton.icon(
+          onPressed: () => context.push('/action/urge-toolkit'),
+          icon: const Icon(Icons.self_improvement, size: 22),
+          label: const Text('SOS 呼吸法', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            elevation: 0,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimeline() {
+    return FutureBuilder<User?>(
+      future: _userFuture,
       builder: (context, snap) {
-        final badges = snap.data ?? [];
+        final user = snap.data;
+        if (user == null || !user.hasQuitDate) return const SizedBox.shrink();
+        final days = user.daysSinceQuit;
+        final milestones = HealthMilestone.milestones;
+        int currentIdx = 0;
+        for (int i = milestones.length - 1; i >= 0; i--) {
+          if (milestones[i]['days'] <= days) {
+            currentIdx = i;
+            break;
+          }
+        }
+        final next = <Map<String, dynamic>>[];
+        for (int i = currentIdx + 1; i < milestones.length && next.length < 3; i++) {
+          next.add(milestones[i]);
+        }
+        if (next.isEmpty) return const SizedBox.shrink();
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FutureBuilder<Map<String, dynamic>>(
-                    future: ref.read(userUseCaseProvider).getPreferences(),
-                    builder: (context, psnap) {
-                      final prefs = psnap.data ?? {};
-                      final xp = (prefs['total_xp'] as int? ?? 0);
-                      final level = _calcLevel(xp);
-                      final nextXp = _nextXp(level);
-                      final prevXp = _nextXp(level - 1);
-                      final progress = (xp - prevXp) / (nextXp - prevXp);
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('下一个里程碑', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              const SizedBox(height: 12),
+              Row(
+                children: List.generate(next.length, (i) {
+                  return Expanded(
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            if (i > 0)
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('等级 Lv.$level', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                                    Text('总XP $xp', style: Theme.of(context).textTheme.bodySmall),
-                                  ],
+                                child: Container(
+                                  height: 2,
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                                 ),
                               ),
-                              ...badges.take(4).map((b) => Padding(
-                                padding: const EdgeInsets.only(left: 4),
-                                child: Tooltip(
-                                  message: b.name,
-                                  child: CircleAvatar(
-                                    radius: 15,
-                                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                                    child: Icon(_badgeIcon(b.code), size: 16, color: Theme.of(context).colorScheme.primary),
-                                  ),
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: i == 0 ? Theme.of(context).colorScheme.primary : Colors.transparent,
+                                border: Border.all(
+                                  color: i == 0 ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant,
+                                  width: 2,
                                 ),
-                              )),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(6),
-                            child: LinearProgressIndicator(
-                              value: progress.clamp(0.0, 1.0),
-                              minHeight: 8,
-                              backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                              valueColor: AlwaysStoppedAnimation(
-                                progress >= 1 ? Colors.amber : Theme.of(context).colorScheme.primary,
                               ),
                             ),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
+                            if (i < next.length - 1)
+                              Expanded(
+                                child: Container(
+                                  height: 2,
+                                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 6),
+                        Text(next[i]['title'], style: Theme.of(context).textTheme.bodySmall?.copyWith(fontSize: 11), textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        Text('${next[i]['days']} 天', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10)),
+                      ],
+                    ),
+                  );
+                }),
               ),
-            ),
+            ],
           ),
         );
       },
     );
-  }
-
-  Widget _buildTrend() {
-    return FutureBuilder<List<DailyLogEntry>>(
-      future: _recentLogsFuture,
-      builder: (context, snap) {
-        final logs = snap.data ?? [];
-        if (logs.isEmpty) return const SizedBox.shrink();
-        final moods = ['', '😢', '😐', '🙂', '😊', '🤩'];
-        final urgeColors = [Colors.grey, Colors.green, Colors.lightGreen, Colors.amber, Colors.orange, Colors.red];
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('每周趋势', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: logs.reversed.toList().map((log) {
-                      final dayStr = ['一', '二', '三', '四', '五', '六', '日'][log.date.weekday - 1];
-                      return Column(
-                        children: [
-                          Text(moods[log.mood.clamp(1, 5)], style: const TextStyle(fontSize: 20)),
-                          const SizedBox(height: 4),
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                              color: log.urgeLevel != null ? urgeColors[log.urgeLevel!.clamp(0, 5)] : Colors.grey,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(dayStr, style: Theme.of(context).textTheme.bodySmall),
-                        ],
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  IconData _badgeIcon(String code) {
-    switch (code) {
-      case 'first_log': return Icons.emoji_events;
-      case 'day_1': return Icons.star;
-      case 'day_7': return Icons.auto_awesome;
-      case 'day_30': return Icons.diamond;
-      case 'day_90': return Icons.military_tech;
-      case 'day_365': return Icons.workspace_premium;
-      default: return Icons.emoji_events;
-    }
   }
 }
 

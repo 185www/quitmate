@@ -40,9 +40,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     {'label': '呼气', 'seconds': 8, 'emoji': '😮‍💨'},
   ];
 
-  List<String> _confettiEmojis = [];
-  Timer? _confettiTimer;
-
   @override
   void initState() {
     super.initState();
@@ -61,7 +58,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     _timer?.cancel();
     _sosTimer?.cancel();
     _groundingTimer?.cancel();
-    _confettiTimer?.cancel();
     _breathAnimController.dispose();
     _waveAnimController.dispose();
     super.dispose();
@@ -96,7 +92,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   void _onUrgeSurfingComplete() async {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('✅ 你成功冲过了这次渴望！ +15 XP')),
+      const SnackBar(content: Text('✅ 完成')),
     );
     try {
       await ref.read(cravingUseCaseProvider).logCraving(
@@ -106,7 +102,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
             copingUsed: '渴望冲浪',
             resolved: true,
           );
-      await ref.read(badgeRepositoryProvider).earnBadge('urge_surfed');
     } catch (_) {}
   }
 
@@ -130,7 +125,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
         _sosComplete = true;
       });
       _onSOSComplete();
-      _startConfetti();
       return;
     }
     final phase = _sosPhases[_sosPhase];
@@ -180,9 +174,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
 
   void _onSOSComplete() async {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('✅ 渴求过去了！你做到了！')),
-    );
     try {
       await ref.read(cravingUseCaseProvider).logCraving(
             8,
@@ -191,25 +182,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
             copingUsed: '4-7-8呼吸法',
             resolved: true,
           );
-      await ref.read(badgeRepositoryProvider).earnBadge('sos_used');
     } catch (_) {}
-  }
-
-  void _startConfetti() {
-    _confettiEmojis = ['🎉', '🎊', '✨', '🌟', '💪', '🔥', '✅', '⭐'];
-    _confettiTimer = Timer.periodic(const Duration(milliseconds: 300), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      setState(() {
-        _confettiEmojis.add(['🎉', '🎊', '✨', '🌟', '💪', '🔥', '✅', '⭐']
-            [Random().nextInt(8)]);
-      });
-      if (_confettiEmojis.length > 30) {
-        timer.cancel();
-      }
-    });
   }
 
   void _launchGrounding() {
@@ -238,20 +211,13 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
       '👃 说出2种你闻到的东西',
       '👅 说出1种你尝到的味道',
     ];
-    const stepIcons = [
-      Icons.visibility,
-      Icons.touch_app,
-      Icons.hearing,
-      Icons.air,
-      Icons.restaurant,
-    ];
     const durations = [15, 12, 10, 10, 8];
     if (_groundingStep >= steps.length) {
       setState(() {
         _groundingActive = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ 接地练习完成！感觉如何？')),
+        const SnackBar(content: Text('✅ 完成')),
       );
       return;
     }
@@ -330,119 +296,81 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   }
 
   Widget _buildSOSCard() {
-    return Stack(
-      children: [
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          elevation: 8,
-          clipBehavior: Clip.antiAlias,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 600),
-            decoration: BoxDecoration(
-              gradient: _sosComplete
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+      ),
+      elevation: 8,
+      clipBehavior: Clip.antiAlias,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 600),
+        decoration: BoxDecoration(
+          gradient: _sosComplete
+              ? const LinearGradient(
+                  colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : _sosActive
                   ? const LinearGradient(
-                      colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
+                      colors: [Color(0xFF667eea), Color(0xFF9d4edd)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     )
-                  : _sosActive
-                      ? const LinearGradient(
-                          colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                      : const LinearGradient(
-                          colors: [Color(0xFFf85032), Color(0xFFe73827)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
+                  : const LinearGradient(
+                      colors: [Color(0xFF4facfe), Color(0xFF667eea)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Row(
                 children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: (_sosActive || _sosComplete)
-                              ? Colors.white.withOpacity(0.2)
-                              : Colors.white.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Text(
-                          '🆘',
-                          style: TextStyle(
-                            fontSize: 28,
-                            color: (_sosActive || _sosComplete)
-                                ? Colors.white
-                                : Colors.white,
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Text('🌬️', style: TextStyle(fontSize: 28)),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '4-7-8 呼吸',
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'SOS 呼吸法',
-                              style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                color: (_sosActive || _sosComplete)
-                                    ? Colors.white
-                                    : Colors.white,
-                              ),
-                            ),
-                            Text(
-                              '4-7-8 呼吸 • 3个循环',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: (_sosActive || _sosComplete)
-                                    ? Colors.white.withOpacity(0.8)
-                                    : Colors.white.withOpacity(0.8),
-                              ),
-                            ),
-                          ],
+                        Text(
+                          '3个循环 · 约1分钟',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white.withOpacity(0.8),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  if (_sosComplete)
-                    _buildSOSComplete()
-                  else if (_sosActive)
-                    _buildSOSActive()
-                  else
-                    _buildSOSIdle(),
                 ],
               ),
-            ),
+              const SizedBox(height: 20),
+              if (_sosComplete)
+                _buildSOSComplete()
+              else if (_sosActive)
+                _buildSOSActive()
+              else
+                _buildSOSIdle(),
+            ],
           ),
-        ),
-        if (_confettiEmojis.isNotEmpty) _buildConfettiOverlay(),
-      ],
-    );
-  }
-
-  Widget _buildConfettiOverlay() {
-    return Positioned.fill(
-      child: IgnorePointer(
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0, end: 1),
-          duration: const Duration(seconds: 2),
-          builder: (context, value, child) {
-            return Opacity(
-              opacity: (1 - value).clamp(0, 1),
-              child: CustomPaint(
-                painter: _ConfettiPainter(emojis: _confettiEmojis),
-              ),
-            );
-          },
         ),
       ),
     );
@@ -456,7 +384,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
         onPressed: _startSOS,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.white,
-          foregroundColor: const Color(0xFFe73827),
+          foregroundColor: const Color(0xFF4facfe),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -465,10 +393,10 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('🚨', style: TextStyle(fontSize: 28)),
+            Text('🌬️', style: TextStyle(fontSize: 28)),
             SizedBox(width: 12),
             Text(
-              '开始SOS',
+              '4-7-8 呼吸',
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
@@ -513,6 +441,15 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
                     color: Colors.white,
                   ),
                 ),
+                const SizedBox(height: 8),
+                Text(
+                  '$_sosPhaseSeconds',
+                  style: const TextStyle(
+                    fontSize: 48,
+                    fontWeight: FontWeight.w200,
+                    color: Colors.white,
+                  ),
+                ),
               ],
             );
           },
@@ -548,25 +485,14 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   Widget _buildSOSComplete() {
     return Column(
       children: [
-        const Text(
-          '✅',
-          style: TextStyle(fontSize: 64),
-        ),
+        const Text('✅', style: TextStyle(fontSize: 64)),
         const SizedBox(height: 12),
         Text(
-          '渴求过去了！',
-          style: TextStyle(
+          '完成',
+          style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.bold,
             color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          '你做得很好 🌟',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.white.withOpacity(0.9),
           ),
         ),
         const SizedBox(height: 16),
@@ -574,7 +500,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
           onPressed: () {
             setState(() {
               _sosComplete = false;
-              _confettiEmojis.clear();
             });
           },
           icon: const Icon(Icons.refresh, color: Colors.white),
@@ -601,7 +526,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF0c3483), Color(0xFFa2b6df)],
+            colors: [Color(0xFF4facfe), Color(0xFF667eea)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -744,7 +669,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
                         onPressed: _startTimer,
                         icon: const Icon(Icons.play_arrow),
                         label: const Text(
-                          '开始5分钟冲浪',
+                          '开始',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -752,7 +677,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF0c3483),
+                          foregroundColor: const Color(0xFF4facfe),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -775,6 +700,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
       '👃 说出2种你闻到的东西',
       '👅 说出1种你尝到的味道',
     ];
+    const stepEmojis = ['👀', '🖐️', '👂', '👃', '👅'];
     const durations = [15, 12, 10, 10, 8];
 
     return Card(
@@ -784,7 +710,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFf093fb), Color(0xFFf5576c)],
+            colors: [Color(0xFF9d4edd), Color(0xFF667eea)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -932,7 +858,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFFf5576c),
+                          foregroundColor: const Color(0xFF667eea),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -968,7 +894,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFfa709a), Color(0xFFfee140)],
+            colors: [Color(0xFF43e97b), Color(0xFF38f9d7)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -1203,33 +1129,5 @@ class _WavePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _WavePainter oldDelegate) {
     return oldDelegate.progress != progress;
-  }
-}
-
-class _ConfettiPainter extends CustomPainter {
-  final List<String> emojis;
-
-  _ConfettiPainter({required this.emojis});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    for (int i = 0; i < emojis.length; i++) {
-      final x = (i * 37 + 13) % size.width.toInt().toDouble();
-      final y = (i * 53 + 7) % size.height.toInt().toDouble();
-      final tp = TextPainter(
-        text: TextSpan(
-          text: emojis[i],
-          style: TextStyle(fontSize: 16 + (i % 3) * 8.0),
-        ),
-        textDirection: TextDirection.ltr,
-      );
-      tp.layout();
-      tp.paint(canvas, Offset(x, y));
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ConfettiPainter oldDelegate) {
-    return oldDelegate.emojis != emojis;
   }
 }
