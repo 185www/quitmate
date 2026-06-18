@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
+import '../../../domain/entity/daily_log.dart';
 
 class DailyLogScreen extends ConsumerStatefulWidget {
   const DailyLogScreen({super.key});
