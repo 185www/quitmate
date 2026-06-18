@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:quitmate/core/di/providers.dart';
-import 'package:quitmate/domain/entity/user.dart';
+import '../../../core/di/providers.dart';
+import '../../../domain/entity/user.dart';
 
 class AssessmentScreen extends ConsumerStatefulWidget {
   const AssessmentScreen({super.key});

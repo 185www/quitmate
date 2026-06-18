@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:quitmate/domain/entity/user.dart';
+import '../../../domain/entity/user.dart';
 
 class EducationScreen extends StatefulWidget {
   const EducationScreen({super.key});

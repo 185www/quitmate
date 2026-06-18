@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:quitmate/core/di/providers.dart';
-import 'package:quitmate/domain/entity/user.dart';
-import 'package:quitmate/domain/entity/daily_log.dart';
-import 'package:quitmate/domain/entity/badge.dart';
+import '../../core/di/providers.dart';
+import '../../domain/entity/user.dart';
+import '../../domain/entity/daily_log.dart';
+import '../../domain/entity/badge.dart';
 
 class ShellScreen extends ConsumerStatefulWidget {
   final Widget child;
