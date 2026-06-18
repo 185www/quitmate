@@ -242,7 +242,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
       Icons.visibility,
       Icons.touch_app,
       Icons.hearing,
-      Icons.nose,
+      Icons.air,
       Icons.restaurant,
     ];
     const durations = [15, 12, 10, 10, 8];
