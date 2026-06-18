@@ -642,6 +642,10 @@ class ProfileTabScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           _ActionTile(
+            icon: Icons.analytics, title: '高危场景分析', subtitle: '查看你的渴望触发场景报告',
+            onTap: () => context.push('/profile/analysis'),
+          ),
+          _ActionTile(
             icon: Icons.assessment, title: '评估报告', subtitle: '查看你的依赖性评估结果',
             onTap: () => context.push('/onboarding/assessment'),
           ),

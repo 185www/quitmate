@@ -13,6 +13,7 @@ import '../../presentation/maintenance/lifestyle/lifestyle_screen.dart';
 import '../../presentation/profile/settings_screen.dart';
 import '../../presentation/profile/export_screen.dart';
 import '../../presentation/profile/about_screen.dart';
+import '../../presentation/profile/analysis_report/analysis_report_screen.dart';
 import '../../domain/usecase/user_usecase.dart';
 import '../../core/notifications/notification_service.dart';
 
@@ -44,6 +45,7 @@ class AppRouter {
       GoRoute(path: '/action/skills-lab', builder: (_, __) => const SkillsLabScreen()),
       GoRoute(path: '/maintenance/relapse-plan', builder: (_, __) => const RelapsePlanScreen()),
       GoRoute(path: '/maintenance/lifestyle', builder: (_, __) => const LifestyleScreen()),
+      GoRoute(path: '/profile/analysis', builder: (_, __) => const AnalysisReportScreen()),
       GoRoute(path: '/profile/settings', builder: (_, __) => const SettingsScreen()),
       GoRoute(path: '/profile/export', builder: (_, __) => const ExportScreen()),
       GoRoute(path: '/profile/about', builder: (_, __) => const AboutScreen()),

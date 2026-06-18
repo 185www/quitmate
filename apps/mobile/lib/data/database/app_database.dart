@@ -16,9 +16,16 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: (db, version) async => _createTables(db),
-      onUpgrade: (db, oldV, newV) async => _createTables(db),
+      onUpgrade: (db, oldV, newV) async {
+        if (oldV < 2) { _createTables(db); return; }
+        if (oldV < 3) {
+          for (final col in ['location', 'social_context', 'activity']) {
+            try { await db.execute('ALTER TABLE craving_log ADD COLUMN $col TEXT'); } catch (_) {}
+          }
+        }
+      },
     );
   }
 

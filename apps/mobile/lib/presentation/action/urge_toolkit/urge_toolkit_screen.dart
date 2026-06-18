@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/providers.dart';
+import 'scene_dialog.dart';
 
 class UrgeToolkitScreen extends ConsumerStatefulWidget {
   const UrgeToolkitScreen({super.key});
@@ -89,20 +90,20 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     });
   }
 
-  void _onUrgeSurfingComplete() async {
+  void _onUrgeSurfingComplete() {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('✅ 完成')),
     );
-    try {
-      await ref.read(cravingUseCaseProvider).logCraving(
-            5,
-            trigger: '渴望冲浪',
-            context: '完成5分钟渴望冲浪练习',
-            copingUsed: '渴望冲浪',
-            resolved: true,
-          );
-    } catch (_) {}
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SceneCaptureDialog(
+        intensity: 5,
+        trigger: '渴望冲浪',
+        copingUsed: '渴望冲浪',
+        resolved: true,
+      ),
+    );
   }
 
   void _startSOS() async {
@@ -172,17 +173,17 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     });
   }
 
-  void _onSOSComplete() async {
+  void _onSOSComplete() {
     if (!mounted) return;
-    try {
-      await ref.read(cravingUseCaseProvider).logCraving(
-            8,
-            trigger: 'SOS紧急求助',
-            context: '完成4-7-8呼吸法',
-            copingUsed: '4-7-8呼吸法',
-            resolved: true,
-          );
-    } catch (_) {}
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SceneCaptureDialog(
+        intensity: 8,
+        trigger: 'SOS紧急求助',
+        copingUsed: '4-7-8呼吸法',
+        resolved: true,
+      ),
+    );
   }
 
   void _launchGrounding() {
@@ -237,19 +238,19 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     });
   }
 
-  void _logAlternative(String title) async {
+  void _logAlternative(String title) {
     setState(() {
       _lastLoggedAlternative = title;
     });
-    try {
-      await ref.read(cravingUseCaseProvider).logCraving(
-            3,
-            trigger: '替代行为',
-            context: '使用了替代行为: $title',
-            copingUsed: title,
-            resolved: true,
-          );
-    } catch (_) {}
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => SceneCaptureDialog(
+        intensity: 3,
+        trigger: '替代行为',
+        copingUsed: title,
+        resolved: true,
+      ),
+    );
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         setState(() {

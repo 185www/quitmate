@@ -162,6 +162,9 @@ class CravingEntry {
   final String? context;
   final String? copingUsed;
   final bool resolved;
+  final String? location;
+  final String? socialContext;
+  final String? activity;
 
   const CravingEntry({
     this.id,
@@ -172,9 +175,12 @@ class CravingEntry {
     this.context,
     this.copingUsed,
     this.resolved = false,
+    this.location,
+    this.socialContext,
+    this.activity,
   });
 
-  CravingEntry copyWith({int? id, int? userId, DateTime? timestamp, int? intensity, String? trigger, String? context, String? copingUsed, bool? resolved}) {
+  CravingEntry copyWith({int? id, int? userId, DateTime? timestamp, int? intensity, String? trigger, String? context, String? copingUsed, bool? resolved, String? location, String? socialContext, String? activity}) {
     return CravingEntry(
       id: id ?? this.id,
       userId: userId ?? this.userId,
@@ -184,6 +190,9 @@ class CravingEntry {
       context: context ?? this.context,
       copingUsed: copingUsed ?? this.copingUsed,
       resolved: resolved ?? this.resolved,
+      location: location ?? this.location,
+      socialContext: socialContext ?? this.socialContext,
+      activity: activity ?? this.activity,
     );
   }
 }
