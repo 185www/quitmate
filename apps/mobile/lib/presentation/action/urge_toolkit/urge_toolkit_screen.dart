@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/providers.dart';
@@ -29,13 +30,18 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   Timer? _groundingTimer;
 
   late AnimationController _breathAnimController;
-  late Animation<double> _breathAnim;
+  late AnimationController _waveAnimController;
+
+  String? _lastLoggedAlternative;
 
   static const _sosPhases = [
-    {'label': '吸气4秒', 'seconds': 4},
-    {'label': '屏息7秒', 'seconds': 7},
-    {'label': '呼气8秒', 'seconds': 8},
+    {'label': '吸气', 'seconds': 4, 'emoji': '🌬️'},
+    {'label': '屏息', 'seconds': 7, 'emoji': '⏸️'},
+    {'label': '呼气', 'seconds': 8, 'emoji': '😮‍💨'},
   ];
+
+  List<String> _confettiEmojis = [];
+  Timer? _confettiTimer;
 
   @override
   void initState() {
@@ -44,9 +50,10 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
       vsync: this,
       duration: const Duration(milliseconds: 4000),
     );
-    _breathAnim = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _breathAnimController, curve: Curves.easeInOut),
-    );
+    _waveAnimController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat();
   }
 
   @override
@@ -54,7 +61,9 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     _timer?.cancel();
     _sosTimer?.cancel();
     _groundingTimer?.cancel();
+    _confettiTimer?.cancel();
     _breathAnimController.dispose();
+    _waveAnimController.dispose();
     super.dispose();
   }
 
@@ -87,7 +96,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   void _onUrgeSurfingComplete() async {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('你成功冲过了这次渴望！')),
+      const SnackBar(content: Text('✅ 你成功冲过了这次渴望！ +15 XP')),
     );
     try {
       await ref.read(cravingUseCaseProvider).logCraving(
@@ -106,10 +115,10 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
       _sosActive = true;
       _sosCycle = 0;
       _sosPhase = 0;
-      _sosPhaseSeconds = 0;
+      _sosPhaseSeconds = (_sosPhases[0]['seconds'] as int);
       _sosComplete = false;
     });
-    _breathAnimController.repeat(reverse: true);
+    _breathAnimController.forward();
     _runSOSStep();
   }
 
@@ -121,6 +130,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
         _sosComplete = true;
       });
       _onSOSComplete();
+      _startConfetti();
       return;
     }
     final phase = _sosPhases[_sosPhase];
@@ -128,6 +138,16 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     setState(() {
       _sosPhaseSeconds = seconds;
     });
+
+    _breathAnimController.duration = Duration(seconds: seconds);
+    if (phase['label'] == '吸气') {
+      _breathAnimController.forward(from: 0);
+    } else if (phase['label'] == '屏息') {
+      _breathAnimController.forward(from: 1);
+    } else {
+      _breathAnimController.reverse(from: 1);
+    }
+
     _sosTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _sosPhaseSeconds--;
@@ -147,10 +167,21 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     });
   }
 
+  void _cancelSOS() {
+    _sosTimer?.cancel();
+    _breathAnimController.stop();
+    setState(() {
+      _sosActive = false;
+      _sosComplete = false;
+      _sosCycle = 0;
+      _sosPhase = 0;
+    });
+  }
+
   void _onSOSComplete() async {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('渴望已经过去！你做到了！')),
+      const SnackBar(content: Text('✅ 渴求过去了！你做到了！')),
     );
     try {
       await ref.read(cravingUseCaseProvider).logCraving(
@@ -164,6 +195,23 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     } catch (_) {}
   }
 
+  void _startConfetti() {
+    _confettiEmojis = ['🎉', '🎊', '✨', '🌟', '💪', '🔥', '✅', '⭐'];
+    _confettiTimer = Timer.periodic(const Duration(milliseconds: 300), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        _confettiEmojis.add(['🎉', '🎊', '✨', '🌟', '💪', '🔥', '✅', '⭐']
+            [Random().nextInt(8)]);
+      });
+      if (_confettiEmojis.length > 30) {
+        timer.cancel();
+      }
+    });
+  }
+
   void _launchGrounding() {
     setState(() {
       _groundingActive = true;
@@ -173,24 +221,40 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     _runGroundingStep();
   }
 
+  void _stopGrounding() {
+    _groundingTimer?.cancel();
+    setState(() {
+      _groundingActive = false;
+      _groundingStep = 0;
+      _groundingSubStep = 0;
+    });
+  }
+
   void _runGroundingStep() {
     const steps = [
-      '看5样东西',
-      '摸4样东西',
-      '听3种声音',
-      '闻2种气味',
-      '尝1种味道',
+      '👀 说出5样你看到的东西',
+      '🖐️ 说出4样你摸到的东西',
+      '👂 说出3种你听到的声音',
+      '👃 说出2种你闻到的东西',
+      '👅 说出1种你尝到的味道',
     ];
+    const stepIcons = [
+      Icons.visibility,
+      Icons.touch_app,
+      Icons.hearing,
+      Icons.nose,
+      Icons.restaurant,
+    ];
+    const durations = [15, 12, 10, 10, 8];
     if (_groundingStep >= steps.length) {
       setState(() {
         _groundingActive = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('接地练习完成！感觉如何？')),
+        const SnackBar(content: Text('✅ 接地练习完成！感觉如何？')),
       );
       return;
     }
-    const durations = [15, 12, 10, 10, 8];
     if (_groundingSubStep >= durations[_groundingStep]) {
       setState(() {
         _groundingStep++;
@@ -208,6 +272,9 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   }
 
   void _logAlternative(String title) async {
+    setState(() {
+      _lastLoggedAlternative = title;
+    });
     try {
       await ref.read(cravingUseCaseProvider).logCraving(
             3,
@@ -216,32 +283,46 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
             copingUsed: title,
             resolved: true,
           );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('已记录：$title')),
-        );
-      }
     } catch (_) {}
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() {
+          if (_lastLoggedAlternative == title) {
+            _lastLoggedAlternative = null;
+          }
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('渴望管理工具箱'),
+        title: const Text('🧘 渴望管理工具箱'),
+        centerTitle: true,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSOSCard(),
             const SizedBox(height: 16),
             _buildSurfingCard(),
             const SizedBox(height: 16),
-            _buildAlternativesSection(),
-            const SizedBox(height: 16),
             _buildGroundingCard(),
+            const SizedBox(height: 16),
+            _buildAlternativesSection(),
+            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -249,390 +330,767 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   }
 
   Widget _buildSOSCard() {
-    return Card(
-      color: _sosActive || _sosComplete
-          ? Theme.of(context).colorScheme.primaryContainer
-          : Theme.of(context).colorScheme.errorContainer,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.emergency,
-                  color: _sosActive || _sosComplete
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.error,
-                  size: 28,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'SOS 紧急求助',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        color: _sosActive || _sosComplete
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.error,
-                        fontWeight: FontWeight.bold,
+    return Stack(
+      children: [
+        Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          elevation: 8,
+          clipBehavior: Clip.antiAlias,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 600),
+            decoration: BoxDecoration(
+              gradient: _sosComplete
+                  ? const LinearGradient(
+                      colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : _sosActive
+                      ? const LinearGradient(
+                          colors: [Color(0xFF4facfe), Color(0xFF00f2fe)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        )
+                      : const LinearGradient(
+                          colors: [Color(0xFFf85032), Color(0xFFe73827)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: (_sosActive || _sosComplete)
+                              ? Colors.white.withOpacity(0.2)
+                              : Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Text(
+                          '🆘',
+                          style: TextStyle(
+                            fontSize: 28,
+                            color: (_sosActive || _sosComplete)
+                                ? Colors.white
+                                : Colors.white,
+                          ),
+                        ),
                       ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '4-7-8呼吸法 - 3个循环帮助平复渴望',
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            if (_sosComplete)
-              Column(
-                children: [
-                  const Icon(Icons.check_circle, size: 64, color: Colors.green),
-                  const SizedBox(height: 8),
-                  Text(
-                    '渴望已经过去！',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'SOS 呼吸法',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: (_sosActive || _sosComplete)
+                                    ? Colors.white
+                                    : Colors.white,
+                              ),
+                            ),
+                            Text(
+                              '4-7-8 呼吸 • 3个循环',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: (_sosActive || _sosComplete)
+                                    ? Colors.white.withOpacity(0.8)
+                                    : Colors.white.withOpacity(0.8),
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  OutlinedButton(
-                    onPressed: () {
-                      setState(() {
-                        _sosComplete = false;
-                      });
-                    },
-                    child: const Text('再来一次'),
-                  ),
+                  const SizedBox(height: 20),
+                  if (_sosComplete)
+                    _buildSOSComplete()
+                  else if (_sosActive)
+                    _buildSOSActive()
+                  else
+                    _buildSOSIdle(),
                 ],
-              )
-            else if (_sosActive)
-              Column(
-                children: [
-                  AnimatedBuilder(
-                    animation: _breathAnim,
-                    builder: (context, child) {
-                      return CustomPaint(
-                        size: const Size(160, 160),
-                        painter: _BreathCirclePainter(
-                          progress: _breathAnim.value,
-                          phase: _sosPhases[_sosPhase]['label'] as String,
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    _sosPhases[_sosPhase]['label'] as String,
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '循环 ${_sosCycle + 1}/3',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton(
-                    onPressed: () {
-                      _sosTimer?.cancel();
-                      _breathAnimController.stop();
-                      setState(() {
-                        _sosActive = false;
-                        _sosComplete = false;
-                        _sosCycle = 0;
-                        _sosPhase = 0;
-                      });
-                    },
-                    child: const Text('取消'),
-                  ),
-                ],
-              )
-            else
-              SizedBox(
-                width: double.infinity,
-                height: 60,
-                child: ElevatedButton.icon(
-                  onPressed: _startSOS,
-                  icon: const Icon(Icons.emergency, size: 28),
-                  label: const Text(
-                    'SOS 紧急求助',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Theme.of(context).colorScheme.error,
-                    foregroundColor: Theme.of(context).colorScheme.onError,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                  ),
-                ),
               ),
+            ),
+          ),
+        ),
+        if (_confettiEmojis.isNotEmpty) _buildConfettiOverlay(),
+      ],
+    );
+  }
+
+  Widget _buildConfettiOverlay() {
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: 1),
+          duration: const Duration(seconds: 2),
+          builder: (context, value, child) {
+            return Opacity(
+              opacity: (1 - value).clamp(0, 1),
+              child: CustomPaint(
+                painter: _ConfettiPainter(emojis: _confettiEmojis),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSOSIdle() {
+    return SizedBox(
+      width: double.infinity,
+      height: 80,
+      child: ElevatedButton(
+        onPressed: _startSOS,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          foregroundColor: const Color(0xFFe73827),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          elevation: 4,
+        ),
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('🚨', style: TextStyle(fontSize: 28)),
+            SizedBox(width: 12),
+            Text(
+              '开始SOS',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
+  Widget _buildSOSActive() {
+    return Column(
+      children: [
+        AnimatedBuilder(
+          animation: _breathAnimController,
+          builder: (context, child) {
+            final phaseData = _sosPhases[_sosPhase];
+            final phaseLabel = phaseData['label'] as String;
+            final emoji = phaseData['emoji'] as String;
+            return Column(
+              children: [
+                CustomPaint(
+                  size: const Size(180, 180),
+                  painter: _BreathCirclePainter(
+                    progress: _breathAnimController.value,
+                    phase: phaseLabel,
+                    emoji: emoji,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 36),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  phaseLabel,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            '第 ${_sosCycle + 1}/3 轮',
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        TextButton(
+          onPressed: _cancelSOS,
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white.withOpacity(0.7),
+          ),
+          child: const Text('取消', style: TextStyle(fontSize: 14)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSOSComplete() {
+    return Column(
+      children: [
+        const Text(
+          '✅',
+          style: TextStyle(fontSize: 64),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          '渴求过去了！',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          '你做得很好 🌟',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white.withOpacity(0.9),
+          ),
+        ),
+        const SizedBox(height: 16),
+        OutlinedButton.icon(
+          onPressed: () {
+            setState(() {
+              _sosComplete = false;
+              _confettiEmojis.clear();
+            });
+          },
+          icon: const Icon(Icons.refresh, color: Colors.white),
+          label: const Text(
+            '再来一次',
+            style: TextStyle(color: Colors.white),
+          ),
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: Colors.white, width: 2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildSurfingCard() {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Icon(
-              Icons.waves,
-              size: 56,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '渴望冲浪',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '渴望像海浪一样，来了又会退去',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '研究表明渴望通常在5-20分钟内达到峰值后消退 (Chaiton et al., 2016)',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontStyle: FontStyle.italic,
-                  ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: 160,
-              height: 160,
-              child: Stack(
-                alignment: Alignment.center,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 6,
+      clipBehavior: Clip.antiAlias,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF0c3483), Color(0xFFa2b6df)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    width: 160,
-                    height: 160,
-                    child: CircularProgressIndicator(
-                      value: _isTimerRunning ? _timerSeconds / 300 : 0,
-                      strokeWidth: 10,
-                      backgroundColor:
-                          Theme.of(context).colorScheme.surfaceContainerHighest,
+                  Text(
+                    '🏄',
+                    style: TextStyle(
+                      fontSize: 32,
+                      shadows: [
+                        Shadow(
+                          color: Colors.white.withOpacity(0.3),
+                          blurRadius: 8,
+                        ),
+                      ],
                     ),
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _isTimerRunning
-                            ? '${_timerSeconds ~/ 60}:${(_timerSeconds % 60).toString().padLeft(2, '0')}'
-                            : '5:00',
-                        style:
-                            Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                      ),
-                      Text(
-                        '分钟',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
+                  const SizedBox(width: 10),
+                  const Text(
+                    '渴望冲浪',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (_isTimerRunning)
-                  OutlinedButton.icon(
-                    onPressed: _stopTimer,
-                    icon: const Icon(Icons.stop),
-                    label: const Text('停止'),
-                  )
-                else
-                  ElevatedButton.icon(
-                    onPressed: _startTimer,
-                    icon: const Icon(Icons.play_arrow),
-                    label: const Text('开始5分钟冲浪'),
+              const SizedBox(height: 8),
+              Text(
+                '渴望像海浪一样，来了又会退去',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.white.withOpacity(0.85),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '5分钟计时',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.white.withOpacity(0.6),
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: 180,
+                height: 180,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 180,
+                      height: 180,
+                      child: CircularProgressIndicator(
+                        value: _isTimerRunning ? _timerSeconds / 300 : 0,
+                        strokeWidth: 10,
+                        backgroundColor: Colors.white.withOpacity(0.15),
+                        color: Colors.white.withOpacity(0.9),
+                        strokeCap: StrokeCap.round,
+                      ),
+                    ),
+                    Container(
+                      width: 120,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.1),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _isTimerRunning
+                                ? '${_timerSeconds ~/ 60}:${(_timerSeconds % 60).toString().padLeft(2, '0')}'
+                                : '5:00',
+                            style: const TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            '分钟',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.white.withOpacity(0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              AnimatedBuilder(
+                animation: _waveAnimController,
+                builder: (context, child) {
+                  return CustomPaint(
+                    size: const Size(double.infinity, 50),
+                    painter: _WavePainter(
+                      progress: _waveAnimController.value,
+                      color: Colors.white.withOpacity(0.3),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: _isTimerRunning
+                    ? ElevatedButton.icon(
+                        onPressed: _stopTimer,
+                        icon: const Icon(Icons.stop),
+                        label: const Text(
+                          '停止',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white.withOpacity(0.2),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      )
+                    : ElevatedButton.icon(
+                        onPressed: _startTimer,
+                        icon: const Icon(Icons.play_arrow),
+                        label: const Text(
+                          '开始5分钟冲浪',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFF0c3483),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 4,
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGroundingCard() {
+    const steps = [
+      '👀 说出5样你看到的东西',
+      '🖐️ 说出4样你摸到的东西',
+      '👂 说出3种你听到的声音',
+      '👃 说出2种你闻到的东西',
+      '👅 说出1种你尝到的味道',
+    ];
+    const durations = [15, 12, 10, 10, 8];
+
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 6,
+      clipBehavior: Clip.antiAlias,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFf093fb), Color(0xFFf5576c)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Text('🎯', style: TextStyle(fontSize: 24)),
                   ),
-              ],
-            ),
-          ],
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '5-4-3-2-1 接地练习',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          '感官察觉 • 打断渴望循环',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (_groundingActive)
+                Column(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: (_groundingStep * durations[_groundingStep] +
+                                _groundingSubStep) /
+                            (durations.reduce((a, b) => a + b)),
+                        minHeight: 8,
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                        valueColor: const AlwaysStoppedAnimation<Color>(
+                          Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white.withOpacity(0.15),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.3),
+                          width: 3,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          '$_groundingSubStep',
+                          style: const TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      steps[_groundingStep],
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '剩余 ${durations[_groundingStep] - _groundingSubStep} 秒',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.7),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextButton.icon(
+                      onPressed: _stopGrounding,
+                      icon: const Icon(Icons.close, color: Colors.white70),
+                      label: Text(
+                        '结束练习',
+                        style: TextStyle(color: Colors.white.withOpacity(0.7)),
+                      ),
+                    ),
+                  ],
+                )
+              else
+                Column(
+                  children: [
+                    Text(
+                      '利用5种感官将注意力带回当下',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.85),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '👀 → 🖐️ → 👂 → 👃 → 👅',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.white.withOpacity(0.6),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton.icon(
+                        onPressed: _launchGrounding,
+                        icon: const Icon(Icons.play_arrow),
+                        label: const Text(
+                          '开始练习',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: const Color(0xFFf5576c),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildAlternativesSection() {
-    final alternatives = [
-      {'icon': Icons.water_drop, 'title': '喝水'},
-      {'icon': Icons.directions_walk, 'title': '散步'},
-      {'icon': Icons.music_note, 'title': '听音乐'},
-      {'icon': Icons.air, 'title': '深呼吸'},
-      {'icon': Icons.phone, 'title': '打电话'},
-      {'icon': Icons.cleaning_services, 'title': '刷牙'},
-      {'icon': Icons.circle, 'title': '嚼口香糖'},
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '替代行为',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '点击选择一项替代行为来应对渴望',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: alternatives.map((alt) {
-            return InkWell(
-              onTap: () => _logAlternative(alt['title'] as String),
-              borderRadius: BorderRadius.circular(16),
-              child: Card(
-                child: Container(
-                  width: (MediaQuery.of(context).size.width - 56) / 4,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        alt['icon'] as IconData,
-                        size: 32,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        alt['title'] as String,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          }).toList(),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildGroundingCard() {
-    const steps = [
-      '看5样东西',
-      '摸4样东西',
-      '听3种声音',
-      '闻2种气味',
-      '尝1种味道',
+    const alternatives = [
+      {'emoji': '🚶', 'title': '散步'},
+      {'emoji': '💧', 'title': '喝水'},
+      {'emoji': '🎵', 'title': '音乐'},
+      {'emoji': '📞', 'title': '打电话'},
+      {'emoji': '🧘', 'title': '冥想'},
+      {'emoji': '🪥', 'title': '刷牙'},
+      {'emoji': '🍬', 'title': '口香糖'},
+      {'emoji': '🏋️', 'title': '运动'},
     ];
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.visibility,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'CBT即时技巧 - 5-4-3-2-1接地练习',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              '通过感官察觉将注意力带回当下，有效打断渴望循环',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 12),
-            if (_groundingActive)
-              Column(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      elevation: 6,
+      clipBehavior: Clip.antiAlias,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFFfa709a), Color(0xFFfee140)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  LinearProgressIndicator(
-                    value: _groundingStep / steps.length +
-                        (_groundingSubStep.toDouble() /
-                            ([15, 12, 10, 10, 8][_groundingStep] *
-                                steps.length)),
-                    minHeight: 6,
-                    borderRadius: BorderRadius.circular(3),
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Text('💪', style: TextStyle(fontSize: 24)),
                   ),
-                  const SizedBox(height: 16),
-                  Icon(
-                    Icons.timer_outlined,
-                    size: 48,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    steps[_groundingStep],
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '替代行为',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${_groundingSubStep + 1}/'
-                    '${[15, 12, 10, 10, 8][_groundingStep]}',
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton(
-                    onPressed: () {
-                      _groundingTimer?.cancel();
-                      setState(() {
-                        _groundingActive = false;
-                        _groundingStep = 0;
-                        _groundingSubStep = 0;
-                      });
-                    },
-                    child: const Text('结束练习'),
-                  ),
-                ],
-              )
-            else
-              Column(
-                children: [
-                  Text(
-                    '看5样东西 - 摸4样 - 听3种声音 - 闻2种气味 - 尝1种味道',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _launchGrounding,
-                      icon: const Icon(Icons.play_arrow),
-                      label: const Text('开始练习'),
+                        Text(
+                          '点击选择一项来应对渴望',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-          ],
+              const SizedBox(height: 16),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                  childAspectRatio: 0.85,
+                ),
+                itemCount: alternatives.length,
+                itemBuilder: (context, index) {
+                  final alt = alternatives[index];
+                  final isLogged = _lastLoggedAlternative == alt['title'];
+                  return GestureDetector(
+                    onTap: () => _logAlternative(alt['title']!),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      decoration: BoxDecoration(
+                        color: isLogged
+                            ? Colors.white.withOpacity(0.35)
+                            : Colors.white.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isLogged
+                              ? Colors.white
+                              : Colors.white.withOpacity(0.2),
+                          width: isLogged ? 2 : 1,
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (isLogged)
+                            const Text(
+                              '✓',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          Text(
+                            alt['emoji']!,
+                            style: const TextStyle(fontSize: 28),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            alt['title']!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              if (_lastLoggedAlternative != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Center(
+                    child: Text(
+                      '已记录 $_lastLoggedAlternative ✓',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.white.withOpacity(0.9),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
@@ -642,50 +1100,136 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
 class _BreathCirclePainter extends CustomPainter {
   final double progress;
   final String phase;
+  final String emoji;
 
-  _BreathCirclePainter({required this.progress, required this.phase});
+  _BreathCirclePainter({
+    required this.progress,
+    required this.phase,
+    required this.emoji,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 * 0.7 * progress;
-    final fullRadius = size.width / 2 * 0.7;
+    final maxRadius = size.width / 2 * 0.8;
+    final innerRadius = maxRadius * (0.4 + 0.6 * progress);
 
-    final paint = Paint()
-      ..color = Colors.blue.withOpacity(0.3)
-      ..style = PaintingStyle.fill;
+    final outerPaint = Paint()
+      ..color = Colors.white.withOpacity(0.15)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
 
-    canvas.drawCircle(center, fullRadius, paint);
+    canvas.drawCircle(center, maxRadius, outerPaint);
 
     final fillPaint = Paint()
-      ..color = Colors.blue.withOpacity(0.6)
+      ..shader = RadialGradient(
+        colors: [
+          Colors.white.withOpacity(0.4),
+          Colors.white.withOpacity(0.05),
+        ],
+      ).createShader(Rect.fromCircle(center: center, radius: innerRadius))
       ..style = PaintingStyle.fill;
 
-    canvas.drawCircle(center, radius, fillPaint);
+    canvas.drawCircle(center, innerRadius, fillPaint);
 
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: phase.contains('吸')
-            ? '🌬️'
-            : phase.contains('屏')
-                ? '⏸️'
-                : '😮‍💨',
-        style: const TextStyle(fontSize: 32),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(
-        center.dx - textPainter.width / 2,
-        center.dy - textPainter.height / 2,
-      ),
-    );
+    final strokePaint = Paint()
+      ..color = Colors.white.withOpacity(0.6)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    canvas.drawCircle(center, innerRadius, strokePaint);
   }
 
   @override
   bool shouldRepaint(covariant _BreathCirclePainter oldDelegate) {
     return oldDelegate.progress != progress || oldDelegate.phase != phase;
+  }
+}
+
+class _WavePainter extends CustomPainter {
+  final double progress;
+  final Color color;
+
+  _WavePainter({required this.progress, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path();
+    final halfHeight = size.height / 2;
+    final amplitude = halfHeight * 0.4;
+
+    path.moveTo(0, halfHeight);
+    for (double x = 0; x <= size.width; x++) {
+      final y = halfHeight +
+          amplitude *
+              sin(
+                (x / size.width) * 2 * pi * 2 +
+                    progress * 2 * pi,
+              );
+      path.lineTo(x, y);
+    }
+
+    canvas.drawPath(path, paint);
+
+    final paint2 = Paint()
+      ..color = color.withOpacity(0.5)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+
+    final path2 = Path();
+    path2.moveTo(0, halfHeight - 8);
+    for (double x = 0; x <= size.width; x++) {
+      final y = halfHeight -
+          8 +
+          amplitude *
+              0.6 *
+              sin(
+                (x / size.width) * 2 * pi * 2 +
+                    progress * 2 * pi +
+                    1.5,
+              );
+      path2.lineTo(x, y);
+    }
+    canvas.drawPath(path2, paint2);
+  }
+
+  @override
+  bool shouldRepaint(covariant _WavePainter oldDelegate) {
+    return oldDelegate.progress != progress;
+  }
+}
+
+class _ConfettiPainter extends CustomPainter {
+  final List<String> emojis;
+
+  _ConfettiPainter({required this.emojis});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (int i = 0; i < emojis.length; i++) {
+      final x = (i * 37 + 13) % size.width.toInt().toDouble();
+      final y = (i * 53 + 7) % size.height.toInt().toDouble();
+      final tp = TextPainter(
+        text: TextSpan(
+          text: emojis[i],
+          style: TextStyle(fontSize: 16 + (i % 3) * 8.0),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      tp.layout();
+      tp.paint(canvas, Offset(x, y));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ConfettiPainter oldDelegate) {
+    return oldDelegate.emojis != emojis;
   }
 }

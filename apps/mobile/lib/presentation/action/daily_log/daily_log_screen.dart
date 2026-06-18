@@ -12,40 +12,46 @@ class DailyLogScreen extends ConsumerStatefulWidget {
 
 class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
   int _mood = 3;
-  int _urgeLevel = 5;
-  final List<String> _selectedTriggers = [];
-  final TextEditingController _copingController = TextEditingController();
+  int? _urgeLevel;
   bool _relapsed = false;
-  final TextEditingController _consumptionController = TextEditingController();
-  final TextEditingController _notesController = TextEditingController();
   bool _saving = false;
+  bool _loading = true;
+  bool _alreadyLogged = false;
 
   static const _moodOptions = [
-    {'emoji': '😫', 'label': '非常差', 'value': 1},
-    {'emoji': '😟', 'label': '差', 'value': 2},
+    {'emoji': '😢', 'label': '很差', 'value': 1},
+    {'emoji': '😟', 'label': '不好', 'value': 2},
     {'emoji': '😐', 'label': '一般', 'value': 3},
-    {'emoji': '😊', 'label': '好', 'value': 4},
-    {'emoji': '🥳', 'label': '非常好', 'value': 5},
+    {'emoji': '😊', 'label': '不错', 'value': 4},
+    {'emoji': '🤩', 'label': '超棒', 'value': 5},
   ];
 
-  static const _triggerOptions = [
-    '压力',
-    '社交场合',
-    '无聊',
-    '愤怒',
-    '疲惫',
-    '饭后',
-    '看到别人使用',
-    '习惯性',
-    '其他',
+  static const _urgeConfig = [
+    {'size': 16.0, 'color': Colors.green},
+    {'size': 24.0, 'color': Colors.lightGreen},
+    {'size': 32.0, 'color': Colors.orangeAccent},
+    {'size': 40.0, 'color': Colors.orange},
+    {'size': 48.0, 'color': Colors.red},
   ];
 
   @override
-  void dispose() {
-    _copingController.dispose();
-    _consumptionController.dispose();
-    _notesController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _checkTodayLog();
+  }
+
+  Future<void> _checkTodayLog() async {
+    try {
+      final log = await ref.read(logUseCaseProvider).getTodayLog();
+      if (mounted) {
+        setState(() {
+          _alreadyLogged = log != null;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   Future<void> _saveLog() async {
@@ -55,19 +61,21 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
       await logUseCase.logToday(
         mood: _mood,
         urgeLevel: _urgeLevel,
-        triggers: _selectedTriggers.isNotEmpty ? _selectedTriggers : null,
-        coping: _copingController.text.isNotEmpty ? _copingController.text : null,
         relapsed: _relapsed,
-        consumption: _consumptionController.text.isNotEmpty
-            ? int.tryParse(_consumptionController.text)
-            : null,
-        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
+
+      final userUseCase = ref.read(userUseCaseProvider);
+      final prefs = await userUseCase.getPreferences();
+      final currentXp = (prefs['total_xp'] as int?) ?? 0;
+      prefs['total_xp'] = currentXp + 10;
+      await userUseCase.savePreferences(prefs);
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('今日记录已保存！继续加油 💪'),
+            content: Text('打卡成功 +10 XP'),
             behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.green,
           ),
         );
         context.pop();
@@ -90,57 +98,56 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('每日记录'),
+        title: const Text('每日打卡'),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildMoodSection(),
-            const SizedBox(height: 24),
-            _buildUrgeSection(),
-            const SizedBox(height: 24),
-            _buildTriggerSection(),
-            const SizedBox(height: 24),
-            _buildCopingSection(),
-            const SizedBox(height: 24),
-            _buildRelapseSection(),
-            const SizedBox(height: 24),
-            _buildConsumptionSection(),
-            const SizedBox(height: 24),
-            _buildNotesSection(),
-            const SizedBox(height: 32),
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: _saving ? null : _saveLog,
-                child: _saving
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Text('保存今日记录', style: TextStyle(fontSize: 16)),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
-        ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _alreadyLogged
+              ? _buildAlreadyLogged()
+              : _buildForm(),
+    );
+  }
+
+  Widget _buildAlreadyLogged() {
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('✅', style: TextStyle(fontSize: 64)),
+          const SizedBox(height: 16),
+          Text(
+            '今日已打卡',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildForm() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        children: [
+          _buildMoodSection(),
+          const SizedBox(height: 20),
+          _buildUrgeSection(),
+          const SizedBox(height: 20),
+          _buildRelapseSection(),
+          const Spacer(),
+          _buildSaveButton(),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }
 
   Widget _buildMoodSection() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '今天的心情',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: _moodOptions.map((opt) {
@@ -150,35 +157,33 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
               onTap: () => setState(() => _mood = value),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                width: 60,
+                padding: const EdgeInsets.symmetric(vertical: 8),
                 decoration: BoxDecoration(
-                  color: selected
-                      ? Theme.of(context).colorScheme.primaryContainer
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: selected
-                        ? Theme.of(context).colorScheme.primary
-                        : Colors.transparent,
-                    width: 2,
+                    color: selected ? Colors.orange : Colors.transparent,
+                    width: 3,
                   ),
+                  boxShadow: selected
+                      ? [BoxShadow(color: Colors.orange.withOpacity(0.3), blurRadius: 8, spreadRadius: 1)]
+                      : null,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      opt['emoji'] as String,
-                      style: const TextStyle(fontSize: 28),
+                    AnimatedScale(
+                      scale: selected ? 1.3 : 1.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Text(opt['emoji'] as String, style: const TextStyle(fontSize: 32)),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       opt['label'] as String,
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-                        color: selected
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                        color: selected ? Colors.orange : Colors.grey,
                       ),
                     ),
                   ],
@@ -193,141 +198,41 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
 
   Widget _buildUrgeSection() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '渴望程度',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '0 = 完全没有，10 = 非常强烈',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-        ),
-        const SizedBox(height: 12),
         Row(
-          children: [
-            const Text('0', style: TextStyle(fontSize: 12)),
-            Expanded(
-              child: Slider(
-                value: _urgeLevel.toDouble(),
-                min: 0,
-                max: 10,
-                divisions: 10,
-                label: _urgeLevel.toString(),
-                onChanged: (value) {
-                  setState(() => _urgeLevel = value.round());
-                },
-              ),
-            ),
-            const Text('10', style: TextStyle(fontSize: 12)),
-          ],
-        ),
-        Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            decoration: BoxDecoration(
-              color: _urgeLevel > 7
-                  ? Colors.red.withOpacity(0.1)
-                  : _urgeLevel > 4
-                      ? Colors.orange.withOpacity(0.1)
-                      : Colors.green.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              '$_urgeLevel/10',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: _urgeLevel > 7
-                        ? Colors.red
-                        : _urgeLevel > 4
-                            ? Colors.orange
-                            : Colors.green,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: List.generate(5, (i) {
+            final value = i + 1;
+            final selected = _urgeLevel == value;
+            final config = _urgeConfig[i];
+            final size = config['size'] as double;
+            final color = config['color'] as Color;
+            return GestureDetector(
+              onTap: () => setState(() => _urgeLevel = value),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                width: size + 16,
+                height: size + 16,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: selected
+                      ? [BoxShadow(color: color.withOpacity(0.5), blurRadius: 10, spreadRadius: 2)]
+                      : null,
+                ),
+                child: Center(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: selected ? size + 4 : size,
+                    height: selected ? size + 4 : size,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: selected ? color : color.withOpacity(0.4),
+                    ),
                   ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTriggerSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '诱因（可多选）',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '什么引发了你的渴望？',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: _triggerOptions.map((trigger) {
-            final selected = _selectedTriggers.contains(trigger);
-            return FilterChip(
-              label: Text(trigger),
-              selected: selected,
-              selectedColor: Theme.of(context).colorScheme.primaryContainer,
-              checkmarkColor: Theme.of(context).colorScheme.primary,
-              onSelected: (sel) {
-                setState(() {
-                  if (sel) {
-                    _selectedTriggers.add(trigger);
-                  } else {
-                    _selectedTriggers.remove(trigger);
-                  }
-                });
-              },
             );
-          }).toList(),
-        ),
-        if (_selectedTriggers.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              '已选: ${_selectedTriggers.join('、')}',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildCopingSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '应对方式',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '你是如何应对渴望的？',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _copingController,
-          maxLines: 3,
-          decoration: const InputDecoration(
-            hintText: '例如：深呼吸、散步、打电话给朋友...',
-            border: OutlineInputBorder(),
-          ),
+          }),
         ),
       ],
     );
@@ -336,7 +241,7 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
   Widget _buildRelapseSection() {
     return Card(
       color: _relapsed
-          ? Theme.of(context).colorScheme.errorContainer
+          ? Colors.red.withOpacity(0.08)
           : Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -347,25 +252,26 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '今天有复发吗？',
-                    style: Theme.of(context).textTheme.titleMedium,
+                    '今天复吸/复喝了',
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    _relapsed ? '没关系，这只是过程的一部分，明天继续' : '坚持就是胜利！',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: _relapsed
-                              ? Theme.of(context).colorScheme.error
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                  if (_relapsed)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2),
+                      child: Text(
+                        '没关系，明天继续💪',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.red.shade400,
                         ),
-                  ),
+                      ),
+                    ),
                 ],
               ),
             ),
             Switch(
               value: _relapsed,
-              onChanged: (value) => setState(() => _relapsed = value),
-              activeColor: Theme.of(context).colorScheme.error,
+              onChanged: (v) => setState(() => _relapsed = v),
             ),
           ],
         ),
@@ -373,64 +279,31 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
     );
   }
 
-  Widget _buildConsumptionSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '使用量',
-          style: Theme.of(context).textTheme.titleMedium,
+  Widget _buildSaveButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: _saving ? null : _saveLog,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.green,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 4,
         ),
-        const SizedBox(height: 4),
-        Text(
-          '今天使用了多少（支烟/杯酒）？',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
+        child: _saving
+            ? const SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+              )
+            : const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('✅ 打卡 +10 XP', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                ],
               ),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _consumptionController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            hintText: '输入数量',
-            border: const OutlineInputBorder(),
-            suffixText: '支/杯',
-            suffixStyle: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNotesSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          '今日感想',
-          style: Theme.of(context).textTheme.titleMedium,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '记录今天的心情、成就或困难...',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _notesController,
-          maxLines: 4,
-          decoration: const InputDecoration(
-            hintText: '今天有什么想记录的吗？',
-            border: OutlineInputBorder(),
-            alignLabelWithHint: true,
-          ),
-        ),
-      ],
+      ),
     );
   }
 }
