@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../domain/entity/daily_log.dart';
+import '../../domain/entity/user.dart';
 import '../database/app_database.dart';
 
 class LogRepository {
@@ -21,10 +22,12 @@ class LogRepository {
     return _database.insertDailyLog({
       'user_id': log.userId,
       'date': log.date.toIso8601String(),
+      'mood': log.mood,
       'urge_level': log.urgeLevel,
       'triggers': log.triggers != null ? jsonEncode(log.triggers) : null,
       'coping': log.coping,
       'relapsed': log.relapsed ? 1 : 0,
+      'consumption': log.consumption,
       'notes': log.notes,
     });
   }
@@ -43,14 +46,31 @@ class LogRepository {
     return streak;
   }
 
+  /// Get the most common triggers for a user
+  Future<List<String>> getCommonTriggers(int userId, {int limit = 5}) async {
+    final logs = await getLogsForUser(userId, limit: 90);
+    final triggerCount = <String, int>{};
+    for (final log in logs) {
+      if (log.triggers != null) {
+        for (final t in log.triggers!) {
+          triggerCount[t] = (triggerCount[t] ?? 0) + 1;
+        }
+      }
+    }
+    final sorted = triggerCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    return sorted.take(limit).map((e) => e.key).toList();
+  }
+
   DailyLogEntry _mapToEntry(Map<String, dynamic> log) => DailyLogEntry(
     id: log['id'] as int,
     userId: log['user_id'] as int,
     date: DateTime.parse(log['date'] as String),
+    mood: log['mood'] as int? ?? 3,
     urgeLevel: log['urge_level'] as int?,
     triggers: log['triggers'] != null ? List<String>.from(jsonDecode(log['triggers'] as String)) : null,
     coping: log['coping'] as String?,
     relapsed: (log['relapsed'] as int?) == 1,
+    consumption: log['consumption'] as int?,
     notes: log['notes'] as String?,
   );
 }

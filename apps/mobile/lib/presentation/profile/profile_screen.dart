@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('我的'),
@@ -15,29 +17,20 @@ class ProfileScreen extends ConsumerWidget {
         children: [
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
                   CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                    child: Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                    radius: 48,
+                    backgroundColor: theme.colorScheme.primaryContainer,
+                    child: Icon(Icons.person, size: 48, color: theme.colorScheme.primary),
                   ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '我的旅程',
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
+                  Text('我的旅程', style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
                   Text(
                     '坚持就是胜利',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                    style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                   ),
                 ],
               ),
@@ -47,17 +40,17 @@ class ProfileScreen extends ConsumerWidget {
           _ProfileMenuItem(
             icon: Icons.download,
             title: '导出数据',
-            onTap: () => Navigator.pushNamed(context, '/profile/export'),
+            onTap: () => context.push('/profile/export'),
           ),
           _ProfileMenuItem(
             icon: Icons.settings,
             title: '设置',
-            onTap: () => Navigator.pushNamed(context, '/profile/settings'),
+            onTap: () => context.push('/profile/settings'),
           ),
           _ProfileMenuItem(
             icon: Icons.info_outline,
             title: '关于',
-            onTap: () => Navigator.pushNamed(context, '/profile/about'),
+            onTap: () => context.push('/profile/about'),
           ),
         ],
       ),

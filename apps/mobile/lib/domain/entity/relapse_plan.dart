@@ -6,6 +6,7 @@ class RelapsePlanItem {
   final String copingPlan;
   final int priority;
   final bool isTemplate;
+  final String? category; // social, stress, habitual, emotional
 
   const RelapsePlanItem({
     this.id,
@@ -15,6 +16,7 @@ class RelapsePlanItem {
     required this.copingPlan,
     this.priority = 0,
     this.isTemplate = false,
+    this.category,
   });
 
   RelapsePlanItem copyWith({
@@ -25,6 +27,7 @@ class RelapsePlanItem {
     String? copingPlan,
     int? priority,
     bool? isTemplate,
+    String? category,
   }) {
     return RelapsePlanItem(
       id: id ?? this.id,
@@ -34,6 +37,7 @@ class RelapsePlanItem {
       copingPlan: copingPlan ?? this.copingPlan,
       priority: priority ?? this.priority,
       isTemplate: isTemplate ?? this.isTemplate,
+      category: category ?? this.category,
     );
   }
 }

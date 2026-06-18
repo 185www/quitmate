@@ -23,6 +23,7 @@ class PlanRepository {
       'coping_plan': plan.copingPlan,
       'priority': plan.priority,
       'is_template': plan.isTemplate ? 1 : 0,
+      'category': plan.category,
     });
   }
 
@@ -39,5 +40,6 @@ class PlanRepository {
     copingPlan: p['coping_plan'] as String,
     priority: p['priority'] as int? ?? 0,
     isTemplate: (p['is_template'] as int?) == 1,
+    category: p['category'] as String?,
   );
 }

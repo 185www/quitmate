@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/di/providers.dart';
-import '../../../core/extensions/date_extensions.dart';
+import 'package:go_router/go_router.dart';
+import 'package:quitmate/core/di/providers.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -122,7 +122,7 @@ class DashboardScreen extends ConsumerWidget {
               child: _ActionButton(
                 icon: Icons.add_circle_outline,
                 label: '记录今日',
-                onTap: () => Navigator.pushNamed(context, '/action/daily-log'),
+                onTap: () => context.push('/action/daily-log'),
               ),
             ),
             const SizedBox(width: 12),
@@ -130,7 +130,7 @@ class DashboardScreen extends ConsumerWidget {
               child: _ActionButton(
                 icon: Icons.psychology,
                 label: '应对渴望',
-                onTap: () => Navigator.pushNamed(context, '/action/urge-toolkit'),
+                onTap: () => context.push('/action/urge-toolkit'),
               ),
             ),
           ],
