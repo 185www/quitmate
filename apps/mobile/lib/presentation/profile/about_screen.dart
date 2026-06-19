@@ -50,7 +50,7 @@ class AboutScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   Text('QuitMate', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text('版本 1.4.0', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  Text('版本 1.5.0', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                   const SizedBox(height: 16),
                   Text(
                     '科学戒断，重获自由',
