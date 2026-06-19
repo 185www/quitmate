@@ -28,27 +28,17 @@ android {
     }
 
     signingConfigs {
-        debug {
-            storeFile file("debug.keystore")
-            storePassword "android"
-            keyAlias "androiddebugkey"
-            keyPassword "android"
-        }
-        release {
-            def keystoreFile = rootProject.file("key.properties")
-            if (keystoreFile.exists()) {
-                def props = new Properties()
-                props.load(new FileInputStream(keystoreFile))
+        // Release signing: uses key.properties if available (GitHub Actions Secrets)
+        // If no key.properties, release falls back to debug signing automatically
+        def keystorePropsFile = rootProject.file("key.properties")
+        if (keystorePropsFile.exists()) {
+            def props = new Properties()
+            props.load(new FileInputStream(keystorePropsFile))
+            release {
                 storeFile file(props.getProperty("storeFile"))
                 storePassword props.getProperty("storePassword")
                 keyAlias props.getProperty("keyAlias")
                 keyPassword props.getProperty("keyPassword")
-            } else {
-                // Fallback to debug signing when no key.properties
-                storeFile file("debug.keystore")
-                storePassword "android"
-                keyAlias "androiddebugkey"
-                keyPassword "android"
             }
         }
     }
