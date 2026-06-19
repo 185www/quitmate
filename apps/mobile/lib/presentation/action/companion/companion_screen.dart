@@ -69,8 +69,8 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen>
     // 1. Morning greeting (7:00 AM)
     messages.add(CompanionMessage(
       id: 'morning',
-      text: QuitCompanion.morningGreeting(
-          daysSinceQuit, streakDays, levelTitle),
+      text:
+          QuitCompanion.morningGreeting(daysSinceQuit, streakDays, levelTitle),
       category: 'morning_greeting',
       timestamp: DateTime(now.year, now.month, now.day, 7, 0),
       read: _allRead,
@@ -99,8 +99,7 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen>
     // 4. Encouragement (12:00 PM)
     messages.add(CompanionMessage(
       id: 'encouragement',
-      text: QuitCompanion.encouragement(
-          streakDays, cravingsResisted, level),
+      text: QuitCompanion.encouragement(streakDays, cravingsResisted, level),
       category: 'encouragement',
       timestamp: DateTime(now.year, now.month, now.day, 12, 0),
       emoji: '💪',
@@ -146,12 +145,11 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen>
                 future: _todayLogFuture,
                 builder: (context, logSnap) {
                   final checkedInToday = logSnap.data != null;
-                  final messages = _buildTodayMessages(
-                      user, gp, checkedInToday);
+                  final messages =
+                      _buildTodayMessages(user, gp, checkedInToday);
 
                   if (userSnap.connectionState == ConnectionState.waiting) {
-                    return const Center(
-                        child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
 
                   return Column(
@@ -172,8 +170,7 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen>
 
                               // Timeline messages
                               ...messages.map((msg) => Padding(
-                                    padding:
-                                        const EdgeInsets.only(bottom: 12),
+                                    padding: const EdgeInsets.only(bottom: 12),
                                     child: _MessageCard(
                                       message: msg,
                                     ),
@@ -254,8 +251,7 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen>
           ),
           const SizedBox(height: 8),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
               color: Colors.white.withOpacity(0.8),
               borderRadius: BorderRadius.circular(20),
@@ -275,9 +271,7 @@ class _CompanionScreenState extends ConsumerState<CompanionScreen>
 
   Widget _buildDateHeader() {
     final now = DateTime.now();
-    final weekdays = [
-      '一', '二', '三', '四', '五', '六', '日'
-    ];
+    final weekdays = ['一', '二', '三', '四', '五', '六', '日'];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       child: Row(
@@ -536,31 +530,26 @@ class _MessageCardState extends State<_MessageCard>
                       children: [
                         Text(
                           _categoryLabel(),
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                         ),
                         const SizedBox(width: 8),
                         Icon(
                           Icons.access_time,
                           size: 12,
-                          color: colorScheme.onSurfaceVariant
-                              .withOpacity(0.5),
+                          color: colorScheme.onSurfaceVariant.withOpacity(0.5),
                         ),
                         const SizedBox(width: 2),
                         Text(
                           _formatTime(widget.message.timestamp),
-                          style: Theme.of(context)
-                              .textTheme
-                              .labelSmall
-                              ?.copyWith(
-                                color: colorScheme.onSurfaceVariant
-                                    .withOpacity(0.5),
-                              ),
+                          style:
+                              Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant
+                                        .withOpacity(0.5),
+                                  ),
                         ),
                       ],
                     ),

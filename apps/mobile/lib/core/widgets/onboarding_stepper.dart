@@ -4,7 +4,8 @@ class OnboardingStepper extends StatelessWidget {
   final int currentStep; // 0-indexed
   final int totalSteps;
 
-  const OnboardingStepper({super.key, required this.currentStep, this.totalSteps = 4});
+  const OnboardingStepper(
+      {super.key, required this.currentStep, this.totalSteps = 4});
 
   static const _stepData = [
     {'icon': Icons.assignment, 'label': '评估'},
@@ -27,7 +28,10 @@ class OnboardingStepper extends StatelessWidget {
                 margin: const EdgeInsets.only(bottom: 18),
                 color: lineIndex < currentStep
                     ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
+                    : Theme.of(context)
+                        .colorScheme
+                        .onSurfaceVariant
+                        .withOpacity(0.2),
               ),
             );
           }
@@ -39,7 +43,10 @@ class OnboardingStepper extends StatelessWidget {
               ? Theme.of(context).colorScheme.primary
               : isActive
                   ? Theme.of(context).colorScheme.primary.withOpacity(0.7)
-                  : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3);
+                  : Theme.of(context)
+                      .colorScheme
+                      .onSurfaceVariant
+                      .withOpacity(0.3);
 
           return Column(
             mainAxisSize: MainAxisSize.min,
@@ -49,7 +56,9 @@ class OnboardingStepper extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isDone ? Theme.of(context).colorScheme.primary : Colors.transparent,
+                  color: isDone
+                      ? Theme.of(context).colorScheme.primary
+                      : Colors.transparent,
                   border: Border.all(color: color, width: 2),
                 ),
                 child: isDone
@@ -59,7 +68,10 @@ class OnboardingStepper extends StatelessWidget {
               const SizedBox(height: 3),
               Text(
                 step['label'] as String,
-                style: TextStyle(fontSize: 10, color: color, fontWeight: isActive ? FontWeight.w600 : FontWeight.normal),
+                style: TextStyle(
+                    fontSize: 10,
+                    color: color,
+                    fontWeight: isActive ? FontWeight.w600 : FontWeight.normal),
               ),
             ],
           );

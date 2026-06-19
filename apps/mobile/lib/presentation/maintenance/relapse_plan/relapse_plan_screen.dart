@@ -13,14 +13,78 @@ class RelapsePlanScreen extends ConsumerStatefulWidget {
 
 class _RelapsePlanScreenState extends ConsumerState<RelapsePlanScreen> {
   final List<RelapsePlanItem> _fallbackTemplates = const [
-    RelapsePlanItem(id: -1, userId: 0, situation: '朋友递烟/酒时，不好意思拒绝', trigger: '社交压力', copingPlan: '提前告知朋友我在戒烟/酒；手里拿饮料；准备借口如"我在吃药"', priority: 4, isTemplate: true, category: '社交'),
-    RelapsePlanItem(id: -2, userId: 0, situation: '聚会中看到其他人都在抽烟/喝酒', trigger: '从众心理', copingPlan: '找一个同样不抽烟/酒的朋友聊天；必要时可以提前离场', priority: 3, isTemplate: true, category: '社交'),
-    RelapsePlanItem(id: -3, userId: 0, situation: '工作压力大，想用烟/酒缓解', trigger: '压力', copingPlan: '做5分钟深呼吸；出去散步10分钟；听一首喜欢的歌', priority: 5, isTemplate: true, category: '压力'),
-    RelapsePlanItem(id: -4, userId: 0, situation: '遇到挫折或失败时', trigger: '情绪低落', copingPlan: '给支持你的朋友打电话；写下三件值得感恩的事', priority: 4, isTemplate: true, category: '压力'),
-    RelapsePlanItem(id: -5, userId: 0, situation: '饭后习惯性想抽烟', trigger: '习惯', copingPlan: '立刻刷牙；吃一块口香糖；站起来走动', priority: 3, isTemplate: true, category: '习惯'),
-    RelapsePlanItem(id: -6, userId: 0, situation: '喝咖啡/茶时想抽烟', trigger: '条件反射', copingPlan: '换成喝茶或果汁；用吸管喝水模拟抽烟动作', priority: 2, isTemplate: true, category: '习惯'),
-    RelapsePlanItem(id: -7, userId: 0, situation: '感到愤怒或沮丧', trigger: '负面情绪', copingPlan: '做10次深呼吸；数到10；离开当前环境散步', priority: 4, isTemplate: true, category: '情绪'),
-    RelapsePlanItem(id: -8, userId: 0, situation: '感到无聊或孤独', trigger: '空虚感', copingPlan: '找一项爱好；给朋友打电话；看一部电影', priority: 3, isTemplate: true, category: '情绪'),
+    RelapsePlanItem(
+        id: -1,
+        userId: 0,
+        situation: '朋友递烟/酒时，不好意思拒绝',
+        trigger: '社交压力',
+        copingPlan: '提前告知朋友我在戒烟/酒；手里拿饮料；准备借口如"我在吃药"',
+        priority: 4,
+        isTemplate: true,
+        category: '社交'),
+    RelapsePlanItem(
+        id: -2,
+        userId: 0,
+        situation: '聚会中看到其他人都在抽烟/喝酒',
+        trigger: '从众心理',
+        copingPlan: '找一个同样不抽烟/酒的朋友聊天；必要时可以提前离场',
+        priority: 3,
+        isTemplate: true,
+        category: '社交'),
+    RelapsePlanItem(
+        id: -3,
+        userId: 0,
+        situation: '工作压力大，想用烟/酒缓解',
+        trigger: '压力',
+        copingPlan: '做5分钟深呼吸；出去散步10分钟；听一首喜欢的歌',
+        priority: 5,
+        isTemplate: true,
+        category: '压力'),
+    RelapsePlanItem(
+        id: -4,
+        userId: 0,
+        situation: '遇到挫折或失败时',
+        trigger: '情绪低落',
+        copingPlan: '给支持你的朋友打电话；写下三件值得感恩的事',
+        priority: 4,
+        isTemplate: true,
+        category: '压力'),
+    RelapsePlanItem(
+        id: -5,
+        userId: 0,
+        situation: '饭后习惯性想抽烟',
+        trigger: '习惯',
+        copingPlan: '立刻刷牙；吃一块口香糖；站起来走动',
+        priority: 3,
+        isTemplate: true,
+        category: '习惯'),
+    RelapsePlanItem(
+        id: -6,
+        userId: 0,
+        situation: '喝咖啡/茶时想抽烟',
+        trigger: '条件反射',
+        copingPlan: '换成喝茶或果汁；用吸管喝水模拟抽烟动作',
+        priority: 2,
+        isTemplate: true,
+        category: '习惯'),
+    RelapsePlanItem(
+        id: -7,
+        userId: 0,
+        situation: '感到愤怒或沮丧',
+        trigger: '负面情绪',
+        copingPlan: '做10次深呼吸；数到10；离开当前环境散步',
+        priority: 4,
+        isTemplate: true,
+        category: '情绪'),
+    RelapsePlanItem(
+        id: -8,
+        userId: 0,
+        situation: '感到无聊或孤独',
+        trigger: '空虚感',
+        copingPlan: '找一项爱好；给朋友打电话；看一部电影',
+        priority: 3,
+        isTemplate: true,
+        category: '情绪'),
   ];
 
   List<RelapsePlanItem> _templates = [];
@@ -68,21 +132,31 @@ class _RelapsePlanScreenState extends ConsumerState<RelapsePlanScreen> {
 
   String _categoryLabel(String? cat) {
     switch (cat) {
-      case '社交': return '社交场合';
-      case '压力': return '压力情境';
-      case '习惯': return '习惯情境';
-      case '情绪': return '情绪情境';
-      default: return cat ?? '其他';
+      case '社交':
+        return '社交场合';
+      case '压力':
+        return '压力情境';
+      case '习惯':
+        return '习惯情境';
+      case '情绪':
+        return '情绪情境';
+      default:
+        return cat ?? '其他';
     }
   }
 
   IconData _categoryIcon(String? cat) {
     switch (cat) {
-      case '社交': return Icons.people;
-      case '压力': return Icons.psychology;
-      case '习惯': return Icons.repeat;
-      case '情绪': return Icons.mood_bad;
-      default: return Icons.warning_amber;
+      case '社交':
+        return Icons.people;
+      case '压力':
+        return Icons.psychology;
+      case '习惯':
+        return Icons.repeat;
+      case '情绪':
+        return Icons.mood_bad;
+      default:
+        return Icons.warning_amber;
     }
   }
 
@@ -116,7 +190,8 @@ class _RelapsePlanScreenState extends ConsumerState<RelapsePlanScreen> {
                 children: [
                   Text(
                     '模板计划',
-                    style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
                   ...categories.map((cat) => _buildTemplateSection(cat, theme)),
@@ -124,10 +199,14 @@ class _RelapsePlanScreenState extends ConsumerState<RelapsePlanScreen> {
                     const SizedBox(height: 16),
                     Text(
                       '我的自定义计划',
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    ..._userPlans.asMap().entries.map((e) => _buildPlanCard(e.value, theme, true)),
+                    ..._userPlans
+                        .asMap()
+                        .entries
+                        .map((e) => _buildPlanCard(e.value, theme, true)),
                   ],
                   const SizedBox(height: 16),
                   Card(
@@ -137,7 +216,8 @@ class _RelapsePlanScreenState extends ConsumerState<RelapsePlanScreen> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.info_outline, color: theme.colorScheme.primary, size: 20),
+                          Icon(Icons.info_outline,
+                              color: theme.colorScheme.primary, size: 20),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -168,9 +248,12 @@ class _RelapsePlanScreenState extends ConsumerState<RelapsePlanScreen> {
           padding: const EdgeInsets.only(top: 12, bottom: 8),
           child: Row(
             children: [
-              Icon(_categoryIcon(category), size: 18, color: theme.colorScheme.primary),
+              Icon(_categoryIcon(category),
+                  size: 18, color: theme.colorScheme.primary),
               const SizedBox(width: 6),
-              Text(_categoryLabel(category), style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary)),
+              Text(_categoryLabel(category),
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(color: theme.colorScheme.primary)),
             ],
           ),
         ),
@@ -182,20 +265,27 @@ class _RelapsePlanScreenState extends ConsumerState<RelapsePlanScreen> {
   Widget _buildPlanCard(RelapsePlanItem plan, ThemeData theme, bool deletable) {
     return Dismissible(
       key: ValueKey(plan.id ?? plan.hashCode),
-      direction: deletable ? DismissDirection.endToStart : DismissDirection.none,
+      direction:
+          deletable ? DismissDirection.endToStart : DismissDirection.none,
       confirmDismiss: (_) async {
         if (!deletable) return false;
         return await showDialog<bool>(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('确认删除'),
-            content: const Text('确定要删除这个计划吗？'),
-            actions: [
-              TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('取消')),
-              TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('删除', style: TextStyle(color: Colors.red))),
-            ],
-          ),
-        ) ?? false;
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('确认删除'),
+                content: const Text('确定要删除这个计划吗？'),
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: const Text('取消')),
+                  TextButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: const Text('删除',
+                          style: TextStyle(color: Colors.red))),
+                ],
+              ),
+            ) ??
+            false;
       },
       onDismissed: (_) async {
         if (plan.id != null) {
@@ -223,10 +313,13 @@ class _RelapsePlanScreenState extends ConsumerState<RelapsePlanScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(plan.situation, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                    child: Text(plan.situation,
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w600)),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: _priorityColor(plan.priority).withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
@@ -243,11 +336,16 @@ class _RelapsePlanScreenState extends ConsumerState<RelapsePlanScreen> {
               ),
               if (plan.trigger != null && plan.trigger!.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                Text('触发: ', style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.error)),
+                Text('触发: ',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.error)),
                 Text(plan.trigger!, style: theme.textTheme.bodySmall),
               ],
               const SizedBox(height: 8),
-              Text('应对: ', style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.bold)),
+              Text('应对: ',
+                  style: theme.textTheme.bodySmall
+                      ?.copyWith(fontWeight: FontWeight.bold)),
               Text(plan.copingPlan, style: theme.textTheme.bodySmall),
             ],
           ),
@@ -287,7 +385,8 @@ class _RelapsePlanScreenState extends ConsumerState<RelapsePlanScreen> {
 }
 
 class _AddPlanSheet extends StatefulWidget {
-  final Future<void> Function(String situation, String trigger, String coping, String category, int priority) onSave;
+  final Future<void> Function(String situation, String trigger, String coping,
+      String category, int priority) onSave;
 
   const _AddPlanSheet({required this.onSave});
 
@@ -331,7 +430,9 @@ class _AddPlanSheetState extends State<_AddPlanSheet> {
             child: Container(
               width: 40,
               height: 4,
-              decoration: BoxDecoration(color: Colors.grey[400], borderRadius: BorderRadius.circular(2)),
+              decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2)),
             ),
           ),
           const SizedBox(height: 16),
@@ -339,30 +440,36 @@ class _AddPlanSheetState extends State<_AddPlanSheet> {
           const SizedBox(height: 16),
           TextField(
             controller: _situationCtrl,
-            decoration: const InputDecoration(labelText: '情境描述', hintText: '例如：参加聚会时有人递烟'),
+            decoration: const InputDecoration(
+                labelText: '情境描述', hintText: '例如：参加聚会时有人递烟'),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _triggerCtrl,
-            decoration: const InputDecoration(labelText: '触发因素', hintText: '例如：社交压力'),
+            decoration:
+                const InputDecoration(labelText: '触发因素', hintText: '例如：社交压力'),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _copingCtrl,
             maxLines: 3,
-            decoration: const InputDecoration(labelText: '应对策略', hintText: '描述你的应对计划...'),
+            decoration: const InputDecoration(
+                labelText: '应对策略', hintText: '描述你的应对计划...'),
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             value: _category,
             decoration: const InputDecoration(labelText: '分类'),
-            items: _categories.map((c) => DropdownMenuItem(value: c, child: Text(c))).toList(),
+            items: _categories
+                .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                .toList(),
             onChanged: (v) => setState(() => _category = v!),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              Text('优先级: ${_priority.toInt()}', style: theme.textTheme.bodyMedium),
+              Text('优先级: ${_priority.toInt()}',
+                  style: theme.textTheme.bodyMedium),
               Expanded(
                 child: Slider(
                   value: _priority,
@@ -381,7 +488,10 @@ class _AddPlanSheetState extends State<_AddPlanSheet> {
             child: ElevatedButton(
               onPressed: _saving ? null : _save,
               child: _saving
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2))
                   : const Text('保存'),
             ),
           ),

@@ -27,7 +27,8 @@ class _EducationScreenState extends State<EducationScreen> {
       appBar: AppBar(
         title: Text(
           '身体恢复之旅',
-          style: theme.textTheme.titleMedium?.copyWith(color: Colors.grey.shade600),
+          style: theme.textTheme.titleMedium
+              ?.copyWith(color: Colors.grey.shade600),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
@@ -110,7 +111,9 @@ class _Dots extends StatelessWidget {
           width: active ? 24 : 8,
           height: 8,
           decoration: BoxDecoration(
-            color: active ? Theme.of(context).colorScheme.primary : Colors.grey.shade300,
+            color: active
+                ? Theme.of(context).colorScheme.primary
+                : Colors.grey.shade300,
             borderRadius: BorderRadius.circular(4),
           ),
         );
@@ -149,13 +152,16 @@ class _BrainPage extends StatelessWidget {
             children: [
               Text('🧠', style: theme.textTheme.displaySmall),
               const SizedBox(width: 8),
-              Text('大脑奖励系统', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              Text('大脑奖励系统',
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             '戒断后，你的大脑正在重新平衡',
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 24),
           // Simple brain diagram representation
@@ -186,8 +192,11 @@ class _BrainPage extends StatelessWidget {
   Widget _BrainLabel(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
-      child: Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+      decoration:
+          BoxDecoration(color: color, borderRadius: BorderRadius.circular(12)),
+      child: Text(text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
     );
   }
 }
@@ -213,8 +222,12 @@ class _BrainCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(data.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  Text(data.subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+                  Text(data.title,
+                      style: const TextStyle(
+                          fontWeight: FontWeight.w600, fontSize: 14)),
+                  Text(data.subtitle,
+                      style:
+                          TextStyle(color: Colors.grey.shade600, fontSize: 12)),
                 ],
               ),
             ),
@@ -224,7 +237,11 @@ class _BrainCard extends StatelessWidget {
                 color: Theme.of(context).colorScheme.primaryContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(data.duration, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
+              child: Text(data.duration,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary)),
             ),
           ],
         ),
@@ -251,13 +268,16 @@ class _BodyPage extends StatelessWidget {
             children: [
               Text('🫁', style: theme.textTheme.displaySmall),
               const SizedBox(width: 8),
-              Text('身体修复时间线', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              Text('身体修复时间线',
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             '滑动查看身体恢复里程碑',
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 20),
           Expanded(
@@ -279,7 +299,8 @@ class _BodyPage extends StatelessWidget {
                   width: cardWidth,
                   child: Card(
                     elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -300,16 +321,24 @@ class _BodyPage extends StatelessWidget {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text(title,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 14)),
                           const SizedBox(height: 4),
                           Text(
                             desc,
-                            style: TextStyle(fontSize: 11, color: Colors.grey.shade600, height: 1.3),
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: Colors.grey.shade600,
+                                height: 1.3),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                           const Spacer(),
-                          Text('恢复 $pct%', style: TextStyle(fontSize: 11, color: theme.colorScheme.primary)),
+                          Text('恢复 $pct%',
+                              style: TextStyle(
+                                  fontSize: 11,
+                                  color: theme.colorScheme.primary)),
                           const SizedBox(height: 4),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
@@ -318,7 +347,11 @@ class _BodyPage extends StatelessWidget {
                               minHeight: 6,
                               backgroundColor: Colors.grey.shade200,
                               valueColor: AlwaysStoppedAnimation(
-                                pct >= 100 ? Colors.green : pct >= 50 ? Colors.orange : theme.colorScheme.primary,
+                                pct >= 100
+                                    ? Colors.green
+                                    : pct >= 50
+                                        ? Colors.orange
+                                        : theme.colorScheme.primary,
                               ),
                             ),
                           ),
@@ -368,13 +401,16 @@ class _LifePage extends StatelessWidget {
             children: [
               Text('💰', style: theme.textTheme.displaySmall),
               const SizedBox(width: 8),
-              Text('戒断的好处', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              Text('戒断的好处',
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             '戒断后，生活变得更好',
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 24),
           Expanded(
@@ -409,8 +445,11 @@ class _BenefitCard extends StatelessWidget {
           children: [
             Text(data.emoji, style: const TextStyle(fontSize: 36)),
             const SizedBox(height: 8),
-            Text(data.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            Text(data.subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
+            Text(data.title,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(data.subtitle,
+                style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
           ],
         ),
       ),
@@ -446,13 +485,16 @@ class _StatsPage extends StatelessWidget {
             children: [
               Text('📊', style: theme.textTheme.displaySmall),
               const SizedBox(width: 8),
-              Text('科学告诉你', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+              Text('科学告诉你',
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 8),
           Text(
             '基于研究的戒断数据',
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 32),
           ..._statCards.map((s) => _StatCard(s)),
@@ -470,7 +512,9 @@ class _StatsPage extends StatelessWidget {
                 Expanded(
                   child: Text(
                     '每一次尝试都让你更接近成功！',
-                    style: TextStyle(color: Colors.blue.shade700, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        color: Colors.blue.shade700,
+                        fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
@@ -508,7 +552,9 @@ class _StatCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
-            Text(data.label, style: TextStyle(fontSize: 14, color: Colors.grey.shade700, height: 1.3)),
+            Text(data.label,
+                style: TextStyle(
+                    fontSize: 14, color: Colors.grey.shade700, height: 1.3)),
           ],
         ),
       ),

@@ -211,7 +211,8 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
                       shape: BoxShape.circle,
                       color: Colors.white.withOpacity(0.06),
                       border: Border.all(
-                        color: Colors.white.withOpacity(0.2 + breathValue * 0.25),
+                        color:
+                            Colors.white.withOpacity(0.2 + breathValue * 0.25),
                         width: 2.5,
                       ),
                       boxShadow: [
@@ -259,7 +260,8 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
                   ],
                 ),
                 child: const Center(
-                  child: Icon(Icons.check_rounded, size: 64, color: Colors.white70),
+                  child: Icon(Icons.check_rounded,
+                      size: 64, color: Colors.white70),
                 ),
               ),
 
@@ -273,7 +275,8 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
               style: TextStyle(
                 fontSize: _complete ? 28 : 48,
                 fontWeight: FontWeight.w700,
-                color: _complete ? Colors.white : Colors.white.withOpacity(0.95),
+                color:
+                    _complete ? Colors.white : Colors.white.withOpacity(0.95),
                 letterSpacing: _complete ? 0 : 2,
               ),
             ),

@@ -45,7 +45,8 @@ class LlmService {
 每次回复末尾附带1-2个快捷回复建议，格式为：[建议1] [建议2]''';
 
   /// System prompt for the behavioral analyst role.
-  static const String analystSystemPrompt = '''你是一位行为科学家和戒断行为分析师。你的职责是深入研究用户的行为数据，发现隐藏的模式，并提供基于证据的个性化洞察。
+  static const String analystSystemPrompt =
+      '''你是一位行为科学家和戒断行为分析师。你的职责是深入研究用户的行为数据，发现隐藏的模式，并提供基于证据的个性化洞察。
 
 ## 你的分析方法论
 1. **模式识别**：在时间、地点、情绪、社交场景中寻找规律
@@ -71,7 +72,8 @@ class LlmService {
 {{local_analysis}}''';
 
   /// Weekly report system prompt.
-  static const String weeklyReportPrompt = '''你是一位资深的戒断行为分析师，负责为用户生成周报。请基于完整数据生成专业、温暖的周报分析。
+  static const String weeklyReportPrompt =
+      '''你是一位资深的戒断行为分析师，负责为用户生成周报。请基于完整数据生成专业、温暖的周报分析。
 
 ## 用户数据
 {{user_context}}
@@ -99,7 +101,8 @@ class LlmService {
 ```''';
 
   /// Personalized daily insight prompt.
-  static const String dailyInsightPrompt = '''你是一位行为科学家，负责为用户生成每日个性化洞察。基于用户今日和近期的数据，生成一条最有价值的洞察。
+  static const String dailyInsightPrompt =
+      '''你是一位行为科学家，负责为用户生成每日个性化洞察。基于用户今日和近期的数据，生成一条最有价值的洞察。
 
 ## 用户数据
 {{user_context}}

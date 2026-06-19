@@ -46,55 +46,66 @@ class AboutScreen extends StatelessWidget {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  Icon(Icons.healing, size: 64, color: theme.colorScheme.primary),
+                  Icon(Icons.healing,
+                      size: 64, color: theme.colorScheme.primary),
                   const SizedBox(height: 12),
-                  Text('QuitMate', style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  Text('QuitMate',
+                      style: theme.textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
-                  Text('版本 1.8.0', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  Text('版本 1.8.0',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant)),
                   const SizedBox(height: 16),
                   Text(
                     '科学戒断，重获自由',
-                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant, fontStyle: FontStyle.italic),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontStyle: FontStyle.italic),
                   ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          Text('学术依据', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+          Text('学术依据',
+              style: theme.textTheme.titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           ..._references.map((ref) => Card(
-            margin: const EdgeInsets.only(bottom: 8),
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                margin: const EdgeInsets.only(bottom: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.auto_stories, size: 16, color: theme.colorScheme.primary),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          ref['citation']!,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.primary,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.auto_stories,
+                              size: 16, color: theme.colorScheme.primary),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              ref['citation']!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 24),
+                        child: Text(ref['detail']!,
+                            style: theme.textTheme.bodySmall),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 24),
-                    child: Text(ref['detail']!, style: theme.textTheme.bodySmall),
-                  ),
-                ],
-              ),
-            ),
-          )),
+                ),
+              )),
           const SizedBox(height: 16),
           Card(
             color: theme.colorScheme.errorContainer.withOpacity(0.3),
@@ -105,9 +116,13 @@ class AboutScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.warning_amber, size: 18, color: theme.colorScheme.error),
+                      Icon(Icons.warning_amber,
+                          size: 18, color: theme.colorScheme.error),
                       const SizedBox(width: 8),
-                      Text('免责声明', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.error)),
+                      Text('免责声明',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.error)),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -131,9 +146,13 @@ class AboutScreen extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.privacy_tip, size: 18, color: theme.colorScheme.tertiary),
+                      Icon(Icons.privacy_tip,
+                          size: 18, color: theme.colorScheme.tertiary),
                       const SizedBox(width: 8),
-                      Text('隐私说明', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: theme.colorScheme.tertiary)),
+                      Text('隐私说明',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: theme.colorScheme.tertiary)),
                     ],
                   ),
                   const SizedBox(height: 12),

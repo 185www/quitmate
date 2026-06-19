@@ -80,7 +80,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 onPressed: () => context.push('/onboarding/assessment'),
                 child: Text(
                   '我已经准备好了，直接开始',
-                  style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
+                  style: TextStyle(
+                      color: colorScheme.onSurfaceVariant, fontSize: 13),
                 ),
               ),
               const Spacer(flex: 1),
@@ -97,9 +98,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       final user = await ref.read(userUseCaseProvider).getCurrentUser();
       if (user == null) {
         await ref.read(userUseCaseProvider).createUser(
-          targetType: TargetType.smoking,
-          quitDate: DateTime.now(),
-        );
+              targetType: TargetType.smoking,
+              quitDate: DateTime.now(),
+            );
       }
       if (mounted) context.push('/action/urge-toolkit');
     } catch (e) {
@@ -158,7 +159,8 @@ class _PathCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                      style: theme.textTheme.titleMedium
+                          ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -170,7 +172,8 @@ class _PathCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(Icons.chevron_right, color: theme.colorScheme.onSurfaceVariant),
+              Icon(Icons.chevron_right,
+                  color: theme.colorScheme.onSurfaceVariant),
             ],
           ),
         ),

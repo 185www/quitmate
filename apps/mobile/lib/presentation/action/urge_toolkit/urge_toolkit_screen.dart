@@ -64,7 +64,8 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     super.dispose();
   }
 
-  void _showIntensityPicker({required int defaultIntensity, required void Function(int) onComplete}) {
+  void _showIntensityPicker(
+      {required int defaultIntensity, required void Function(int) onComplete}) {
     int selected = defaultIntensity;
     showDialog(
       context: context,
@@ -75,8 +76,10 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('1 = 几乎没有感觉  |  10 = 非常强烈', 
-                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              Text('1 = 几乎没有感觉  |  10 = 非常强烈',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -92,28 +95,49 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
                       decoration: BoxDecoration(
                         color: isSelected
                             ? _intensityColor(val)
-                            : Theme.of(context).colorScheme.surfaceContainerHighest,
+                            : Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(8),
-                        border: isSelected ? Border.all(color: _intensityColor(val), width: 1.5) : null,
+                        border: isSelected
+                            ? Border.all(
+                                color: _intensityColor(val), width: 1.5)
+                            : null,
                       ),
                       alignment: Alignment.center,
-                      child: Text('$val', style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
-                      )),
+                      child: Text('$val',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: isSelected
+                                ? Colors.white
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                          )),
                     ),
                   );
                 }),
               ),
               const SizedBox(height: 12),
-              Text(_intensityLabel(selected), 
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: _intensityColor(selected))),
+              Text(_intensityLabel(selected),
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: _intensityColor(selected))),
             ],
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
-            FilledButton(onPressed: () { Navigator.pop(ctx); onComplete(selected); }, child: const Text('记录')),
+            TextButton(
+                onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+            FilledButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  onComplete(selected);
+                },
+                child: const Text('记录')),
           ],
         ),
       ),
@@ -1193,8 +1217,7 @@ class _WavePainter extends CustomPainter {
       final y = halfHeight +
           amplitude *
               sin(
-                (x / size.width) * 2 * pi * 2 +
-                    progress * 2 * pi,
+                (x / size.width) * 2 * pi * 2 + progress * 2 * pi,
               );
       path.lineTo(x, y);
     }
@@ -1215,9 +1238,7 @@ class _WavePainter extends CustomPainter {
           amplitude *
               0.6 *
               sin(
-                (x / size.width) * 2 * pi * 2 +
-                    progress * 2 * pi +
-                    1.5,
+                (x / size.width) * 2 * pi * 2 + progress * 2 * pi + 1.5,
               );
       path2.lineTo(x, y);
     }

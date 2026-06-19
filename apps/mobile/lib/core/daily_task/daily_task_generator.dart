@@ -10,8 +10,7 @@ class DailyTaskGenerator {
   }) {
     final tasks = <DailyTask>[];
     final today = DateTime.now();
-    final dayOfYear =
-        DateTime.now().difference(DateTime(today.year)).inDays;
+    final dayOfYear = DateTime.now().difference(DateTime(today.year)).inDays;
 
     // ── Always: daily check-in task ──
     tasks.add(DailyTask(

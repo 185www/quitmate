@@ -42,86 +42,86 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
   }
 
   List<Map<String, dynamic>> _fallbackFtndQuestions() => [
-    {
-      'text': '醒后多久吸第一支烟？',
-      'options': [
-        {'text': '≤5分钟', 'score': 3},
-        {'text': '6-30分钟', 'score': 2},
-        {'text': '31-60分钟', 'score': 1},
-        {'text': '>60分钟', 'score': 0},
-      ],
-    },
-    {
-      'text': '在禁烟场所是否难以控制不吸烟？',
-      'options': [
-        {'text': '是', 'score': 1},
-        {'text': '否', 'score': 0},
-      ],
-    },
-    {
-      'text': '哪一支烟最难以放弃？',
-      'options': [
-        {'text': '早晨第一支', 'score': 1},
-        {'text': '其他时间', 'score': 0},
-      ],
-    },
-    {
-      'text': '每天吸多少支烟？',
-      'options': [
-        {'text': '≤10支', 'score': 0},
-        {'text': '11-20支', 'score': 1},
-        {'text': '21-30支', 'score': 2},
-        {'text': '≥31支', 'score': 3},
-      ],
-    },
-    {
-      'text': '早晨醒来后的第一个小时是否比其他时间吸烟更多？',
-      'options': [
-        {'text': '是', 'score': 1},
-        {'text': '否', 'score': 0},
-      ],
-    },
-    {
-      'text': '生病卧床时是否仍然吸烟？',
-      'options': [
-        {'text': '是', 'score': 1},
-        {'text': '否', 'score': 0},
-      ],
-    },
-  ];
+        {
+          'text': '醒后多久吸第一支烟？',
+          'options': [
+            {'text': '≤5分钟', 'score': 3},
+            {'text': '6-30分钟', 'score': 2},
+            {'text': '31-60分钟', 'score': 1},
+            {'text': '>60分钟', 'score': 0},
+          ],
+        },
+        {
+          'text': '在禁烟场所是否难以控制不吸烟？',
+          'options': [
+            {'text': '是', 'score': 1},
+            {'text': '否', 'score': 0},
+          ],
+        },
+        {
+          'text': '哪一支烟最难以放弃？',
+          'options': [
+            {'text': '早晨第一支', 'score': 1},
+            {'text': '其他时间', 'score': 0},
+          ],
+        },
+        {
+          'text': '每天吸多少支烟？',
+          'options': [
+            {'text': '≤10支', 'score': 0},
+            {'text': '11-20支', 'score': 1},
+            {'text': '21-30支', 'score': 2},
+            {'text': '≥31支', 'score': 3},
+          ],
+        },
+        {
+          'text': '早晨醒来后的第一个小时是否比其他时间吸烟更多？',
+          'options': [
+            {'text': '是', 'score': 1},
+            {'text': '否', 'score': 0},
+          ],
+        },
+        {
+          'text': '生病卧床时是否仍然吸烟？',
+          'options': [
+            {'text': '是', 'score': 1},
+            {'text': '否', 'score': 0},
+          ],
+        },
+      ];
 
   List<Map<String, dynamic>> _fallbackAuditQuestions() => [
-    {
-      'text': '您喝酒的频率是？',
-      'options': [
-        {'text': '从不', 'score': 0},
-        {'text': '每月1次或以下', 'score': 1},
-        {'text': '每月2-4次', 'score': 2},
-        {'text': '每周2-3次', 'score': 3},
-        {'text': '每周4次以上', 'score': 4},
-      ],
-    },
-    {
-      'text': '在喝酒的一天中，您通常喝多少标准杯？',
-      'options': [
-        {'text': '1-2杯', 'score': 0},
-        {'text': '3-4杯', 'score': 1},
-        {'text': '5-6杯', 'score': 2},
-        {'text': '7-9杯', 'score': 3},
-        {'text': '10杯以上', 'score': 4},
-      ],
-    },
-    {
-      'text': '一次性喝酒超过6杯（标准杯）的频率是？',
-      'options': [
-        {'text': '从不', 'score': 0},
-        {'text': '少于每月1次', 'score': 1},
-        {'text': '每月1次', 'score': 2},
-        {'text': '每周1次', 'score': 3},
-        {'text': '每天或几乎每天', 'score': 4},
-      ],
-    },
-  ];
+        {
+          'text': '您喝酒的频率是？',
+          'options': [
+            {'text': '从不', 'score': 0},
+            {'text': '每月1次或以下', 'score': 1},
+            {'text': '每月2-4次', 'score': 2},
+            {'text': '每周2-3次', 'score': 3},
+            {'text': '每周4次以上', 'score': 4},
+          ],
+        },
+        {
+          'text': '在喝酒的一天中，您通常喝多少标准杯？',
+          'options': [
+            {'text': '1-2杯', 'score': 0},
+            {'text': '3-4杯', 'score': 1},
+            {'text': '5-6杯', 'score': 2},
+            {'text': '7-9杯', 'score': 3},
+            {'text': '10杯以上', 'score': 4},
+          ],
+        },
+        {
+          'text': '一次性喝酒超过6杯（标准杯）的频率是？',
+          'options': [
+            {'text': '从不', 'score': 0},
+            {'text': '少于每月1次', 'score': 1},
+            {'text': '每月1次', 'score': 2},
+            {'text': '每周1次', 'score': 3},
+            {'text': '每天或几乎每天', 'score': 4},
+          ],
+        },
+      ];
 
   int get _ftndScore {
     int score = 0;
@@ -189,7 +189,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
     setState(() => _saving = true);
     try {
       await ref.read(userUseCaseProvider).updateAssessment(
-            fagerstromScore: _targetType != TargetType.alcohol ? _ftndScore : null,
+            fagerstromScore:
+                _targetType != TargetType.alcohol ? _ftndScore : null,
             auditScore: _targetType != TargetType.smoking ? _auditScore : null,
             targetType: _targetType,
           );
@@ -234,7 +235,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
               '先简单了解一下你的情况，这能帮我们为你提供更适合的建议',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.copyWith(color: Colors.grey.shade600),
             ),
           ),
           Card(
@@ -243,23 +247,36 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('选择你的戒断目标', style: Theme.of(context).textTheme.titleMedium),
+                  Text('选择你的戒断目标',
+                      style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 12),
                   SegmentedButton<TargetType>(
                     segments: const [
-                      ButtonSegment(value: TargetType.smoking, label: Text('戒烟'), icon: Icon(Icons.smoking_rooms)),
-                      ButtonSegment(value: TargetType.alcohol, label: Text('戒酒'), icon: Icon(Icons.local_bar)),
-                      ButtonSegment(value: TargetType.both, label: Text('两者'), icon: Icon(Icons.sync_alt)),
+                      ButtonSegment(
+                          value: TargetType.smoking,
+                          label: Text('戒烟'),
+                          icon: Icon(Icons.smoking_rooms)),
+                      ButtonSegment(
+                          value: TargetType.alcohol,
+                          label: Text('戒酒'),
+                          icon: Icon(Icons.local_bar)),
+                      ButtonSegment(
+                          value: TargetType.both,
+                          label: Text('两者'),
+                          icon: Icon(Icons.sync_alt)),
                     ],
                     selected: {_targetType},
-                    onSelectionChanged: (v) => setState(() => _targetType = v.first),
+                    onSelectionChanged: (v) =>
+                        setState(() => _targetType = v.first),
                   ),
                   if (_targetType == TargetType.both)
                     Padding(
                       padding: const EdgeInsets.only(top: 8),
                       child: Text(
                         '同时戒烟戒酒需要完成两项评估',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant),
                       ),
                     ),
                 ],
@@ -284,7 +301,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
                           )
                         : const Text('保存并继续'),
                   ),
@@ -323,18 +341,22 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                 children: [
                   const Icon(Icons.smoking_rooms, color: Colors.orange),
                   const SizedBox(width: 8),
-                  Text('FTND 尼古丁依赖评估', style: Theme.of(context).textTheme.titleMedium),
+                  Text('FTND 尼古丁依赖评估',
+                      style: Theme.of(context).textTheme.titleMedium),
                   const Spacer(),
                   if (complete)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: _ftndColor(score).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         '得分: $score/10',
-                        style: TextStyle(color: _ftndColor(score), fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: _ftndColor(score),
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                 ],
@@ -342,7 +364,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
               const SizedBox(height: 16),
               ...List.generate(_ftndQuestions.length, (i) {
                 final q = _ftndQuestions[i];
-                final options = (q['options'] as List).cast<Map<String, dynamic>>();
+                final options =
+                    (q['options'] as List).cast<Map<String, dynamic>>();
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Column(
@@ -350,7 +373,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                     children: [
                       Text(
                         '${i + 1}. ${q['text']}',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 8),
                       ...options.map((opt) {
@@ -389,18 +415,22 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                 children: [
                   const Icon(Icons.local_bar, color: Colors.brown),
                   const SizedBox(width: 8),
-                  Text('AUDIT-C 酒精使用评估', style: Theme.of(context).textTheme.titleMedium),
+                  Text('AUDIT-C 酒精使用评估',
+                      style: Theme.of(context).textTheme.titleMedium),
                   const Spacer(),
                   if (complete)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: _auditColor(score).withOpacity(0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
                         '得分: $score/12',
-                        style: TextStyle(color: _auditColor(score), fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: _auditColor(score),
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                 ],
@@ -408,7 +438,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
               const SizedBox(height: 16),
               ...List.generate(_auditQuestions.length, (i) {
                 final q = _auditQuestions[i];
-                final options = (q['options'] as List).cast<Map<String, dynamic>>();
+                final options =
+                    (q['options'] as List).cast<Map<String, dynamic>>();
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Column(
@@ -416,7 +447,10 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                     children: [
                       Text(
                         '${i + 1}. ${q['text']}',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(fontWeight: FontWeight.w500),
                       ),
                       const SizedBox(height: 8),
                       ...options.map((opt) {
@@ -425,7 +459,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                           title: Text(opt['text'] as String),
                           value: optScore,
                           groupValue: _auditAnswers[i],
-                          onChanged: (v) => setState(() => _auditAnswers[i] = v),
+                          onChanged: (v) =>
+                              setState(() => _auditAnswers[i] = v),
                           dense: true,
                           contentPadding: EdgeInsets.zero,
                         );
@@ -460,17 +495,21 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
             if (_targetType != TargetType.alcohol && ftndComplete) ...[
               Row(
                 children: [
-                  const Icon(Icons.smoking_rooms, size: 20, color: Colors.orange),
+                  const Icon(Icons.smoking_rooms,
+                      size: 20, color: Colors.orange),
                   const SizedBox(width: 8),
                   Text(
                     '尼古丁依赖: ${_ftndInterpretation(ftndScore)} ($ftndScore/10)',
-                    style: TextStyle(color: _ftndColor(ftndScore), fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        color: _ftndColor(ftndScore),
+                        fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 28, top: 4),
-                child: Text(_ftndDetail(ftndScore), style: Theme.of(context).textTheme.bodySmall),
+                child: Text(_ftndDetail(ftndScore),
+                    style: Theme.of(context).textTheme.bodySmall),
               ),
               if (_targetType == TargetType.both) const SizedBox(height: 12),
             ],
@@ -481,7 +520,9 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                   const SizedBox(width: 8),
                   Text(
                     '酒精使用: ${_auditInterpretation(auditScore)} ($auditScore/12)',
-                    style: TextStyle(color: _auditColor(auditScore), fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                        color: _auditColor(auditScore),
+                        fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -503,5 +544,3 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
     );
   }
 }
-
-

@@ -33,13 +33,13 @@ class PlanRepository {
   }
 
   RelapsePlanItem _mapToPlan(Map<String, dynamic> p) => RelapsePlanItem(
-    id: p['id'] as int,
-    userId: p['user_id'] as int,
-    situation: p['situation'] as String,
-    trigger: p['trigger'] as String?,
-    copingPlan: p['coping_plan'] as String,
-    priority: p['priority'] as int? ?? 0,
-    isTemplate: (p['is_template'] as int?) == 1,
-    category: p['category'] as String?,
-  );
+        id: p['id'] as int,
+        userId: p['user_id'] as int,
+        situation: p['situation'] as String,
+        trigger: p['trigger'] as String?,
+        copingPlan: p['coping_plan'] as String,
+        priority: p['priority'] as int? ?? 0,
+        isTemplate: (p['is_template'] as int?) == 1,
+        category: p['category'] as String?,
+      );
 }

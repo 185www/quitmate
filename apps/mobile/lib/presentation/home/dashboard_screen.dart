@@ -97,7 +97,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       '"你不是在放弃什么——你是在赢得自由。"',
       '"每一个不使用的时刻，都是胜利。"',
     ];
-    final dayOfYear = DateTime.now().difference(DateTime(DateTime.now().year)).inDays;
+    final dayOfYear =
+        DateTime.now().difference(DateTime(DateTime.now().year)).inDays;
     return quotes[dayOfYear % quotes.length];
   }
 
@@ -246,7 +247,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 // Streak pill
                 if (gp.streakDays > 0)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
                       color: colorScheme.primaryContainer.withOpacity(0.7),
                       borderRadius: BorderRadius.circular(12),
@@ -277,8 +279,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       value: gp.levelProgress.clamp(0.0, 1.0),
                       minHeight: 6,
                       backgroundColor: colorScheme.surfaceContainerHighest,
-                      valueColor:
-                          AlwaysStoppedAnimation(colorScheme.primary),
+                      valueColor: AlwaysStoppedAnimation(colorScheme.primary),
                     ),
                   ),
                 ),
@@ -535,13 +536,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   const SizedBox(height: 10),
                   Row(
                     children: [
-                      Text('心情 ',
-                          style: Theme.of(context).textTheme.bodySmall),
+                      Text('心情 ', style: Theme.of(context).textTheme.bodySmall),
                       Text(_moodEmoji(log.mood),
                           style: const TextStyle(fontSize: 22)),
                       const SizedBox(width: 20),
-                      Text('渴望 ',
-                          style: Theme.of(context).textTheme.bodySmall),
+                      Text('渴望 ', style: Theme.of(context).textTheme.bodySmall),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
@@ -562,8 +561,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: (log.urgeLevel != null &&
-                                    log.urgeLevel! > 5)
+                            color: (log.urgeLevel != null && log.urgeLevel! > 5)
                                 ? colorScheme.onErrorContainer
                                 : colorScheme.onPrimaryContainer,
                           ),
@@ -672,9 +670,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: selected
-                ? colorScheme.onPrimary
-                : colorScheme.onSurfaceVariant,
+            color:
+                selected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
           ),
         ),
       ),
@@ -732,8 +729,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   Text(
                     '分析你的记录后，为你提供个性化建议',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                           fontSize: 13,
                         ),
                   ),
@@ -759,8 +755,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     if (_dailyTasks.isEmpty) return const SizedBox.shrink();
     final completedCount =
         _dailyTasks.where((t) => _completedTaskIds.contains(t.id)).length;
-    final totalXp =
-        _dailyTasks.fold<int>(0, (sum, t) => sum + t.xpReward);
+    final totalXp = _dailyTasks.fold<int>(0, (sum, t) => sum + t.xpReward);
     final earnedXp = _dailyTasks
         .where((t) => _completedTaskIds.contains(t.id))
         .fold<int>(0, (sum, t) => sum + t.xpReward);
@@ -791,7 +786,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: colorScheme.primaryContainer.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(12),
@@ -814,13 +810,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               return _buildTaskItem(task, isCompleted, i);
             }),
             const SizedBox(height: 10),
-            Divider(
-                color: colorScheme.surfaceContainerHighest, height: 1),
+            Divider(color: colorScheme.surfaceContainerHighest, height: 1),
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.star_rounded,
-                    size: 14, color: colorScheme.tertiary),
+                Icon(Icons.star_rounded, size: 14, color: colorScheme.tertiary),
                 const SizedBox(width: 4),
                 Text(
                   '可获得 $totalXp XP',
@@ -884,9 +878,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 height: 24,
                 child: Checkbox(
                   value: isCompleted,
-                  onChanged: isCompleted
-                      ? null
-                      : (_) => _completeDailyTask(task),
+                  onChanged:
+                      isCompleted ? null : (_) => _completeDailyTask(task),
                   shape: const CircleBorder(),
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   visualDensity: VisualDensity.compact,
@@ -932,8 +925,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
               const SizedBox(width: 4),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: isCompleted
                       ? colorScheme.primary.withOpacity(0.1)
@@ -1001,9 +993,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         const SizedBox(height: 2),
                         Text(
                           QuitCompanion.dailyChallenge(daysSinceQuit),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onSurfaceVariant,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),

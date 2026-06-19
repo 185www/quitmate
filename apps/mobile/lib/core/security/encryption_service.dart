@@ -23,7 +23,8 @@ class EncryptionService {
   Future<String> encryptText(String plainText) async {
     final key = await _getOrCreateKey();
     final iv = encrypt.IV.fromSecureRandom(16);
-    final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+    final encrypter =
+        encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
     final encrypted = encrypter.encrypt(plainText, iv: iv);
     return '${iv.base64}:${encrypted.base64}';
   }
@@ -31,10 +32,12 @@ class EncryptionService {
   Future<String> decryptText(String encryptedText) async {
     final key = await _getOrCreateKey();
     final parts = encryptedText.split(':');
-    if (parts.length != 2) throw const FormatException('Invalid encrypted text');
+    if (parts.length != 2)
+      throw const FormatException('Invalid encrypted text');
     final iv = encrypt.IV.fromBase64(parts[0]);
     final encrypted = encrypt.Encrypted.fromBase64(parts[1]);
-    final encrypter = encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+    final encrypter =
+        encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
     return encrypter.decrypt(encrypted, iv: iv);
   }
 
@@ -44,7 +47,8 @@ class EncryptionService {
     return {'encrypted': encrypted};
   }
 
-  Future<Map<String, dynamic>> decryptJson(Map<String, dynamic> encryptedData) async {
+  Future<Map<String, dynamic>> decryptJson(
+      Map<String, dynamic> encryptedData) async {
     final encrypted = encryptedData['encrypted'] as String;
     final decrypted = await decryptText(encrypted);
     return jsonDecode(decrypted) as Map<String, dynamic>;

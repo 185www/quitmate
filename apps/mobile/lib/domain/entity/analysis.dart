@@ -55,7 +55,8 @@ class AnalysisInsight {
   bool get isRisk => type == 'risk' && severity >= 3;
 
   /// Whether this insight is positive (achievement or improving trend).
-  bool get isPositive => type == 'achievement' || (type == 'trend' && severity <= 2);
+  bool get isPositive =>
+      type == 'achievement' || (type == 'trend' && severity <= 2);
 
   AnalysisInsight copyWith({
     String? type,
@@ -76,7 +77,8 @@ class AnalysisInsight {
   }
 
   @override
-  String toString() => 'AnalysisInsight(type: $type, title: $title, severity: $severity)';
+  String toString() =>
+      'AnalysisInsight(type: $type, title: $title, severity: $severity)';
 }
 
 /// A daily personalized insight shown on the dashboard.

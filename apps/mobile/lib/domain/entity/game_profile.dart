@@ -2,20 +2,20 @@
 class GameProfile {
   final int id;
   final int userId;
-  int level;           // Current level (1-100)
-  int xp;             // Current XP in this level
-  int totalXp;         // Total lifetime XP
-  int streakDays;      // Current consecutive check-in streak
-  int longestStreak;   // Longest streak ever achieved
-  int checkinTotal;    // Total check-ins ever
+  int level; // Current level (1-100)
+  int xp; // Current XP in this level
+  int totalXp; // Total lifetime XP
+  int streakDays; // Current consecutive check-in streak
+  int longestStreak; // Longest streak ever achieved
+  int checkinTotal; // Total check-ins ever
   DateTime? lastCheckinDate;
   DateTime createdAt;
   DateTime updatedAt;
 
   // Achievement counts
-  int cravingsResisted;  // Total cravings resisted
+  int cravingsResisted; // Total cravings resisted
   int exercisesCompleted; // Total exercises completed
-  int sosUsedCount;      // Total SOS uses
+  int sosUsedCount; // Total SOS uses
 
   GameProfile({
     required this.id,
@@ -83,13 +83,15 @@ class GameProfile {
   bool get isStreakActive {
     if (lastCheckinDate == null) return false;
     final now = DateTime.now();
-    final last = DateTime(lastCheckinDate!.year, lastCheckinDate!.month, lastCheckinDate!.day);
+    final last = DateTime(
+        lastCheckinDate!.year, lastCheckinDate!.month, lastCheckinDate!.day);
     final today = DateTime(now.year, now.month, now.day);
     return last == today || last == today.subtract(const Duration(days: 1));
   }
 
   /// Award XP and auto-level-up
-  (int levelsGained, int newXp, int newLevel, int newXpInLevel) awardXp(int amount) {
+  (int levelsGained, int newXp, int newLevel, int newXpInLevel) awardXp(
+      int amount) {
     int newTotal = totalXp + amount;
     var newLevel = level;
     // Calculate what level the new total XP corresponds to
@@ -108,10 +110,20 @@ class GameProfile {
   }
 
   GameProfile copyWith({
-    int? id, int? userId, int? level, int? xp, int? totalXp,
-    int? streakDays, int? longestStreak, int? checkinTotal,
-    DateTime? lastCheckinDate, DateTime? createdAt, DateTime? updatedAt,
-    int? cravingsResisted, int? exercisesCompleted, int? sosUsedCount,
+    int? id,
+    int? userId,
+    int? level,
+    int? xp,
+    int? totalXp,
+    int? streakDays,
+    int? longestStreak,
+    int? checkinTotal,
+    DateTime? lastCheckinDate,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    int? cravingsResisted,
+    int? exercisesCompleted,
+    int? sosUsedCount,
   }) {
     return GameProfile(
       id: id ?? this.id,
@@ -160,15 +172,25 @@ class LevelMilestone {
   });
 
   static const List<LevelMilestone> milestones = [
-    LevelMilestone(level: 1, title: '初学者', description: '开始你的戒断之旅', reward: '解锁每日签到'),
-    LevelMilestone(level: 3, title: '觉醒者', description: '连续签到3天', reward: '解锁渴望冲浪'),
-    LevelMilestone(level: 5, title: '探索者', description: '开始探索自己的渴望模式', reward: '解锁场景分析'),
-    LevelMilestone(level: 10, title: '战斗者', description: '成功抵抗10次渴望', reward: '解锁高级CBT练习'),
-    LevelMilestone(level: 15, title: '勇士', description: '连续签到15天', reward: '解锁生活方式重塑'),
-    LevelMilestone(level: 20, title: '守护者', description: '完成20个CBT练习', reward: '解锁复发预防计划'),
-    LevelMilestone(level: 30, title: '征服者', description: '坚持30天不复发', reward: '解锁周报功能'),
-    LevelMilestone(level: 50, title: '传奇', description: '累计获得5000 XP', reward: '解锁大师徽章'),
-    LevelMilestone(level: 75, title: '英雄', description: '连续签到75天', reward: '解锁专属称号'),
-    LevelMilestone(level: 100, title: '大师', description: '达到最高等级', reward: '获得大师勋章'),
+    LevelMilestone(
+        level: 1, title: '初学者', description: '开始你的戒断之旅', reward: '解锁每日签到'),
+    LevelMilestone(
+        level: 3, title: '觉醒者', description: '连续签到3天', reward: '解锁渴望冲浪'),
+    LevelMilestone(
+        level: 5, title: '探索者', description: '开始探索自己的渴望模式', reward: '解锁场景分析'),
+    LevelMilestone(
+        level: 10, title: '战斗者', description: '成功抵抗10次渴望', reward: '解锁高级CBT练习'),
+    LevelMilestone(
+        level: 15, title: '勇士', description: '连续签到15天', reward: '解锁生活方式重塑'),
+    LevelMilestone(
+        level: 20, title: '守护者', description: '完成20个CBT练习', reward: '解锁复发预防计划'),
+    LevelMilestone(
+        level: 30, title: '征服者', description: '坚持30天不复发', reward: '解锁周报功能'),
+    LevelMilestone(
+        level: 50, title: '传奇', description: '累计获得5000 XP', reward: '解锁大师徽章'),
+    LevelMilestone(
+        level: 75, title: '英雄', description: '连续签到75天', reward: '解锁专属称号'),
+    LevelMilestone(
+        level: 100, title: '大师', description: '达到最高等级', reward: '获得大师勋章'),
   ];
 }

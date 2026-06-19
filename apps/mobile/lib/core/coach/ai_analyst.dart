@@ -95,12 +95,14 @@ class AiAnalyst {
 
     // 3. Mood-craving correlation
     if (logs.length >= 5) {
-      final correlation = _patternAnalyzer.calculateMoodCravingCorrelation(logs);
+      final correlation =
+          _patternAnalyzer.calculateMoodCravingCorrelation(logs);
       if (correlation.abs() >= 0.3) {
         insights.add(AnalysisInsight(
           type: 'pattern',
           title: '情绪-渴望关联',
-          description: _patternAnalyzer.describeMoodCravingRelationship(correlation),
+          description:
+              _patternAnalyzer.describeMoodCravingRelationship(correlation),
           recommendation: correlation < -0.3
               ? '当感到情绪低落时，立即启动应对计划——深呼吸、散步、或者找人聊聊。'
               : '注意在心情好的时候也不要放松警惕，尤其在社交场合。',
@@ -200,7 +202,9 @@ class AiAnalyst {
     );
 
     // Try LLM first for the richest insight
-    if (_llmService != null && _llmService.isConfigured && recentCravings.length >= 2) {
+    if (_llmService != null &&
+        _llmService.isConfigured &&
+        recentCravings.length >= 2) {
       try {
         return await _generateLlmDailyInsight(
           user: user,
@@ -266,7 +270,9 @@ class AiAnalyst {
     String? motivationalQuote;
     List<AnalysisInsight> llmHighlights = [];
 
-    if (_llmService != null && _llmService.isConfigured && weekLogs.length >= 3) {
+    if (_llmService != null &&
+        _llmService.isConfigured &&
+        weekLogs.length >= 3) {
       try {
         final llmResult = await _generateLlmWeeklyReport(
           user: user,
@@ -579,7 +585,8 @@ class AiAnalyst {
 
     // Critical risk
     if (riskScore >= 70) {
-      final reason = _identifyHighRiskReason(todayLog, recentCravings, recentLogs);
+      final reason =
+          _identifyHighRiskReason(todayLog, recentCravings, recentLogs);
       return DailyInsight(
         headline: '今天需要特别注意',
         body: '你的风险评估得分为$riskScore/100。$reason'
@@ -752,8 +759,7 @@ class AiAnalyst {
             totalCravings
         : 0.0;
 
-    final resistedCount =
-        weekCravings.where((c) => c.resolved).length;
+    final resistedCount = weekCravings.where((c) => c.resolved).length;
     final resistRate = totalCravings > 0 ? resistedCount / totalCravings : 0.0;
 
     final avgMood = weekLogs.isNotEmpty
@@ -767,10 +773,12 @@ class AiAnalyst {
     if (weekCravings.length >= 3) {
       final dayCount = <int, int>{};
       for (final c in weekCravings) {
-        dayCount[c.timestamp.weekday] = (dayCount[c.timestamp.weekday] ?? 0) + 1;
+        dayCount[c.timestamp.weekday] =
+            (dayCount[c.timestamp.weekday] ?? 0) + 1;
       }
       final weekdayNames = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
-      final maxDay = dayCount.entries.reduce((a, b) => a.value > b.value ? a : b);
+      final maxDay =
+          dayCount.entries.reduce((a, b) => a.value > b.value ? a : b);
       peakDay = weekdayNames[maxDay.key - 1];
     }
 
@@ -895,7 +903,8 @@ class AiAnalyst {
         insights.add(AnalysisInsight(
           type: 'pattern',
           title: '情绪关联',
-          description: _patternAnalyzer.describeMoodCravingRelationship(correlation),
+          description:
+              _patternAnalyzer.describeMoodCravingRelationship(correlation),
           severity: correlation.abs() >= 0.6 ? 4 : 2,
         ));
       }
@@ -908,7 +917,8 @@ class AiAnalyst {
         insights.add(AnalysisInsight(
           type: 'suggestion',
           title: '应对"${triggers.first.trigger}"',
-          description: '"${triggers.first.trigger}"本周出现了${triggers.first.count}次，'
+          description:
+              '"${triggers.first.trigger}"本周出现了${triggers.first.count}次，'
               '占${(triggers.first.percentage * 100).toStringAsFixed(0)}%。',
           recommendation: _buildTriggerRecommendation(triggers.first),
           severity: 3,
@@ -925,7 +935,11 @@ class AiAnalyst {
         description: '复发是旅程的一部分，重要的是从中学习。'
             '分析每次复发的触发因素，更新你的预防计划。',
         recommendation: '回顾复发预防计划，更新高风险场景列表。',
-        severity: relapseDays >= 3 ? 5 : relapseDays >= 2 ? 4 : 3,
+        severity: relapseDays >= 3
+            ? 5
+            : relapseDays >= 2
+                ? 4
+                : 3,
       ));
     }
 
@@ -1165,9 +1179,8 @@ class AiAnalyst {
     if (recentCravings.isNotEmpty) {
       final today = DateTime.now();
       final todayStart = DateTime(today.year, today.month, today.day);
-      final todayCravings = recentCravings
-          .where((c) => c.timestamp.isAfter(todayStart))
-          .toList();
+      final todayCravings =
+          recentCravings.where((c) => c.timestamp.isAfter(todayStart)).toList();
 
       buffer.writeln('## 今日渴望记录（${todayCravings.length}次）');
       for (final c in todayCravings) {
@@ -1184,8 +1197,7 @@ class AiAnalyst {
     if (recentLogs.length >= 2) {
       buffer.writeln('## 近期心情趋势');
       for (final log in recentLogs.take(5)) {
-        final dateStr =
-            '${log.date.month}/${log.date.day}';
+        final dateStr = '${log.date.month}/${log.date.day}';
         buffer.writeln(
           '- $dateStr: 心情${log.mood}/5, '
           '渴望${log.urgeLevel ?? '-'}/10 '
@@ -1228,7 +1240,8 @@ class AiAnalyst {
       final correlation =
           _patternAnalyzer.calculateMoodCravingCorrelation(recentLogs);
       buffer.writeln('## 情绪-渴望相关性: ${correlation.toStringAsFixed(2)}');
-      buffer.writeln(_patternAnalyzer.describeMoodCravingRelationship(correlation));
+      buffer.writeln(
+          _patternAnalyzer.describeMoodCravingRelationship(correlation));
       buffer.writeln();
 
       final trend = _patternAnalyzer.detectTrend(recentLogs);
@@ -1262,15 +1275,15 @@ class AiAnalyst {
       buffer.writeln('- 渴望最高日：${stats['peakDay']}');
     }
     if (stats['peakHour'] != null) {
-      buffer.writeln('- 渴望高峰时段：${TimePattern.formatHour(stats['peakHour'] as int)}');
+      buffer.writeln(
+          '- 渴望高峰时段：${TimePattern.formatHour(stats['peakHour'] as int)}');
     }
     buffer.writeln();
 
     if (weekLogs.isNotEmpty) {
       buffer.writeln('## 每日详情');
       for (final log in weekLogs) {
-        final dateStr =
-            '${log.date.month}/${log.date.day}';
+        final dateStr = '${log.date.month}/${log.date.day}';
         buffer.writeln(
           '- $dateStr: 心情${log.mood}/5, '
           '渴望${log.urgeLevel ?? '-'}/10 '

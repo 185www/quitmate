@@ -15,15 +15,16 @@ class UserUseCase {
     double? dailyConsumption,
     int? yearsOfUse,
     double? dailyCostAmount,
-  }) => _repository.createUser(
-    targetType: targetType,
-    quitDate: quitDate,
-    fagerstromScore: fagerstromScore,
-    auditScore: auditScore,
-    dailyConsumption: dailyConsumption,
-    yearsOfUse: yearsOfUse,
-    dailyCostAmount: dailyCostAmount,
-  );
+  }) =>
+      _repository.createUser(
+        targetType: targetType,
+        quitDate: quitDate,
+        fagerstromScore: fagerstromScore,
+        auditScore: auditScore,
+        dailyConsumption: dailyConsumption,
+        yearsOfUse: yearsOfUse,
+        dailyCostAmount: dailyCostAmount,
+      );
 
   Future<User> setQuitDate(DateTime quitDate) async {
     final user = await _repository.getCurrentUser();
@@ -32,7 +33,8 @@ class UserUseCase {
     final newStage = user.stage.index < UserStage.preparation.index
         ? UserStage.preparation
         : user.stage;
-    return _repository.updateUser(id: user.id, quitDate: quitDate, stage: newStage);
+    return _repository.updateUser(
+        id: user.id, quitDate: quitDate, stage: newStage);
   }
 
   Future<User> advanceStage() async {
@@ -68,11 +70,16 @@ class UserUseCase {
 
   UserStage _getNextStage(UserStage current) {
     switch (current) {
-      case UserStage.preContemplation: return UserStage.contemplation;
-      case UserStage.contemplation: return UserStage.preparation;
-      case UserStage.preparation: return UserStage.action;
-      case UserStage.action: return UserStage.maintenance;
-      case UserStage.maintenance: return UserStage.maintenance;
+      case UserStage.preContemplation:
+        return UserStage.contemplation;
+      case UserStage.contemplation:
+        return UserStage.preparation;
+      case UserStage.preparation:
+        return UserStage.action;
+      case UserStage.action:
+        return UserStage.maintenance;
+      case UserStage.maintenance:
+        return UserStage.maintenance;
     }
   }
 
@@ -120,6 +127,7 @@ class UserUseCase {
     );
   }
 
-  Future<void> savePreferences(Map<String, dynamic> preferences) => _repository.savePreferences(preferences);
+  Future<void> savePreferences(Map<String, dynamic> preferences) =>
+      _repository.savePreferences(preferences);
   Future<Map<String, dynamic>> getPreferences() => _repository.getPreferences();
 }

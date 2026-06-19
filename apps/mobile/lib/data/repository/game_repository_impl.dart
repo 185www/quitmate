@@ -7,7 +7,8 @@ class GameRepository {
 
   Future<GameProfile?> getGameProfile(int userId) async {
     final db = await _db.database;
-    final results = await db.query('game_profile', where: 'user_id = ?', whereArgs: [userId], limit: 1);
+    final results = await db.query('game_profile',
+        where: 'user_id = ?', whereArgs: [userId], limit: 1);
     if (results.isEmpty) return null;
     return _fromRow(results.first);
   }
@@ -33,19 +34,23 @@ class GameRepository {
 
   Future<void> updateGameProfile(GameProfile profile) async {
     final db = await _db.database;
-    await db.update('game_profile', {
-      'level': profile.level,
-      'xp': profile.xp,
-      'total_xp': profile.totalXp,
-      'streak_days': profile.streakDays,
-      'longest_streak': profile.longestStreak,
-      'checkin_total': profile.checkinTotal,
-      'last_checkin_date': profile.lastCheckinDate?.toIso8601String(),
-      'updated_at': DateTime.now().toIso8601String(),
-      'cravings_resisted': profile.cravingsResisted,
-      'exercises_completed': profile.exercisesCompleted,
-      'sos_used_count': profile.sosUsedCount,
-    }, where: 'id = ?', whereArgs: [profile.id]);
+    await db.update(
+        'game_profile',
+        {
+          'level': profile.level,
+          'xp': profile.xp,
+          'total_xp': profile.totalXp,
+          'streak_days': profile.streakDays,
+          'longest_streak': profile.longestStreak,
+          'checkin_total': profile.checkinTotal,
+          'last_checkin_date': profile.lastCheckinDate?.toIso8601String(),
+          'updated_at': DateTime.now().toIso8601String(),
+          'cravings_resisted': profile.cravingsResisted,
+          'exercises_completed': profile.exercisesCompleted,
+          'sos_used_count': profile.sosUsedCount,
+        },
+        where: 'id = ?',
+        whereArgs: [profile.id]);
   }
 
   GameProfile _fromRow(Map<String, dynamic> row) {

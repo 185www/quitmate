@@ -53,7 +53,8 @@ class AiCoachEngine {
 
   // ---- Greeting Generation ----
 
-  String _buildGreetingText(User? user, GameProfile? gameProfile, DailyLogEntry? todayLog) {
+  String _buildGreetingText(
+      User? user, GameProfile? gameProfile, DailyLogEntry? todayLog) {
     if (user == null || !user.hasQuitDate) {
       return _randomFrom([
         '你好！我是你的戒烟教练。今天想聊聊什么？',
@@ -115,7 +116,8 @@ class AiCoachEngine {
 
   // ---- Response Generation ----
 
-  String _buildResponseText(String userInput, User? user, GameProfile? gameProfile) {
+  String _buildResponseText(
+      String userInput, User? user, GameProfile? gameProfile) {
     final input = userInput.toLowerCase();
     final days = user?.daysSinceQuit ?? 0;
     final stage = user?.stage ?? UserStage.preContemplation;
@@ -408,9 +410,11 @@ class AiCoachEngine {
     if (response.contains('呼吸')) return 'tip';
     if (response.contains('方法') || response.contains('建议')) return 'tip';
     if (response.contains('?') || response.contains('？')) return 'question';
-    if (response.contains('骄傲') || response.contains('棒')) return 'encouragement';
+    if (response.contains('骄傲') || response.contains('棒'))
+      return 'encouragement';
     if (response.contains('？')) return 'question';
-    if (response.contains('进步') || response.contains('成功')) return 'encouragement';
+    if (response.contains('进步') || response.contains('成功'))
+      return 'encouragement';
     return 'reflection';
   }
 
@@ -428,8 +432,6 @@ class AiCoachEngine {
   String _randomFrom(List<String> options) {
     return options[Random().nextInt(options.length)];
   }
-
-
 
   bool _containsAny(String input, List<String> keywords) {
     return keywords.any((k) => input.contains(k));

@@ -12,7 +12,8 @@ class LogRepository {
     return _mapToEntry(log);
   }
 
-  Future<List<DailyLogEntry>> getLogsForUser(int userId, {int limit = 30}) async {
+  Future<List<DailyLogEntry>> getLogsForUser(int userId,
+      {int limit = 30}) async {
     final logs = await _database.getDailyLogsForUser(userId, limit: limit);
     return logs.map((l) => _mapToEntry(l)).toList();
   }
@@ -39,8 +40,10 @@ class LogRepository {
     for (final log in logs) {
       final logDate = DateTime(log.date.year, log.date.month, log.date.day);
       final expected = DateTime(checkDate.year, checkDate.month, checkDate.day);
-      if (logDate.isAtSameMomentAs(expected)) { streak++; checkDate = checkDate.subtract(const Duration(days: 1)); }
-      else if (logDate.isBefore(expected)) break;
+      if (logDate.isAtSameMomentAs(expected)) {
+        streak++;
+        checkDate = checkDate.subtract(const Duration(days: 1));
+      } else if (logDate.isBefore(expected)) break;
     }
     return streak;
   }
@@ -56,20 +59,23 @@ class LogRepository {
         }
       }
     }
-    final sorted = triggerCount.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final sorted = triggerCount.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
     return sorted.take(limit).map((e) => e.key).toList();
   }
 
   DailyLogEntry _mapToEntry(Map<String, dynamic> log) => DailyLogEntry(
-    id: log['id'] as int,
-    userId: log['user_id'] as int,
-    date: DateTime.parse(log['date'] as String),
-    mood: log['mood'] as int? ?? 3,
-    urgeLevel: log['urge_level'] as int?,
-    triggers: log['triggers'] != null ? List<String>.from(jsonDecode(log['triggers'] as String)) : null,
-    coping: log['coping'] as String?,
-    relapsed: (log['relapsed'] as int?) == 1,
-    consumption: log['consumption'] as int?,
-    notes: log['notes'] as String?,
-  );
+        id: log['id'] as int,
+        userId: log['user_id'] as int,
+        date: DateTime.parse(log['date'] as String),
+        mood: log['mood'] as int? ?? 3,
+        urgeLevel: log['urge_level'] as int?,
+        triggers: log['triggers'] != null
+            ? List<String>.from(jsonDecode(log['triggers'] as String))
+            : null,
+        coping: log['coping'] as String?,
+        relapsed: (log['relapsed'] as int?) == 1,
+        consumption: log['consumption'] as int?,
+        notes: log['notes'] as String?,
+      );
 }

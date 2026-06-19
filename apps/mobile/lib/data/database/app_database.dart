@@ -20,18 +20,26 @@ class AppDatabase {
       onCreate: (db, version) async => _createTables(db),
       onUpgrade: (db, oldV, newV) async {
         if (oldV < 2) {
-          await db.execute('CREATE TABLE IF NOT EXISTS badge (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT UNIQUE NOT NULL, name TEXT NOT NULL, description TEXT NOT NULL, icon_asset TEXT NOT NULL, earned_at TEXT)');
+          await db.execute(
+              'CREATE TABLE IF NOT EXISTS badge (id INTEGER PRIMARY KEY AUTOINCREMENT, code TEXT UNIQUE NOT NULL, name TEXT NOT NULL, description TEXT NOT NULL, icon_asset TEXT NOT NULL, earned_at TEXT)');
         }
         if (oldV < 3) {
           for (final col in ['location', 'social_context', 'activity']) {
-            try { await db.execute('ALTER TABLE craving_log ADD COLUMN $col TEXT'); } catch (_) {}
+            try {
+              await db.execute('ALTER TABLE craving_log ADD COLUMN $col TEXT');
+            } catch (_) {}
           }
         }
         if (oldV < 4) {
-          try { await db.execute('DROP TABLE IF EXISTS notification_schedule'); } catch (_) {}
+          try {
+            await db.execute('DROP TABLE IF EXISTS notification_schedule');
+          } catch (_) {}
         }
         if (oldV < 5) {
-          try { await db.execute('ALTER TABLE user_profile ADD COLUMN daily_cost_amount REAL'); } catch (_) {}
+          try {
+            await db.execute(
+                'ALTER TABLE user_profile ADD COLUMN daily_cost_amount REAL');
+          } catch (_) {}
         }
         if (oldV < 6) {
           await _createGameProfileTable(db);
@@ -144,16 +152,66 @@ class AppDatabase {
     if (existing.isNotEmpty) return;
 
     final badges = [
-      {'code': 'first_log', 'name': '第一步', 'description': '完成第一次记录', 'icon_asset': 'assets/brand/badges/step1.svg'},
-      {'code': 'day_1', 'name': '第一天', 'description': '成功坚持1天', 'icon_asset': 'assets/brand/badges/day1.svg'},
-      {'code': 'day_7', 'name': '一周达人', 'description': '成功坚持7天', 'icon_asset': 'assets/brand/badges/day7.svg'},
-      {'code': 'day_30', 'name': '月度冠军', 'description': '成功坚持30天', 'icon_asset': 'assets/brand/badges/day30.svg'},
-      {'code': 'day_90', 'name': '季度英雄', 'description': '成功坚持90天', 'icon_asset': 'assets/brand/badges/day90.svg'},
-      {'code': 'day_365', 'name': '年度传奇', 'description': '成功坚持一年', 'icon_asset': 'assets/brand/badges/day365.svg'},
-      {'code': 'sos_used', 'name': '紧急救援', 'description': '第一次使用SOS紧急求助', 'icon_asset': 'assets/brand/badges/sos.svg'},
-      {'code': 'urge_surfed', 'name': '冲浪者', 'description': '完成第一次渴望冲浪', 'icon_asset': 'assets/brand/badges/surf.svg'},
-      {'code': 'cbt_master', 'name': 'CBT学徒', 'description': '完成5个CBT练习', 'icon_asset': 'assets/brand/badges/cbt.svg'},
-      {'code': 'assessment_done', 'name': '自我认知', 'description': '完成依赖评估', 'icon_asset': 'assets/brand/badges/assess.svg'},
+      {
+        'code': 'first_log',
+        'name': '第一步',
+        'description': '完成第一次记录',
+        'icon_asset': 'assets/brand/badges/step1.svg'
+      },
+      {
+        'code': 'day_1',
+        'name': '第一天',
+        'description': '成功坚持1天',
+        'icon_asset': 'assets/brand/badges/day1.svg'
+      },
+      {
+        'code': 'day_7',
+        'name': '一周达人',
+        'description': '成功坚持7天',
+        'icon_asset': 'assets/brand/badges/day7.svg'
+      },
+      {
+        'code': 'day_30',
+        'name': '月度冠军',
+        'description': '成功坚持30天',
+        'icon_asset': 'assets/brand/badges/day30.svg'
+      },
+      {
+        'code': 'day_90',
+        'name': '季度英雄',
+        'description': '成功坚持90天',
+        'icon_asset': 'assets/brand/badges/day90.svg'
+      },
+      {
+        'code': 'day_365',
+        'name': '年度传奇',
+        'description': '成功坚持一年',
+        'icon_asset': 'assets/brand/badges/day365.svg'
+      },
+      {
+        'code': 'sos_used',
+        'name': '紧急救援',
+        'description': '第一次使用SOS紧急求助',
+        'icon_asset': 'assets/brand/badges/sos.svg'
+      },
+      {
+        'code': 'urge_surfed',
+        'name': '冲浪者',
+        'description': '完成第一次渴望冲浪',
+        'icon_asset': 'assets/brand/badges/surf.svg'
+      },
+      {
+        'code': 'cbt_master',
+        'name': 'CBT学徒',
+        'description': '完成5个CBT练习',
+        'icon_asset': 'assets/brand/badges/cbt.svg'
+      },
+      {
+        'code': 'assessment_done',
+        'name': '自我认知',
+        'description': '完成依赖评估',
+        'icon_asset': 'assets/brand/badges/assess.svg'
+      },
     ];
     for (final b in badges) {
       await db.insert('badge', b);
@@ -183,17 +241,26 @@ class AppDatabase {
     return db.insert('daily_log', log);
   }
 
-  Future<List<Map<String, dynamic>>> getDailyLogsForUser(int userId, {int limit = 30}) async {
+  Future<List<Map<String, dynamic>>> getDailyLogsForUser(int userId,
+      {int limit = 30}) async {
     final db = await database;
-    return db.query('daily_log', where: 'user_id = ?', whereArgs: [userId], orderBy: 'date DESC', limit: limit);
+    return db.query('daily_log',
+        where: 'user_id = ?',
+        whereArgs: [userId],
+        orderBy: 'date DESC',
+        limit: limit);
   }
 
   Future<Map<String, dynamic>?> getTodayLog(int userId) async {
     final db = await database;
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day).toIso8601String();
-    final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59, 999).toIso8601String();
-    final results = await db.query('daily_log', where: 'user_id = ? AND date >= ? AND date <= ?', whereArgs: [userId, startOfDay, endOfDay], limit: 1);
+    final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59, 999)
+        .toIso8601String();
+    final results = await db.query('daily_log',
+        where: 'user_id = ? AND date >= ? AND date <= ?',
+        whereArgs: [userId, startOfDay, endOfDay],
+        limit: 1);
     return results.isNotEmpty ? results.first : null;
   }
 
@@ -203,9 +270,14 @@ class AppDatabase {
     return db.insert('craving_log', craving);
   }
 
-  Future<List<Map<String, dynamic>>> getCravingLogsForUser(int userId, {int limit = 50}) async {
+  Future<List<Map<String, dynamic>>> getCravingLogsForUser(int userId,
+      {int limit = 50}) async {
     final db = await database;
-    return db.query('craving_log', where: 'user_id = ?', whereArgs: [userId], orderBy: 'timestamp DESC', limit: limit);
+    return db.query('craving_log',
+        where: 'user_id = ?',
+        whereArgs: [userId],
+        orderBy: 'timestamp DESC',
+        limit: limit);
   }
 
   // Badges
@@ -221,7 +293,8 @@ class AppDatabase {
 
   Future<int> earnBadge(String code) async {
     final db = await database;
-    return db.update('badge', {'earned_at': DateTime.now().toIso8601String()}, where: 'code = ?', whereArgs: [code]);
+    return db.update('badge', {'earned_at': DateTime.now().toIso8601String()},
+        where: 'code = ?', whereArgs: [code]);
   }
 
   // Relapse plan
@@ -232,7 +305,8 @@ class AppDatabase {
 
   Future<List<Map<String, dynamic>>> getRelapsePlansForUser(int userId) async {
     final db = await database;
-    return db.query('relapse_plan', where: 'user_id = ?', whereArgs: [userId], orderBy: 'priority DESC');
+    return db.query('relapse_plan',
+        where: 'user_id = ?', whereArgs: [userId], orderBy: 'priority DESC');
   }
 
   Future<List<Map<String, dynamic>>> getTemplatePlans() async {

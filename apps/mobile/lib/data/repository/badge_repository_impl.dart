@@ -26,11 +26,13 @@ class BadgeRepository {
   }
 
   AppBadge _mapToBadge(Map<String, dynamic> b) => AppBadge(
-    id: b['id'] as int,
-    code: b['code'] as String,
-    name: b['name'] as String,
-    description: b['description'] as String,
-    iconAsset: b['icon_asset'] as String,
-    earnedAt: b['earned_at'] != null ? DateTime.parse(b['earned_at'] as String) : null,
-  );
+        id: b['id'] as int,
+        code: b['code'] as String,
+        name: b['name'] as String,
+        description: b['description'] as String,
+        iconAsset: b['icon_asset'] as String,
+        earnedAt: b['earned_at'] != null
+            ? DateTime.parse(b['earned_at'] as String)
+            : null,
+      );
 }

@@ -34,8 +34,7 @@ class MaintenanceScreen extends StatelessWidget {
               icon: Icons.shield_rounded,
               title: '复发预防计划',
               subtitle: '识别高危情境，制定应对预案，建立安全网',
-              description:
-                  '提前规划可能触发复发的场景（社交压力、情绪低落等），为每个场景准备具体的应对策略。',
+              description: '提前规划可能触发复发的场景（社交压力、情绪低落等），为每个场景准备具体的应对策略。',
               color: colorScheme.primary,
               onTap: () => context.push('/maintenance/relapse-plan'),
             ),
@@ -45,8 +44,7 @@ class MaintenanceScreen extends StatelessWidget {
               icon: Icons.fitness_center_rounded,
               title: '生活方式建议',
               subtitle: '运动、冥想、健康习惯，全方位重塑生活',
-              description:
-                  '研究表明，规律运动、正念冥想和健康饮食能显著降低复发风险，同时改善整体身心健康。',
+              description: '研究表明，规律运动、正念冥想和健康饮食能显著降低复发风险，同时改善整体身心健康。',
               color: colorScheme.tertiary,
               onTap: () => context.push('/maintenance/lifestyle'),
             ),

@@ -258,7 +258,8 @@ class AppTheme {
     final onPrimaryContainer =
         isDark ? const Color(0xFFA7F3D0) : const Color(0xFF1B4332);
 
-    final secondary = isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1);
+    final secondary =
+        isDark ? const Color(0xFF818CF8) : const Color(0xFF6366F1);
     final onSecondary = const Color(0xFFFFFFFF);
     final secondaryContainer =
         isDark ? const Color(0xFF2E2E5E) : const Color(0xFFEEF2FF);
@@ -275,7 +276,8 @@ class AppTheme {
 
     final error = const Color(0xFFEF5350);
     final onError = const Color(0xFFFFFFFF);
-    final background = isDark ? const Color(0xFF0D1B2A) : const Color(0xFFF7F8FA);
+    final background =
+        isDark ? const Color(0xFF0D1B2A) : const Color(0xFFF7F8FA);
     final onBackground =
         isDark ? const Color(0xFFE8ECF0) : const Color(0xFF1A1A2E);
 
@@ -302,42 +304,28 @@ class AppTheme {
       onTertiary: onPrimary,
       error: error,
       onError: onError,
-      errorContainer: isDark
-          ? const Color(0xFF4C1D1C)
-          : const Color(0xFFFFDAD6),
-      onErrorContainer: isDark
-          ? const Color(0xFFFFDAD6)
-          : const Color(0xFF410002),
+      errorContainer:
+          isDark ? const Color(0xFF4C1D1C) : const Color(0xFFFFDAD6),
+      onErrorContainer:
+          isDark ? const Color(0xFFFFDAD6) : const Color(0xFF410002),
       surface: surface,
       onSurface: onSurface,
       surfaceContainerHighest: surfaceContainerHighest,
       outlineVariant: outlineVariant,
-      outline: isDark
-          ? const Color(0xFF3B5068)
-          : const Color(0xFFC4C9CF),
+      outline: isDark ? const Color(0xFF3B5068) : const Color(0xFFC4C9CF),
     );
 
     // ── AppColors extension ──────────────────────────────────────────────────
     final appColors = AppColors(
-      successColor: isDark
-          ? const Color(0xFF66BB6A)
-          : const Color(0xFF4CAF50),
-      warningColor: isDark
-          ? const Color(0xFFFFB74D)
-          : const Color(0xFFFFB74D),
+      successColor: isDark ? const Color(0xFF66BB6A) : const Color(0xFF4CAF50),
+      warningColor: isDark ? const Color(0xFFFFB74D) : const Color(0xFFFFB74D),
       dangerColor: const Color(0xFFEF5350),
-      achievementColor: isDark
-          ? const Color(0xFFFFB74D)
-          : const Color(0xFFF4A261),
-      companionColor: isDark
-          ? const Color(0xFF80DEEA)
-          : const Color(0xFF4DD0E1),
-      coachColor: isDark
-          ? const Color(0xFFA78BFA)
-          : const Color(0xFF8B5CF6),
-      primaryLight: isDark
-          ? const Color(0xFF1A3A35)
-          : const Color(0xFFE8F5F1),
+      achievementColor:
+          isDark ? const Color(0xFFFFB74D) : const Color(0xFFF4A261),
+      companionColor:
+          isDark ? const Color(0xFF80DEEA) : const Color(0xFF4DD0E1),
+      coachColor: isDark ? const Color(0xFFA78BFA) : const Color(0xFF8B5CF6),
+      primaryLight: isDark ? const Color(0xFF1A3A35) : const Color(0xFFE8F5F1),
       textTertiary: textTertiary,
       dividerColor: outlineVariant,
     );
@@ -660,9 +648,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
         ),
         contentTextStyle: textTheme.bodyMedium?.copyWith(
-          color: isDark
-              ? const Color(0xFF1A1A2E)
-              : const Color(0xFFF7F8FA),
+          color: isDark ? const Color(0xFF1A1A2E) : const Color(0xFFF7F8FA),
           fontWeight: FontWeight.w500,
         ),
       ),

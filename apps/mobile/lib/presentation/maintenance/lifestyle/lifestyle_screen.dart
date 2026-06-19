@@ -60,13 +60,13 @@ class LifestyleScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           ..._recommendations.map((rec) => _LifestyleCard(
-            icon: rec['icon'] as IconData,
-            title: rec['title'] as String,
-            description: rec['description'] as String,
-            category: rec['category'] as String,
-            duration: rec['duration'] as String,
-            prefKey: rec['key'] as String,
-          )),
+                icon: rec['icon'] as IconData,
+                title: rec['title'] as String,
+                description: rec['description'] as String,
+                category: rec['category'] as String,
+                duration: rec['duration'] as String,
+                prefKey: rec['key'] as String,
+              )),
           const SizedBox(height: 16),
           Card(
             color: theme.colorScheme.tertiaryContainer.withOpacity(0.3),
@@ -75,7 +75,8 @@ class LifestyleScreen extends ConsumerWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.auto_stories, color: theme.colorScheme.tertiary, size: 20),
+                  Icon(Icons.auto_stories,
+                      color: theme.colorScheme.tertiary, size: 20),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -167,21 +168,30 @@ class _LifestyleCardState extends ConsumerState<_LifestyleCard> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(widget.title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                        Text(widget.title,
+                            style: theme.textTheme.titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w600)),
                         const SizedBox(height: 4),
                         Row(
                           children: [
                             Chip(
-                              label: Text(widget.category, style: theme.textTheme.bodySmall?.copyWith(fontSize: 11)),
-                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              label: Text(widget.category,
+                                  style: theme.textTheme.bodySmall
+                                      ?.copyWith(fontSize: 11)),
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
                               visualDensity: VisualDensity.compact,
                               padding: EdgeInsets.zero,
-                              labelPadding: const EdgeInsets.symmetric(horizontal: 6),
+                              labelPadding:
+                                  const EdgeInsets.symmetric(horizontal: 6),
                             ),
                             const SizedBox(width: 8),
-                            Icon(Icons.schedule, size: 14, color: theme.colorScheme.primary),
+                            Icon(Icons.schedule,
+                                size: 14, color: theme.colorScheme.primary),
                             const SizedBox(width: 4),
-                            Text(widget.duration, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary)),
+                            Text(widget.duration,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                    color: theme.colorScheme.primary)),
                           ],
                         ),
                       ],
@@ -206,7 +216,9 @@ class _LifestyleCardState extends ConsumerState<_LifestyleCard> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: _loadingPrefs ? null : _toggleDaily,
-                      icon: Icon(_added ? Icons.check_circle : Icons.add_circle_outline),
+                      icon: Icon(_added
+                          ? Icons.check_circle
+                          : Icons.add_circle_outline),
                       label: Text(_added ? '已添加到日常' : '添加到日常'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: _added ? Colors.green : null,
@@ -216,7 +228,9 @@ class _LifestyleCardState extends ConsumerState<_LifestyleCard> {
                 ],
               ),
             ),
-            crossFadeState: _expanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+            crossFadeState: _expanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 200),
           ),
         ],

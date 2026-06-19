@@ -30,8 +30,10 @@ import '../../core/notifications/notification_service.dart';
 class AppRouter {
   final UserUseCase _userUseCase;
 
-  AppRouter({required UserUseCase userUseCase, required NotificationService notificationService})
-    : _userUseCase = userUseCase;
+  AppRouter(
+      {required UserUseCase userUseCase,
+      required NotificationService notificationService})
+      : _userUseCase = userUseCase;
 
   Future<bool> _isLoggedIn() async {
     final user = await _userUseCase.getCurrentUser();
@@ -42,8 +44,16 @@ class AppRouter {
     initialLocation: '/',
     redirect: (context, state) async {
       final loggedIn = await _isLoggedIn();
-      final onBoardingRoutes = ['/welcome', '/onboarding/reality-check', '/onboarding/assessment', '/onboarding/education', '/onboarding/motivation', '/preparation/quit-date'];
-      if (onBoardingRoutes.any((r) => state.matchedLocation.startsWith(r))) return null;
+      final onBoardingRoutes = [
+        '/welcome',
+        '/onboarding/reality-check',
+        '/onboarding/assessment',
+        '/onboarding/education',
+        '/onboarding/motivation',
+        '/preparation/quit-date'
+      ];
+      if (onBoardingRoutes.any((r) => state.matchedLocation.startsWith(r)))
+        return null;
       if (!loggedIn && state.matchedLocation != '/welcome') return '/welcome';
       if (loggedIn && state.matchedLocation == '/welcome') return '/';
       return null;
@@ -51,7 +61,9 @@ class AppRouter {
     routes: [
       // New user entry
       GoRoute(path: '/welcome', builder: (_, __) => const WelcomeScreen()),
-      GoRoute(path: '/onboarding/reality-check', builder: (_, __) => const RealityCheckScreen()),
+      GoRoute(
+          path: '/onboarding/reality-check',
+          builder: (_, __) => const RealityCheckScreen()),
 
       // Main shell with bottom nav
       ShellRoute(
@@ -59,36 +71,68 @@ class AppRouter {
         routes: [
           GoRoute(path: '/', builder: (_, __) => const DashboardScreen()),
           GoRoute(path: '/action', builder: (_, __) => const ActionScreen()),
-          GoRoute(path: '/maintenance', builder: (_, __) => const MaintenanceScreen()),
+          GoRoute(
+              path: '/maintenance',
+              builder: (_, __) => const MaintenanceScreen()),
           GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
         ],
       ),
 
       // Onboarding / preparation paths
-      GoRoute(path: '/onboarding/assessment', builder: (_, __) => const AssessmentScreen()),
-      GoRoute(path: '/onboarding/education', builder: (_, __) => const EducationScreen()),
-      GoRoute(path: '/onboarding/motivation', builder: (_, __) => const MotivationScreen()),
-      GoRoute(path: '/preparation/quit-date', builder: (_, __) => const QuitDateWizardScreen()),
+      GoRoute(
+          path: '/onboarding/assessment',
+          builder: (_, __) => const AssessmentScreen()),
+      GoRoute(
+          path: '/onboarding/education',
+          builder: (_, __) => const EducationScreen()),
+      GoRoute(
+          path: '/onboarding/motivation',
+          builder: (_, __) => const MotivationScreen()),
+      GoRoute(
+          path: '/preparation/quit-date',
+          builder: (_, __) => const QuitDateWizardScreen()),
 
       // Action tools
-      GoRoute(path: '/action/urge-toolkit', builder: (_, __) => const UrgeToolkitScreen()),
-      GoRoute(path: '/action/daily-log', builder: (_, __) => const DailyLogScreen()),
-      GoRoute(path: '/action/skills-lab', builder: (_, __) => const SkillsLabScreen()),
+      GoRoute(
+          path: '/action/urge-toolkit',
+          builder: (_, __) => const UrgeToolkitScreen()),
+      GoRoute(
+          path: '/action/daily-log',
+          builder: (_, __) => const DailyLogScreen()),
+      GoRoute(
+          path: '/action/skills-lab',
+          builder: (_, __) => const SkillsLabScreen()),
       GoRoute(path: '/action/coach', builder: (_, __) => const ChatScreen()),
-      GoRoute(path: '/action/challenge', builder: (_, __) => const ChallengeScreen()),
-      GoRoute(path: '/action/companion', builder: (_, __) => const CompanionScreen()),
+      GoRoute(
+          path: '/action/challenge',
+          builder: (_, __) => const ChallengeScreen()),
+      GoRoute(
+          path: '/action/companion',
+          builder: (_, __) => const CompanionScreen()),
 
       // Maintenance tools
-      GoRoute(path: '/maintenance/relapse-plan', builder: (_, __) => const RelapsePlanScreen()),
-      GoRoute(path: '/maintenance/lifestyle', builder: (_, __) => const LifestyleScreen()),
+      GoRoute(
+          path: '/maintenance/relapse-plan',
+          builder: (_, __) => const RelapsePlanScreen()),
+      GoRoute(
+          path: '/maintenance/lifestyle',
+          builder: (_, __) => const LifestyleScreen()),
 
       // Profile sub-pages
-      GoRoute(path: '/profile/analysis', builder: (_, __) => const AnalysisReportScreen()),
-      GoRoute(path: '/profile/settings', builder: (_, __) => const SettingsScreen()),
-      GoRoute(path: '/profile/export', builder: (_, __) => const ExportScreen()),
+      GoRoute(
+          path: '/profile/analysis',
+          builder: (_, __) => const AnalysisReportScreen()),
+      GoRoute(
+          path: '/profile/settings',
+          builder: (_, __) => const SettingsScreen()),
+      GoRoute(
+          path: '/profile/export', builder: (_, __) => const ExportScreen()),
       GoRoute(path: '/profile/about', builder: (_, __) => const AboutScreen()),
-      GoRoute(path: '/profile/badges', builder: (_, __) => const BadgesScreen()),
-      GoRoute(path: '/profile/game-profile', builder: (_, __) => const GameProfileScreen()),
+      GoRoute(
+          path: '/profile/badges', builder: (_, __) => const BadgesScreen()),
+      GoRoute(
+          path: '/profile/game-profile',
+          builder: (_, __) => const GameProfileScreen()),
     ],
   );
 }

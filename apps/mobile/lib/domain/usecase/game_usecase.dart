@@ -62,7 +62,8 @@ class GameUseCase {
       xp: result.$4,
       totalXp: result.$2,
       streakDays: newStreak,
-      longestStreak: newStreak > profile.longestStreak ? newStreak : profile.longestStreak,
+      longestStreak:
+          newStreak > profile.longestStreak ? newStreak : profile.longestStreak,
       checkinTotal: profile.checkinTotal + 1,
       lastCheckinDate: today,
       updatedAt: DateTime.now(),

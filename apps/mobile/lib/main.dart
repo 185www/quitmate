@@ -39,7 +39,8 @@ class _QuitMateAppState extends ConsumerState<QuitMateApp> {
 
   Future<void> _handleWidgetRoute() async {
     try {
-      final route = await _widgetChannel.invokeMethod<String>('getPendingRoute');
+      final route =
+          await _widgetChannel.invokeMethod<String>('getPendingRoute');
       if (route != null && route.isNotEmpty && mounted) {
         context.go(route);
       }

@@ -19,16 +19,61 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
   bool _saving = false;
 
   final _reasons = [
-    {'key': 'health', 'label': '健康', 'icon': Icons.favorite, 'desc': '改善身体状况，降低疾病风险'},
-    {'key': 'money', 'label': '省钱', 'icon': Icons.savings, 'desc': '节省大量开支，改善财务状况'},
-    {'key': 'family', 'label': '家人', 'icon': Icons.family_restroom, 'desc': '为家人创造无烟/无酒环境'},
+    {
+      'key': 'health',
+      'label': '健康',
+      'icon': Icons.favorite,
+      'desc': '改善身体状况，降低疾病风险'
+    },
+    {
+      'key': 'money',
+      'label': '省钱',
+      'icon': Icons.savings,
+      'desc': '节省大量开支，改善财务状况'
+    },
+    {
+      'key': 'family',
+      'label': '家人',
+      'icon': Icons.family_restroom,
+      'desc': '为家人创造无烟/无酒环境'
+    },
     {'key': 'image', 'label': '形象', 'icon': Icons.face, 'desc': '改善外貌，去除烟/酒味'},
-    {'key': 'freedom', 'label': '自由', 'icon': Icons.flight_takeoff, 'desc': '摆脱依赖，重获选择自由'},
-    {'key': 'performance', 'label': '表现', 'icon': Icons.trending_up, 'desc': '提高工作和运动表现'},
-    {'key': 'mental', 'label': '心理健康', 'icon': Icons.psychology, 'desc': '减少焦虑和抑郁症状'},
-    {'key': 'social', 'label': '社交', 'icon': Icons.people, 'desc': '改善人际关系和社交质量'},
-    {'key': 'longevity', 'label': '长寿', 'icon': Icons.elderly, 'desc': '延长寿命，提高生活质量'},
-    {'key': 'pregnancy', 'label': '生育健康', 'icon': Icons.baby_changing_station, 'desc': '保护生育能力和胎儿健康'},
+    {
+      'key': 'freedom',
+      'label': '自由',
+      'icon': Icons.flight_takeoff,
+      'desc': '摆脱依赖，重获选择自由'
+    },
+    {
+      'key': 'performance',
+      'label': '表现',
+      'icon': Icons.trending_up,
+      'desc': '提高工作和运动表现'
+    },
+    {
+      'key': 'mental',
+      'label': '心理健康',
+      'icon': Icons.psychology,
+      'desc': '减少焦虑和抑郁症状'
+    },
+    {
+      'key': 'social',
+      'label': '社交',
+      'icon': Icons.people,
+      'desc': '改善人际关系和社交质量'
+    },
+    {
+      'key': 'longevity',
+      'label': '长寿',
+      'icon': Icons.elderly,
+      'desc': '延长寿命，提高生活质量'
+    },
+    {
+      'key': 'pregnancy',
+      'label': '生育健康',
+      'icon': Icons.baby_changing_station,
+      'desc': '保护生育能力和胎儿健康'
+    },
   ];
 
   final _quotes = [
@@ -37,7 +82,10 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
     {'text': '戒断不是惩罚，而是你给自己最好的礼物。', 'author': '— 匿名'},
     {'text': '渴望像海浪一样——它来的时候汹涌澎湃，但如果你不去迎合它，它终将退去。', 'author': '— 冲浪法创始人'},
     {'text': '你不是在放弃吸烟/饮酒，你是在选择自由、健康和生活。', 'author': '— 匿名'},
-    {'text': '统计显示，戒断者平均需要6-30次尝试才能成功。每一次失败都是通向成功的阶梯。', 'author': '— Chaiton et al., BMJ Open 2016'},
+    {
+      'text': '统计显示，戒断者平均需要6-30次尝试才能成功。每一次失败都是通向成功的阶梯。',
+      'author': '— Chaiton et al., BMJ Open 2016'
+    },
     {'text': '戒断后20分钟，你的身体就开始修复。每一分钟都在变得更好。', 'author': '— CDC'},
     {'text': '最艰难的一步不是开始，而是决定开始。你已经做到了。', 'author': '— 匿名'},
   ];
@@ -102,7 +150,8 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                     ? const SizedBox(
                         width: 20,
                         height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
                       )
                     : const Text('确定，选择日期开始'),
               ),
@@ -123,7 +172,8 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.list_alt, color: Theme.of(context).colorScheme.primary),
+                Icon(Icons.list_alt,
+                    color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
                 Text('我的戒断理由', style: Theme.of(context).textTheme.titleMedium),
               ],
@@ -160,7 +210,9 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                     child: Row(
                       children: [
                         Icon(
-                          selected ? Icons.check_box : Icons.check_box_outline_blank,
+                          selected
+                              ? Icons.check_box
+                              : Icons.check_box_outline_blank,
                           color: selected
                               ? Theme.of(context).colorScheme.primary
                               : Theme.of(context).colorScheme.onSurfaceVariant,
@@ -170,13 +222,17 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                           radius: 18,
                           backgroundColor: selected
                               ? Theme.of(context).colorScheme.primaryContainer
-                              : Theme.of(context).colorScheme.surfaceContainerHighest,
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
                           child: Icon(
                             icon,
                             size: 18,
                             color: selected
                                 ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -187,13 +243,20 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                               Text(
                                 label,
                                 style: TextStyle(
-                                  fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+                                  fontWeight: selected
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
                                 ),
                               ),
                               Text(
                                 desc,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                     ),
                               ),
                             ],
@@ -220,9 +283,11 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.balance, color: Theme.of(context).colorScheme.primary),
+                Icon(Icons.balance,
+                    color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
-                Text('戒还是不戒？想一想', style: Theme.of(context).textTheme.titleMedium),
+                Text('戒还是不戒？想一想',
+                    style: Theme.of(context).textTheme.titleMedium),
               ],
             ),
             const SizedBox(height: 4),
@@ -235,17 +300,25 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
             const SizedBox(height: 16),
             Text(
               '你觉得戒掉的好处有多重要？',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
-            _buildScale(context, _prosScore, (v) => setState(() => _prosScore = v)),
+            _buildScale(
+                context, _prosScore, (v) => setState(() => _prosScore = v)),
             const SizedBox(height: 16),
             Text(
               '你觉得继续下去的危害有多严重？',
-              style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
-            _buildScale(context, _consScore, (v) => setState(() => _consScore = v)),
+            _buildScale(
+                context, _consScore, (v) => setState(() => _consScore = v)),
             if (_prosScore != null && _consScore != null) ...[
               const SizedBox(height: 16),
               Container(
@@ -262,7 +335,9 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                       ? '很好！戒掉的好处在你心中分量很重'
                       : '你觉得继续还有点吸引力？想想这些"好处"是否值得拿健康去换',
                   style: TextStyle(
-                    color: _prosScore! >= _consScore! ? Colors.green : Colors.orange,
+                    color: _prosScore! >= _consScore!
+                        ? Colors.green
+                        : Colors.orange,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -274,7 +349,8 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
     );
   }
 
-  Widget _buildScale(BuildContext context, int? value, ValueChanged<int> onChanged) {
+  Widget _buildScale(
+      BuildContext context, int? value, ValueChanged<int> onChanged) {
     return Row(
       children: List.generate(5, (i) {
         final score = i + 1;
@@ -292,7 +368,8 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                     : Theme.of(context).colorScheme.surfaceContainerHighest,
                 borderRadius: BorderRadius.circular(8),
                 border: isSelected
-                    ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+                    ? Border.all(
+                        color: Theme.of(context).colorScheme.primary, width: 2)
                     : null,
               ),
               child: Column(
@@ -300,7 +377,8 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                   Text(
                     '$score',
                     style: TextStyle(
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.normal,
                       color: isSelected
                           ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onSurfaceVariant,
@@ -337,9 +415,11 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
               borderRadius: BorderRadius.circular(8),
               child: Row(
                 children: [
-                  Icon(Icons.auto_stories, color: Theme.of(context).colorScheme.primary),
+                  Icon(Icons.auto_stories,
+                      color: Theme.of(context).colorScheme.primary),
                   const SizedBox(width: 8),
-                  Text('成功故事与激励', style: Theme.of(context).textTheme.titleMedium),
+                  Text('成功故事与激励',
+                      style: Theme.of(context).textTheme.titleMedium),
                   const Spacer(),
                   Icon(
                     _showQuotes ? Icons.expand_less : Icons.expand_more,
@@ -360,7 +440,10 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primaryContainer
+                      .withOpacity(0.3),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -369,7 +452,10 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                     const SizedBox(height: 8),
                     Text(
                       '你需要记住的数据',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 8),
                     _statRow(context, '60-70%', '的戒断者在第一年内至少经历一次复吸'),
@@ -384,7 +470,8 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
               ..._quotes.map((q) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: Card(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                      color:
+                          Theme.of(context).colorScheme.surfaceContainerHighest,
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Column(
@@ -392,7 +479,10 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                           children: [
                             Text(
                               '"${q['text']}"',
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.copyWith(
                                     fontStyle: FontStyle.italic,
                                     height: 1.5,
                                   ),
@@ -400,8 +490,13 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                             const SizedBox(height: 8),
                             Text(
                               q['author'] as String,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodySmall
+                                  ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                                   ),
                               textAlign: TextAlign.right,
                             ),
@@ -442,7 +537,8 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
           Expanded(
             child: Text(
               desc,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.3),
+              style:
+                  Theme.of(context).textTheme.bodySmall?.copyWith(height: 1.3),
             ),
           ),
         ],
@@ -450,5 +546,3 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
     );
   }
 }
-
-

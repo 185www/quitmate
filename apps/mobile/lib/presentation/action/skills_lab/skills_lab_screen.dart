@@ -109,13 +109,21 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
 
   // ── Category definitions ──
   static const _categories = <_CategoryDef>[
-    _CategoryDef(id: 'cbt', name: 'CBT 认知行为疗法', icon: Icons.psychology, emoji: '🧠'),
-    _CategoryDef(id: 'act', name: 'ACT 接受与承诺疗法', icon: Icons.explore, emoji: '🌿'),
+    _CategoryDef(
+        id: 'cbt', name: 'CBT 认知行为疗法', icon: Icons.psychology, emoji: '🧠'),
+    _CategoryDef(
+        id: 'act', name: 'ACT 接受与承诺疗法', icon: Icons.explore, emoji: '🌿'),
     _CategoryDef(id: 'motivation', name: '动机增强', icon: Icons.bolt, emoji: '💪'),
-    _CategoryDef(id: 'health', name: '健康教育', icon: Icons.health_and_safety, emoji: '🫁'),
-    _CategoryDef(id: 'behavior', name: '行为替代', icon: Icons.directions_run, emoji: '🏃'),
+    _CategoryDef(
+        id: 'health', name: '健康教育', icon: Icons.health_and_safety, emoji: '🫁'),
+    _CategoryDef(
+        id: 'behavior', name: '行为替代', icon: Icons.directions_run, emoji: '🏃'),
     _CategoryDef(id: 'relapse', name: '复发预防', icon: Icons.shield, emoji: '🛡️'),
-    _CategoryDef(id: 'mindfulness', name: '正念减压', icon: Icons.self_improvement, emoji: '🧘'),
+    _CategoryDef(
+        id: 'mindfulness',
+        name: '正念减压',
+        icon: Icons.self_improvement,
+        emoji: '🧘'),
   ];
 
   // ── All 30 exercises ──
@@ -126,8 +134,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '思维记录',
       subtitle: '捕捉自动思维，用理性回应挑战',
       category: 'cbt',
-      description:
-          '自动思维是我们在面对情境时瞬间产生的想法，通常带有偏差。通过记录和挑战这些想法，你可以打破消极思维模式。',
+      description: '自动思维是我们在面对情境时瞬间产生的想法，通常带有偏差。通过记录和挑战这些想法，你可以打破消极思维模式。',
       steps: [
         '描述触发情境：发生了什么？',
         '记录自动思维：脑海中闪过了什么想法？',
@@ -143,8 +150,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '渴望冲浪',
       subtitle: '观察渴望如海浪般自然起伏消退',
       category: 'cbt',
-      description:
-          '渴望就像海浪，有起有落。与其对抗，不如观察它、接纳它，让它自然消退。研究表明渴望通常在5-20分钟内达到峰值后消退。',
+      description: '渴望就像海浪，有起有落。与其对抗，不如观察它、接纳它，让它自然消退。研究表明渴望通常在5-20分钟内达到峰值后消退。',
       steps: [
         '找个舒适的位置坐下，闭上眼睛',
         '注意身体哪里感受到渴望（胸口、喉咙、腹部等）',
@@ -177,8 +183,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '成本效益分析',
       subtitle: '理性权衡使用与戒断的利弊',
       category: 'cbt',
-      description:
-          '写下使用和戒断的短期与长期利弊，可以帮助你在渴望时看清真正的选择。大脑在渴望时会高估短期满足、低估长期代价。',
+      description: '写下使用和戒断的短期与长期利弊，可以帮助你在渴望时看清真正的选择。大脑在渴望时会高估短期满足、低估长期代价。',
       steps: [
         '写下继续使用的好处（短期快感、缓解压力等）',
         '写下继续使用的代价（健康、金钱、关系等）',
@@ -194,8 +199,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '应对卡',
       subtitle: '创建个人化紧急应对方案',
       category: 'cbt',
-      description:
-          '应对卡是你在渴望来临时可以立刻使用的"急救工具"。提前准备好，当渴望出现时不用思考就能执行。',
+      description: '应对卡是你在渴望来临时可以立刻使用的"急救工具"。提前准备好，当渴望出现时不用思考就能执行。',
       steps: [
         '列出你最可能使用的情境（如压力、社交、无聊）',
         '针对每种情境写下3个可以做的替代行为',
@@ -211,8 +215,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '渐进式放松',
       subtitle: '逐组紧张和放松肌肉来缓解压力',
       category: 'cbt',
-      description:
-          '渐进式肌肉放松（PMR）通过交替紧张和放松不同肌群，帮助身体深度放松。这可以缓解压力诱发的渴望，改善睡眠质量。',
+      description: '渐进式肌肉放松（PMR）通过交替紧张和放松不同肌群，帮助身体深度放松。这可以缓解压力诱发的渴望，改善睡眠质量。',
       steps: [
         '找个安静的地方坐下或躺下，深呼吸3次',
         '紧张双脚和脚踝5秒，然后突然放松，感受松弛感',
@@ -228,8 +231,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '诱因地图',
       subtitle: '识别高危情境并提前规划',
       category: 'cbt',
-      description:
-          '了解你的个人诱因是预防复发的第一步。通过绘制诱因地图，你可以提前识别高危情境并制定应对策略。',
+      description: '了解你的个人诱因是预防复发的第一步。通过绘制诱因地图，你可以提前识别高危情境并制定应对策略。',
       steps: [
         '回顾过去的使用模式：何时何地最想使用？',
         '分类列出诱因：情绪诱因、社交诱因、环境诱因',
@@ -281,8 +283,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '接纳练习',
       subtitle: '学会接受不舒服的感觉',
       category: 'act',
-      description:
-          '戒断时不适感是正常的生理和心理反应。与其拼命消除这些感觉（往往适得其反），不如学会为它们腾出空间，让它们自然来去。',
+      description: '戒断时不适感是正常的生理和心理反应。与其拼命消除这些感觉（往往适得其反），不如学会为它们腾出空间，让它们自然来去。',
       steps: [
         '闭上眼睛，注意此刻身体有什么不舒服的感觉',
         '想象这个感觉是一个物体：它是什么形状、颜色、温度？',
@@ -344,7 +345,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
         '右下：戒断的代价（承认困难是诚实的表现）',
         '整体比较：哪个方向的长期收益更大？',
       ],
-      reference: '决策平衡是跨理论模型(TTM)的核心技术，能有效促进行为改变 (Prochaska & DiClemente, 1983)',
+      reference:
+          '决策平衡是跨理论模型(TTM)的核心技术，能有效促进行为改变 (Prochaska & DiClemente, 1983)',
       duration: '10分钟',
     ),
     _ExerciseData(
@@ -352,8 +354,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '未来自我想象',
       subtitle: '想象戒断成功后的自己',
       category: 'motivation',
-      description:
-          '研究表明，能够生动想象未来积极自我的人，更愿意为长期目标付出短期代价。这个练习帮助你"预览"成功后的生活。',
+      description: '研究表明，能够生动想象未来积极自我的人，更愿意为长期目标付出短期代价。这个练习帮助你"预览"成功后的生活。',
       steps: [
         '闭上眼睛，深呼吸3次放松身体',
         '想象6个月后的你：你看起来怎么样？感觉如何？',
@@ -369,8 +370,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '动机尺',
       subtitle: '量化你的戒断动机并追踪变化',
       category: 'motivation',
-      description:
-          '动机不是固定不变的，它会随着时间、情境和经历而波动。定期量化你的动机，可以帮助你识别动机低谷期并提前干预。',
+      description: '动机不是固定不变的，它会随着时间、情境和经历而波动。定期量化你的动机，可以帮助你识别动机低谷期并提前干预。',
       steps: [
         '在0-10的尺度上：你有多想戒？（0=完全不想，10=极其想戒）',
         '写下选择这个数字的理由：为什么不是更少？为什么不是更多？',
@@ -416,7 +416,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
         '食欲增加：选择健康零食、用低热量食物替代、规律进餐',
         '记住：这些症状都在2-4周内显著减轻',
       ],
-      reference: '戒断症状管理指南 (Hughes, 2007; American Psychiatric Association, 2013)',
+      reference:
+          '戒断症状管理指南 (Hughes, 2007; American Psychiatric Association, 2013)',
       duration: '5分钟',
     ),
     _ExerciseData(
@@ -424,8 +425,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '二手烟/酒危害',
       subtitle: '了解对身边人的影响',
       category: 'health',
-      description:
-          '你的戒断不仅对自己有益，也在保护你爱的人。了解二手烟/二手酒对家人尤其是儿童的危害，可以为你提供额外的动力来源。',
+      description: '你的戒断不仅对自己有益，也在保护你爱的人。了解二手烟/二手酒对家人尤其是儿童的危害，可以为你提供额外的动力来源。',
       steps: [
         '二手烟导致非吸烟者肺癌风险增加20-30%（WHO数据）',
         '儿童暴露于二手烟：哮喘风险增加40%，中耳炎增加60%',
@@ -505,7 +505,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
         '应急运动：当渴望来临时，做20个开合跳或下楼走一圈',
         '进阶：尝试运动时正念（注意呼吸、肌肉感觉、周围环境）',
       ],
-      reference: '运动对物质渴求的急性减少效应 (Ussher et al., 2014); 运动与成瘾恢复综述 (Williams & Gerber, 2022)',
+      reference:
+          '运动对物质渴求的急性减少效应 (Ussher et al., 2014); 运动与成瘾恢复综述 (Williams & Gerber, 2022)',
       duration: '15-30分钟',
     ),
 
@@ -524,7 +525,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
         '识别高×高组合：这些是你的首要防范目标',
         '为每个高危情境提前准备好应对策略',
       ],
-      reference: 'GWIM模型（GORSCHA-Williams跨理论整合模型）基于Marlatt复发预防理论 (Marlatt & Witkiewitz, 2005)',
+      reference:
+          'GWIM模型（GORSCHA-Williams跨理论整合模型）基于Marlatt复发预防理论 (Marlatt & Witkiewitz, 2005)',
       duration: '10分钟',
     ),
     _ExerciseData(
@@ -549,8 +551,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
       title: '滑坡模型',
       subtitle: '了解"只是吸一口"的危险',
       category: 'relapse',
-      description:
-          '"就这一次"是复发的经典入口。滑坡模型帮助你理解，一次"小小的例外"如何通过认知扭曲和心理反应链导致完全复发。',
+      description: '"就这一次"是复发的经典入口。滑坡模型帮助你理解，一次"小小的例外"如何通过认知扭曲和心理反应链导致完全复发。',
       steps: [
         '第一阶段：违规决定（"就一口/一杯，没事的"）',
         '第二阶段：违规行为（实际使用了一点点）',
@@ -646,7 +647,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
         '如果觉得困难，可以试试"对比"视角：想象没有这件事会怎样',
         '坚持一周，你会发现自己开始更多地注意到积极的事物',
       ],
-      reference: '感恩干预对主观幸福感的元分析 (Emmons & McCullough, 2003); Wood et al.(2010)',
+      reference:
+          '感恩干预对主观幸福感的元分析 (Emmons & McCullough, 2003); Wood et al.(2010)',
       duration: '5分钟',
     ),
   ];
@@ -773,7 +775,10 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
                 decoration: BoxDecoration(
                   color: selected
                       ? Colors.white.withOpacity(0.3)
-                      : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.15),
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant
+                          .withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -817,7 +822,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
               ),
               if (_completedExercises.length >= 20)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.amber.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -840,7 +846,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
                 )
               else if (_completedExercises.length >= 10)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.blue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -863,7 +870,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
                 )
               else if (_completedExercises.length >= 5)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.green.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -955,9 +963,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
                           ex.duration,
                           style: TextStyle(
                             fontSize: 10,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ),
@@ -974,9 +981,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
                   overflow: TextOverflow.ellipsis,
                 ),
                 trailing: Icon(
-                  isExpanded
-                      ? Icons.expand_less
-                      : Icons.expand_more,
+                  isExpanded ? Icons.expand_less : Icons.expand_more,
                 ),
                 onTap: () {
                   setState(() {
@@ -997,10 +1002,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
                       const SizedBox(height: 16),
                       Text(
                         '步骤：',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleSmall
-                            ?.copyWith(
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                       ),
@@ -1009,8 +1011,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 6),
                           child: Row(
-                            crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
                                 margin: const EdgeInsets.only(top: 2),
@@ -1028,9 +1029,8 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
                                     ),
                                   ),
                                 ),
@@ -1039,9 +1039,7 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
                               Expanded(
                                 child: Text(
                                   ex.steps[si],
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodyMedium,
+                                  style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ),
                             ],
@@ -1086,19 +1084,14 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
                         child: ElevatedButton.icon(
                           onPressed: () => _completeExercise(gi),
                           icon: Icon(
-                            isCompleted
-                                ? Icons.check_circle
-                                : Icons.play_arrow,
+                            isCompleted ? Icons.check_circle : Icons.play_arrow,
                           ),
                           label: Text(
                             isCompleted ? '已完成' : '开始练习',
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isCompleted
-                                ? Colors.green
-                                : null,
-                            foregroundColor:
-                                isCompleted ? Colors.white : null,
+                            backgroundColor: isCompleted ? Colors.green : null,
+                            foregroundColor: isCompleted ? Colors.white : null,
                           ),
                         ),
                       ),

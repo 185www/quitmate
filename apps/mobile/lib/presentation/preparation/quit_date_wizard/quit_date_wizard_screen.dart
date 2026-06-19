@@ -166,9 +166,7 @@ class _QuitDateWizardScreenState extends ConsumerState<QuitDateWizardScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              _hasExistingQuitDate
-                  ? '选择一个更有意义的日期重新开始'
-                  : '选择一个有意义的日期开始你的新生活',
+              _hasExistingQuitDate ? '选择一个更有意义的日期重新开始' : '选择一个有意义的日期开始你的新生活',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),
@@ -182,10 +180,11 @@ class _QuitDateWizardScreenState extends ConsumerState<QuitDateWizardScreen> {
                   children: [
                     Text(
                       '${_selectedDate.year}年${_selectedDate.month}月${_selectedDate.day}日',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
-                          ),
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.primary,
+                              ),
                     ),
                     const SizedBox(height: 16),
                     Container(
@@ -196,13 +195,8 @@ class _QuitDateWizardScreenState extends ConsumerState<QuitDateWizardScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Text(
-                        daysUntil == 0
-                            ? '就是今天！'
-                            : '$daysUntil 天后',
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(
+                        daysUntil == 0 ? '就是今天！' : '$daysUntil 天后',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: colorScheme.primary,
                             ),

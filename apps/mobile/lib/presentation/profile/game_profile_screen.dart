@@ -23,7 +23,8 @@ class _GameProfileScreenState extends ConsumerState<GameProfileScreen> {
     final user = await ref.read(userUseCaseProvider).getCurrentUser();
     if (user != null && mounted) {
       setState(() {
-        _profileFuture = ref.read(gameUseCaseProvider).getOrCreateProfile(user.id);
+        _profileFuture =
+            ref.read(gameUseCaseProvider).getOrCreateProfile(user.id);
       });
     }
   }
@@ -87,7 +88,8 @@ class _GameProfileScreenState extends ConsumerState<GameProfileScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.3),
                     blurRadius: 16,
                     offset: const Offset(0, 4),
                   ),
@@ -150,7 +152,8 @@ class _GameProfileScreenState extends ConsumerState<GameProfileScreen> {
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 12,
-                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                backgroundColor:
+                    Theme.of(context).colorScheme.surfaceContainerHighest,
                 valueColor: AlwaysStoppedAnimation(
                   Theme.of(context).colorScheme.primary,
                 ),
@@ -258,12 +261,48 @@ class _GameProfileScreenState extends ConsumerState<GameProfileScreen> {
 
   Widget _buildXpBreakdownSection() {
     final breakdowns = [
-      {'action': '每日签到', 'xp': XpRewards.dailyCheckin, 'icon': Icons.check_circle, 'color': Colors.green, 'desc': '每天签到获得基础经验'},
-      {'action': '连续签到奖励', 'xp': XpRewards.streakBonus, 'icon': Icons.local_fire_department, 'color': Colors.orange, 'desc': '每连续一天额外获得'},
-      {'action': '抵抗一次渴望', 'xp': XpRewards.cravingResisted, 'icon': Icons.shield, 'color': Colors.teal, 'desc': '成功抵抗一次渴求'},
-      {'action': '完成CBT练习', 'xp': XpRewards.exerciseCompleted, 'icon': Icons.school, 'color': Colors.deepPurple, 'desc': '完成一次技能训练'},
-      {'action': '使用SOS', 'xp': XpRewards.sosUsed, 'icon': Icons.emergency, 'color': Colors.red, 'desc': '使用紧急求助功能'},
-      {'action': '达成里程碑', 'xp': XpRewards.milestoneReached, 'icon': Icons.emoji_events, 'color': Colors.amber, 'desc': '达成重要健康里程碑'},
+      {
+        'action': '每日签到',
+        'xp': XpRewards.dailyCheckin,
+        'icon': Icons.check_circle,
+        'color': Colors.green,
+        'desc': '每天签到获得基础经验'
+      },
+      {
+        'action': '连续签到奖励',
+        'xp': XpRewards.streakBonus,
+        'icon': Icons.local_fire_department,
+        'color': Colors.orange,
+        'desc': '每连续一天额外获得'
+      },
+      {
+        'action': '抵抗一次渴望',
+        'xp': XpRewards.cravingResisted,
+        'icon': Icons.shield,
+        'color': Colors.teal,
+        'desc': '成功抵抗一次渴求'
+      },
+      {
+        'action': '完成CBT练习',
+        'xp': XpRewards.exerciseCompleted,
+        'icon': Icons.school,
+        'color': Colors.deepPurple,
+        'desc': '完成一次技能训练'
+      },
+      {
+        'action': '使用SOS',
+        'xp': XpRewards.sosUsed,
+        'icon': Icons.emergency,
+        'color': Colors.red,
+        'desc': '使用紧急求助功能'
+      },
+      {
+        'action': '达成里程碑',
+        'xp': XpRewards.milestoneReached,
+        'icon': Icons.emoji_events,
+        'color': Colors.amber,
+        'desc': '达成重要健康里程碑'
+      },
     ];
 
     return Column(
@@ -282,21 +321,25 @@ class _GameProfileScreenState extends ConsumerState<GameProfileScreen> {
               final b = breakdowns[i];
               return Column(
                 children: [
-                  if (i > 0) const Divider(height: 1, indent: 16, endIndent: 16),
+                  if (i > 0)
+                    const Divider(height: 1, indent: 16, endIndent: 16),
                   ListTile(
                     leading: CircleAvatar(
                       backgroundColor: (b['color'] as Color).withOpacity(0.1),
-                      child: Icon(b['icon'] as IconData, color: b['color'] as Color, size: 20),
+                      child: Icon(b['icon'] as IconData,
+                          color: b['color'] as Color, size: 20),
                     ),
                     title: Text(b['action'] as String),
                     subtitle: Text(
                       b['desc'] as String,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     trailing: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(8),
@@ -306,7 +349,8 @@ class _GameProfileScreenState extends ConsumerState<GameProfileScreen> {
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 13,
-                          color: Theme.of(context).colorScheme.onPrimaryContainer,
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
                         ),
                       ),
                     ),
@@ -337,10 +381,12 @@ class _GameProfileScreenState extends ConsumerState<GameProfileScreen> {
             children: List.generate(milestones.length, (i) {
               final m = milestones[i];
               final achieved = gp.level >= m.level;
-              final isNext = !achieved && (i == 0 || gp.level >= milestones[i - 1].level);
+              final isNext =
+                  !achieved && (i == 0 || gp.level >= milestones[i - 1].level);
               return Column(
                 children: [
-                  if (i > 0) const Divider(height: 1, indent: 16, endIndent: 16),
+                  if (i > 0)
+                    const Divider(height: 1, indent: 16, endIndent: 16),
                   ListTile(
                     leading: Container(
                       width: 40,
@@ -351,19 +397,25 @@ class _GameProfileScreenState extends ConsumerState<GameProfileScreen> {
                             ? Theme.of(context).colorScheme.primaryContainer
                             : isNext
                                 ? Colors.orange.shade50
-                                : Theme.of(context).colorScheme.surfaceContainerHighest,
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest,
                       ),
                       child: Center(
                         child: achieved
-                            ? const Icon(Icons.check, color: Colors.green, size: 20)
+                            ? const Icon(Icons.check,
+                                color: Colors.green, size: 20)
                             : isNext
-                                ? const Icon(Icons.arrow_upward, color: Colors.orange, size: 18)
+                                ? const Icon(Icons.arrow_upward,
+                                    color: Colors.orange, size: 18)
                                 : Text(
                                     '${m.level}',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                     ),
                                   ),
                       ),
@@ -373,23 +425,30 @@ class _GameProfileScreenState extends ConsumerState<GameProfileScreen> {
                         Text(
                           'Lv.${m.level} ${m.title}',
                           style: TextStyle(
-                            fontWeight: achieved ? FontWeight.bold : FontWeight.normal,
+                            fontWeight:
+                                achieved ? FontWeight.bold : FontWeight.normal,
                             color: achieved
                                 ? null
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
                           ),
                         ),
                         if (isNext) ...[
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.orange.shade50,
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
                               '下一目标',
-                              style: TextStyle(fontSize: 10, color: Colors.orange, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],
@@ -397,19 +456,25 @@ class _GameProfileScreenState extends ConsumerState<GameProfileScreen> {
                     ),
                     subtitle: Text(m.description),
                     trailing: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: achieved
                             ? Colors.green.shade50
-                            : Theme.of(context).colorScheme.surfaceContainerHighest,
+                            : Theme.of(context)
+                                .colorScheme
+                                .surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         achieved ? '已达成' : m.reward,
                         style: TextStyle(
                           fontSize: 11,
-                          color: achieved ? Colors.green : Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: achieved ? FontWeight.bold : FontWeight.normal,
+                          color: achieved
+                              ? Colors.green
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontWeight:
+                              achieved ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                     ),

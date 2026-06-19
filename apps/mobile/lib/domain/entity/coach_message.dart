@@ -6,7 +6,8 @@ class CoachMessage {
   final bool isUser;
   final String text;
   final DateTime timestamp;
-  final String? category; // 'greeting', 'encouragement', 'tip', 'question', 'reflection'
+  final String?
+      category; // 'greeting', 'encouragement', 'tip', 'question', 'reflection'
   final List<String>? quickReplies;
 
   const CoachMessage({

@@ -45,7 +45,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _reminderTime = TimeOfDay(hour: hour, minute: minute);
           _useLlm = prefs['use_llm'] as bool? ?? false;
           _apiKey = prefs['ai_api_key'] as String? ?? '';
-          _apiBaseUrl = prefs['ai_api_base'] as String? ?? 'https://api.openai.com/v1';
+          _apiBaseUrl =
+              prefs['ai_api_base'] as String? ?? 'https://api.openai.com/v1';
           _aiModel = prefs['ai_model'] as String? ?? 'gpt-4o-mini';
           _loading = false;
         });
@@ -115,7 +116,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _saving
               ? const Padding(
                   padding: EdgeInsets.all(16),
-                  child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)),
+                  child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2)),
                 )
               : IconButton(
                   icon: const Icon(Icons.save),
@@ -173,16 +177,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               title: const Text('API地址'),
               subtitle: Text(_apiBaseUrl, style: const TextStyle(fontSize: 12)),
               trailing: const Icon(Icons.link, size: 18),
-              onTap: () => _showEditDialog('API地址', 'https://api.openai.com/v1', _apiBaseUrl, (v) => setState(() => _apiBaseUrl = v)),
+              onTap: () => _showEditDialog('API地址', 'https://api.openai.com/v1',
+                  _apiBaseUrl, (v) => setState(() => _apiBaseUrl = v)),
             ),
             ListTile(
               title: const Text('API Key'),
               subtitle: Text(
-                _apiKey.isEmpty ? '未设置' : '${_apiKey.substring(0, 8.clamp(0, _apiKey.length))}...',
-                style: TextStyle(fontSize: 12, color: _apiKey.isEmpty ? Colors.grey : null),
+                _apiKey.isEmpty
+                    ? '未设置'
+                    : '${_apiKey.substring(0, 8.clamp(0, _apiKey.length))}...',
+                style: TextStyle(
+                    fontSize: 12, color: _apiKey.isEmpty ? Colors.grey : null),
               ),
               trailing: const Icon(Icons.key, size: 18),
-              onTap: () => _showEditDialog('API Key', 'sk-...', _apiKey, (v) => setState(() => _apiKey = v), isSecret: true),
+              onTap: () => _showEditDialog('API Key', 'sk-...', _apiKey,
+                  (v) => setState(() => _apiKey = v),
+                  isSecret: true),
             ),
             ListTile(
               title: const Text('模型'),
@@ -196,7 +206,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 _llmTested ? (_llmConnected ? '✅ 成功' : '❌ 失败') : '点击测试',
               ),
               trailing: _testingLlm
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.network_check, size: 18),
               onTap: _testLlmConnection,
             ),
@@ -227,7 +240,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     );
   }
 
-  void _showEditDialog(String title, String hint, String current, void Function(String) onSave, {bool isSecret = false}) {
+  void _showEditDialog(
+      String title, String hint, String current, void Function(String) onSave,
+      {bool isSecret = false}) {
     final controller = TextEditingController(text: current);
     showDialog(
       context: context,
@@ -259,22 +274,30 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   void _showModelPicker() {
-    final models = ['gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo', 'deepseek-chat', 'claude-3-haiku'];
+    final models = [
+      'gpt-4o-mini',
+      'gpt-4o',
+      'gpt-3.5-turbo',
+      'deepseek-chat',
+      'claude-3-haiku'
+    ];
     showDialog(
       context: context,
       builder: (ctx) => SimpleDialog(
         title: const Text('选择模型'),
-        children: models.map((model) => RadioListTile<String>(
-          title: Text(model, style: const TextStyle(fontSize: 14)),
-          value: model,
-          groupValue: _aiModel,
-          onChanged: (value) {
-            if (value != null) {
-              setState(() => _aiModel = value);
-              Navigator.pop(ctx);
-            }
-          },
-        )).toList(),
+        children: models
+            .map((model) => RadioListTile<String>(
+                  title: Text(model, style: const TextStyle(fontSize: 14)),
+                  value: model,
+                  groupValue: _aiModel,
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() => _aiModel = value);
+                      Navigator.pop(ctx);
+                    }
+                  },
+                ))
+            .toList(),
       ),
     );
   }

@@ -4,7 +4,8 @@ import 'dart:math';
 class CompanionMessage {
   final String id;
   final String text;
-  final String category; // 'morning_greeting', 'encouragement', 'challenge', 'tip', 'checkin_reminder', 'celebration'
+  final String
+      category; // 'morning_greeting', 'encouragement', 'challenge', 'tip', 'checkin_reminder', 'celebration'
   final DateTime timestamp;
   final bool read;
   final String? emoji;
@@ -26,7 +27,8 @@ class QuitCompanion {
   static const String subtitle = '你的戒烟伙伴';
 
   /// Generate a morning greeting based on user context
-  static String morningGreeting(int daysSinceQuit, int streakDays, String levelTitle) {
+  static String morningGreeting(
+      int daysSinceQuit, int streakDays, String levelTitle) {
     if (daysSinceQuit == 0) {
       return _randomFrom([
         '$emoji 早上好！今天是你的第一天，我在这里陪你。准备好了吗？',

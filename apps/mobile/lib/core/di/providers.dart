@@ -23,21 +23,36 @@ final appDatabaseProvider = Provider((ref) => AppDatabase());
 final encryptionServiceProvider = Provider((ref) => EncryptionService());
 final contentLoaderProvider = Provider((ref) => ContentLoader());
 
-final userRepositoryProvider = Provider((ref) => UserRepository(ref.watch(appDatabaseProvider), ref.watch(encryptionServiceProvider)));
-final logRepositoryProvider = Provider((ref) => LogRepository(ref.watch(appDatabaseProvider)));
-final badgeRepositoryProvider = Provider((ref) => BadgeRepository(ref.watch(appDatabaseProvider)));
-final planRepositoryProvider = Provider((ref) => PlanRepository(ref.watch(appDatabaseProvider)));
-final cravingRepositoryProvider = Provider((ref) => CravingRepository(ref.watch(appDatabaseProvider)));
-final gameRepositoryProvider = Provider((ref) => GameRepository(ref.watch(appDatabaseProvider)));
+final userRepositoryProvider = Provider((ref) => UserRepository(
+    ref.watch(appDatabaseProvider), ref.watch(encryptionServiceProvider)));
+final logRepositoryProvider =
+    Provider((ref) => LogRepository(ref.watch(appDatabaseProvider)));
+final badgeRepositoryProvider =
+    Provider((ref) => BadgeRepository(ref.watch(appDatabaseProvider)));
+final planRepositoryProvider =
+    Provider((ref) => PlanRepository(ref.watch(appDatabaseProvider)));
+final cravingRepositoryProvider =
+    Provider((ref) => CravingRepository(ref.watch(appDatabaseProvider)));
+final gameRepositoryProvider =
+    Provider((ref) => GameRepository(ref.watch(appDatabaseProvider)));
 
-final userUseCaseProvider = Provider((ref) => UserUseCase(ref.watch(userRepositoryProvider)));
-final logUseCaseProvider = Provider((ref) => LogUseCase(ref.watch(logRepositoryProvider), ref.watch(badgeRepositoryProvider), ref.watch(userRepositoryProvider)));
-final badgeUseCaseProvider = Provider((ref) => BadgeUseCase(ref.watch(badgeRepositoryProvider)));
-final planUseCaseProvider = Provider((ref) => PlanUseCase(ref.watch(planRepositoryProvider)));
-final cravingUseCaseProvider = Provider((ref) => CravingUseCase(ref.watch(cravingRepositoryProvider), ref.watch(userRepositoryProvider)));
-final gameUseCaseProvider = Provider((ref) => GameUseCase(ref.watch(gameRepositoryProvider)));
+final userUseCaseProvider =
+    Provider((ref) => UserUseCase(ref.watch(userRepositoryProvider)));
+final logUseCaseProvider = Provider((ref) => LogUseCase(
+    ref.watch(logRepositoryProvider),
+    ref.watch(badgeRepositoryProvider),
+    ref.watch(userRepositoryProvider)));
+final badgeUseCaseProvider =
+    Provider((ref) => BadgeUseCase(ref.watch(badgeRepositoryProvider)));
+final planUseCaseProvider =
+    Provider((ref) => PlanUseCase(ref.watch(planRepositoryProvider)));
+final cravingUseCaseProvider = Provider((ref) => CravingUseCase(
+    ref.watch(cravingRepositoryProvider), ref.watch(userRepositoryProvider)));
+final gameUseCaseProvider =
+    Provider((ref) => GameUseCase(ref.watch(gameRepositoryProvider)));
 
-final notificationServiceProvider = Provider((ref) => NotificationService.instance);
+final notificationServiceProvider =
+    Provider((ref) => NotificationService.instance);
 final appThemeProvider = Provider((ref) => AppTheme());
 
 final appRouterProvider = Provider((ref) {
@@ -74,6 +89,7 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   }
 }
 
-final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+final themeModeProvider =
+    StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
   return ThemeModeNotifier(ref.read(userUseCaseProvider));
 });

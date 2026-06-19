@@ -6,6 +6,7 @@ class BadgeUseCase {
   BadgeUseCase(this._badgeRepository);
 
   Future<List<AppBadge>> getAllBadges() => _badgeRepository.getAllBadges();
-  Future<List<AppBadge>> getEarnedBadges() => _badgeRepository.getEarnedBadges();
+  Future<List<AppBadge>> getEarnedBadges() =>
+      _badgeRepository.getEarnedBadges();
   Future<int> getEarnedCount() => _badgeRepository.getEarnedCount();
 }

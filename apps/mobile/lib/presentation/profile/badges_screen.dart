@@ -34,7 +34,9 @@ class _BadgesScreenState extends ConsumerState<BadgesScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('已获得 $earned / ${badges.length}', style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                Text('已获得 $earned / ${badges.length}',
+                    style: theme.textTheme.titleMedium
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
                 const SizedBox(height: 16),
                 GridView.builder(
                   shrinkWrap: true,
@@ -80,14 +82,18 @@ class _BadgeCard extends StatelessWidget {
             Icon(
               _badgeIcon(badge.code),
               size: 36,
-              color: isEarned ? theme.colorScheme.primary : theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
+              color: isEarned
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
             ),
             const SizedBox(height: 8),
             Text(
               badge.name,
               style: theme.textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: isEarned ? theme.colorScheme.onSurface : theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+                color: isEarned
+                    ? theme.colorScheme.onSurface
+                    : theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -111,18 +117,30 @@ class _BadgeCard extends StatelessWidget {
 
   IconData _badgeIcon(String code) {
     switch (code) {
-      case 'day_1': return Icons.flag;
-      case 'day_7': return Icons.calendar_today;
-      case 'day_30': return Icons.emoji_events;
-      case 'day_90': return Icons.military_tech;
-      case 'day_365': return Icons.stars;
-      case 'assessment_done': return Icons.assignment_turned_in;
-      case 'first_log': return Icons.edit_note;
-      case 'streak_7': return Icons.local_fire_department;
-      case 'streak_30': return Icons.whatshot;
-      case 'sos_used': return Icons.emergency;
-      case 'urge_surfed': return Icons.waves;
-      default: return Icons.workspace_premium;
+      case 'day_1':
+        return Icons.flag;
+      case 'day_7':
+        return Icons.calendar_today;
+      case 'day_30':
+        return Icons.emoji_events;
+      case 'day_90':
+        return Icons.military_tech;
+      case 'day_365':
+        return Icons.stars;
+      case 'assessment_done':
+        return Icons.assignment_turned_in;
+      case 'first_log':
+        return Icons.edit_note;
+      case 'streak_7':
+        return Icons.local_fire_department;
+      case 'streak_30':
+        return Icons.whatshot;
+      case 'sos_used':
+        return Icons.emergency;
+      case 'urge_surfed':
+        return Icons.waves;
+      default:
+        return Icons.workspace_premium;
     }
   }
 

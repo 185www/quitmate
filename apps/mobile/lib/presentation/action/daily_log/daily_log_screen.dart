@@ -69,12 +69,13 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
     setState(() => _saving = true);
     try {
       await ref.read(logUseCaseProvider).logToday(
-        mood: _mood,
-        urgeLevel: _urgeLevel,
-        relapsed: _relapsed,
-        consumption: _consumption,
-        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
-      );
+            mood: _mood,
+            urgeLevel: _urgeLevel,
+            relapsed: _relapsed,
+            consumption: _consumption,
+            notes:
+                _notesController.text.isNotEmpty ? _notesController.text : null,
+          );
       final user = await ref.read(userUseCaseProvider).getCurrentUser();
       await WidgetService.updateWidget(user);
       if (mounted) {
@@ -191,7 +192,8 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
           // ── Mood section ──
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -240,7 +242,9 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
                               shape: BoxShape.circle,
                               color: selected ? selectedBg : Colors.white,
                               border: Border.all(
-                                color: selected ? selectedColor : Colors.grey.shade300,
+                                color: selected
+                                    ? selectedColor
+                                    : Colors.grey.shade300,
                                 width: 3,
                               ),
                             ),
@@ -264,7 +268,8 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
           // ── Urge level section ──
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -302,19 +307,25 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
                         return GestureDetector(
                           onTap: () => setState(() => _urgeLevel = value),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(24),
-                              color: selected ? selectedColor : Colors.transparent,
+                              color:
+                                  selected ? selectedColor : Colors.transparent,
                               border: Border.all(
-                                color: selected ? selectedColor : Colors.grey.shade300,
+                                color: selected
+                                    ? selectedColor
+                                    : Colors.grey.shade300,
                               ),
                             ),
                             child: Text(
                               opt['label'] as String,
                               style: TextStyle(
                                 color: selected ? Colors.white : Colors.black87,
-                                fontWeight: selected ? FontWeight.w500 : FontWeight.normal,
+                                fontWeight: selected
+                                    ? FontWeight.w500
+                                    : FontWeight.normal,
                               ),
                             ),
                           ),
@@ -331,7 +342,8 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
           // ── Relapse section ──
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -354,12 +366,16 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
                           _consumptionController.clear();
                         }),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 10),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            color: !_relapsed ? Colors.green : Colors.transparent,
+                            color:
+                                !_relapsed ? Colors.green : Colors.transparent,
                             border: Border.all(
-                              color: !_relapsed ? Colors.green : Colors.grey.shade300,
+                              color: !_relapsed
+                                  ? Colors.green
+                                  : Colors.grey.shade300,
                             ),
                           ),
                           child: Text(
@@ -374,12 +390,14 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
                       GestureDetector(
                         onTap: () => setState(() => _relapsed = true),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 10),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             color: _relapsed ? Colors.red : Colors.transparent,
                             border: Border.all(
-                              color: _relapsed ? Colors.red : Colors.grey.shade300,
+                              color:
+                                  _relapsed ? Colors.red : Colors.grey.shade300,
                             ),
                           ),
                           child: Text(
@@ -402,7 +420,8 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
                         decoration: const InputDecoration(
                           hintText: '支/杯',
                           border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                         ),
                         onChanged: (v) {
                           _consumption = int.tryParse(v);
@@ -419,7 +438,8 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
           // ── Notes section ──
           Card(
             elevation: 2,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
@@ -439,7 +459,8 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
                     decoration: const InputDecoration(
                       hintText: '可选',
                       border: OutlineInputBorder(),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                   ),
                 ],

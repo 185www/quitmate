@@ -112,10 +112,8 @@ class PatternAnalyzer {
     }
 
     if (highRiskHours.length >= 2) {
-      final times = highRiskHours
-          .take(3)
-          .map((h) => TimePattern.formatHour(h))
-          .join('、');
+      final times =
+          highRiskHours.take(3).map((h) => TimePattern.formatHour(h)).join('、');
       return '你的高风险时段主要集中在$times，其中$peakTimeStr最为突出'
           '（平均强度 ${peakIntensity.toStringAsFixed(1)}）。'
           '在这些时段特别要警惕。';
@@ -141,7 +139,8 @@ class PatternAnalyzer {
     for (final c in cravings) {
       // DateTime.weekday: Monday=1, Sunday=7
       final weekday = c.timestamp.weekday;
-      final existing = weekdayData[weekday] ?? _DayCravingData(weekday: weekday);
+      final existing =
+          weekdayData[weekday] ?? _DayCravingData(weekday: weekday);
       weekdayData[weekday] = existing.copyWith(
         cravingCount: existing.cravingCount + 1,
         totalIntensity: existing.totalIntensity + c.intensity,
@@ -184,9 +183,7 @@ class PatternAnalyzer {
     if (logs.length < 3) return 0.0;
 
     // Filter to logs that have both mood and urgeLevel
-    final paired = logs
-        .where((l) => l.urgeLevel != null)
-        .toList();
+    final paired = logs.where((l) => l.urgeLevel != null).toList();
 
     if (paired.length < 3) return 0.0;
 
@@ -307,8 +304,12 @@ class PatternAnalyzer {
     final cutoff = now.subtract(Duration(days: windowDays * 2));
     final midCutoff = now.subtract(Duration(days: windowDays));
 
-    final older = cravings.where((c) => c.timestamp.isAfter(cutoff) && c.timestamp.isBefore(midCutoff)).toList();
-    final recent = cravings.where((c) => c.timestamp.isAfter(midCutoff)).toList();
+    final older = cravings
+        .where((c) =>
+            c.timestamp.isAfter(cutoff) && c.timestamp.isBefore(midCutoff))
+        .toList();
+    final recent =
+        cravings.where((c) => c.timestamp.isAfter(midCutoff)).toList();
 
     if (older.isEmpty || recent.isEmpty) return TrendDirection.stable;
 
@@ -338,10 +339,11 @@ class PatternAnalyzer {
 
     for (final c in cravings) {
       totalDays.add(DateTime(
-        c.timestamp.year,
-        c.timestamp.month,
-        c.timestamp.day,
-      ).millisecondsSinceEpoch ~/ 86400000);
+            c.timestamp.year,
+            c.timestamp.month,
+            c.timestamp.day,
+          ).millisecondsSinceEpoch ~/
+          86400000);
 
       final h = c.timestamp.hour;
       final diff = (h - hour).abs();
@@ -460,15 +462,15 @@ class PatternAnalyzer {
     final daysFactor = min(daysSinceQuit / 90.0, 1.0); // Plateaus at 90 days
 
     // Recent mood trend (last 3 logs)
-    final recentLogs = logs.length >= 3
-        ? logs.sublist(logs.length - 3)
-        : logs;
+    final recentLogs = logs.length >= 3 ? logs.sublist(logs.length - 3) : logs;
     final recentAvgMood = recentLogs.isNotEmpty
         ? _avg(recentLogs.map((l) => l.mood.toDouble()))
         : 3.0;
 
     // Sigmoid-based probability
-    final rawScore = (streakRatio * 0.3) + (daysFactor * 0.3) + ((recentAvgMood - 3) / 4 * 0.4);
+    final rawScore = (streakRatio * 0.3) +
+        (daysFactor * 0.3) +
+        ((recentAvgMood - 3) / 4 * 0.4);
     final probability = (1.0 / (1.0 + exp(-rawScore * 3))).clamp(0.1, 0.99);
 
     // Determine if at risk
@@ -575,7 +577,8 @@ class PatternAnalyzer {
           .where((c) => c.timestamp.isAfter(recentWindow))
           .toList();
       if (veryRecent.isNotEmpty) {
-        final avgIntensity = _avg(veryRecent.map((c) => c.intensity.toDouble()));
+        final avgIntensity =
+            _avg(veryRecent.map((c) => c.intensity.toDouble()));
         riskScore += (avgIntensity / 10.0) * 20;
 
         // Bonus risk for high frequency
@@ -623,9 +626,8 @@ class PatternAnalyzer {
         (l) => l.relapsed,
         orElse: () => recentLogs.first,
       );
-      final daysSinceRelapse = DateTime.now()
-          .difference(lastRelapse.date)
-          .inDays;
+      final daysSinceRelapse =
+          DateTime.now().difference(lastRelapse.date).inDays;
       if (daysSinceRelapse <= 1) {
         riskScore += 15;
       } else if (daysSinceRelapse <= 3) {
@@ -641,7 +643,8 @@ class PatternAnalyzer {
       final lastCheckin = gameProfile.lastCheckinDate;
       if (lastCheckin != null) {
         final today = DateTime.now();
-        final lastDay = DateTime(lastCheckin.year, lastCheckin.month, lastCheckin.day);
+        final lastDay =
+            DateTime(lastCheckin.year, lastCheckin.month, lastCheckin.day);
         final todayDay = DateTime(today.year, today.month, today.day);
         final daysSinceCheckin = todayDay.difference(lastDay).inDays;
 

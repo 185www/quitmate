@@ -7,7 +7,8 @@ class AnalysisReportScreen extends ConsumerStatefulWidget {
   const AnalysisReportScreen({super.key});
 
   @override
-  ConsumerState<AnalysisReportScreen> createState() => _AnalysisReportScreenState();
+  ConsumerState<AnalysisReportScreen> createState() =>
+      _AnalysisReportScreenState();
 }
 
 class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
@@ -21,7 +22,9 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
 
     // Compute week-over-week comparison
     final now = DateTime.now();
-    final thisWeekStart = now.subtract(Duration(days: now.weekday - 1)).copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+    final thisWeekStart = now
+        .subtract(Duration(days: now.weekday - 1))
+        .copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
     final lastWeekStart = thisWeekStart.subtract(const Duration(days: 7));
     final lastWeekEnd = thisWeekStart;
 
@@ -38,7 +41,8 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
     final weeklyTrend = <Map<String, dynamic>>[];
     for (int i = 6; i >= 0; i--) {
       final day = now.subtract(Duration(days: i));
-      final dayStart = day.copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
+      final dayStart =
+          day.copyWith(hour: 0, minute: 0, second: 0, millisecond: 0);
       final dayEnd = dayStart.add(const Duration(days: 1));
       final dayLogs = allLogs.where((l) {
         final t = DateTime.parse(l['timestamp'] as String);
@@ -46,7 +50,8 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
       }).toList();
       final dayAvg = dayLogs.isEmpty
           ? 0.0
-          : dayLogs.fold<double>(0, (s, l) => s + (l['intensity'] as int)) / dayLogs.length;
+          : dayLogs.fold<double>(0, (s, l) => s + (l['intensity'] as int)) /
+              dayLogs.length;
       weeklyTrend.add({
         'day': day,
         'label': ['一', '二', '三', '四', '五', '六', '日'][day.weekday - 1],
@@ -66,7 +71,8 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
     final copingCounts = <String, int>{};
     for (final l in allLogs) {
       final c = l['coping_used'] as String?;
-      if (c != null && c.isNotEmpty) copingCounts[c] = (copingCounts[c] ?? 0) + 1;
+      if (c != null && c.isNotEmpty)
+        copingCounts[c] = (copingCounts[c] ?? 0) + 1;
     }
     final topCoping = copingCounts.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -78,10 +84,12 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
     }).toList();
     final thisWeekAvg = thisWeekLogs.isEmpty
         ? 0.0
-        : thisWeekLogs.fold<double>(0, (s, l) => s + (l['intensity'] as int)) / thisWeekLogs.length;
+        : thisWeekLogs.fold<double>(0, (s, l) => s + (l['intensity'] as int)) /
+            thisWeekLogs.length;
     final lastWeekAvg = lastWeekLogs.isEmpty
         ? 0.0
-        : lastWeekLogs.fold<double>(0, (s, l) => s + (l['intensity'] as int)) / lastWeekLogs.length;
+        : lastWeekLogs.fold<double>(0, (s, l) => s + (l['intensity'] as int)) /
+            lastWeekLogs.length;
 
     return {
       'count': count,
@@ -114,7 +122,8 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
           final count = data['count'] as int;
           final avg = data['avg'] as double;
           final triggers = data['triggers'] as List<MapEntry<String, int>>;
-          final scene = data['scene'] as Map<String, List<MapEntry<String, int>>>;
+          final scene =
+              data['scene'] as Map<String, List<MapEntry<String, int>>>;
           final logs = data['logs'] as List<Map<String, dynamic>>;
           final weeklyTrend = data['weeklyTrend'] as List<Map<String, dynamic>>;
           final hourlyCounts = data['hourlyCounts'] as List<int>;
@@ -139,7 +148,8 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
 
                 // Personalized insights
                 if (logs.isNotEmpty) ...[
-                  _buildInsightsCard(triggers, socials, topCoping, hourlyCounts, thisWeekAvg, lastWeekAvg),
+                  _buildInsightsCard(triggers, socials, topCoping, hourlyCounts,
+                      thisWeekAvg, lastWeekAvg),
                   const SizedBox(height: 16),
                 ],
 
@@ -153,15 +163,24 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
 
                 // Trigger → Craving → Coping triangle
                 if (triggers.isNotEmpty && topCoping.isNotEmpty)
-                  _buildPatternTriangle(triggers, topCoping, socials, activities),
-                if (triggers.isNotEmpty && topCoping.isNotEmpty) const SizedBox(height: 16),
+                  _buildPatternTriangle(
+                      triggers, topCoping, socials, activities),
+                if (triggers.isNotEmpty && topCoping.isNotEmpty)
+                  const SizedBox(height: 16),
 
                 // Existing sections
-                if (triggers.isNotEmpty) _buildSection('常见诱因', triggers, Icons.bolt),
-                if (locations.isNotEmpty) _buildSection('高危地点', locations, Icons.place),
-                if (socials.isNotEmpty) _buildSection('高危社交场景', socials, Icons.people),
-                if (activities.isNotEmpty) _buildSection('高危活动', activities, Icons.sports_esports),
-                if (logs.any((l) => l['location'] != null || l['social_context'] != null || l['activity'] != null))
+                if (triggers.isNotEmpty)
+                  _buildSection('常见诱因', triggers, Icons.bolt),
+                if (locations.isNotEmpty)
+                  _buildSection('高危地点', locations, Icons.place),
+                if (socials.isNotEmpty)
+                  _buildSection('高危社交场景', socials, Icons.people),
+                if (activities.isNotEmpty)
+                  _buildSection('高危活动', activities, Icons.sports_esports),
+                if (logs.any((l) =>
+                    l['location'] != null ||
+                    l['social_context'] != null ||
+                    l['activity'] != null))
                   _buildRecentLogs(logs),
                 const SizedBox(height: 32),
               ],
@@ -175,9 +194,12 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
   // ──────────────────────────────────────────────────────────
   // Summary Cards
   // ──────────────────────────────────────────────────────────
-  Widget _buildSummaryCards(int count, double avg, int thisWeekCount, int lastWeekCount) {
+  Widget _buildSummaryCards(
+      int count, double avg, int thisWeekCount, int lastWeekCount) {
     final colorScheme = Theme.of(context).colorScheme;
-    final trendPct = lastWeekCount > 0 ? ((thisWeekCount - lastWeekCount) / lastWeekCount * 100) : 0.0;
+    final trendPct = lastWeekCount > 0
+        ? ((thisWeekCount - lastWeekCount) / lastWeekCount * 100)
+        : 0.0;
 
     return Row(
       children: [
@@ -187,8 +209,16 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  Text('$count', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  Text('总渴望次数', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant)),
+                  Text('$count',
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  Text('总渴望次数',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: colorScheme.onSurfaceVariant)),
                 ],
               ),
             ),
@@ -201,8 +231,16 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  Text(avg.toStringAsFixed(1), style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-                  Text('平均强度 / 10', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant)),
+                  Text(avg.toStringAsFixed(1),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  Text('平均强度 / 10',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: colorScheme.onSurfaceVariant)),
                 ],
               ),
             ),
@@ -220,7 +258,9 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                     children: [
                       if (trendPct != 0)
                         Icon(
-                          trendPct < 0 ? Icons.trending_down : Icons.trending_up,
+                          trendPct < 0
+                              ? Icons.trending_down
+                              : Icons.trending_up,
                           size: 20,
                           color: trendPct < 0 ? Colors.green : Colors.red,
                         )
@@ -229,14 +269,23 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                       const SizedBox(width: 4),
                       Text(
                         '${trendPct.abs().toStringAsFixed(0)}%',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: trendPct < 0 ? Colors.green : (trendPct > 0 ? Colors.red : null),
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: trendPct < 0
+                                  ? Colors.green
+                                  : (trendPct > 0 ? Colors.red : null),
+                            ),
                       ),
                     ],
                   ),
-                  Text('本周趋势', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colorScheme.onSurfaceVariant)),
+                  Text('本周趋势',
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.copyWith(color: colorScheme.onSurfaceVariant)),
                 ],
               ),
             ),
@@ -264,7 +313,10 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
     // Most common trigger
     if (triggers.isNotEmpty) {
       insights.add(
-        ('你最常因【${triggers.first.key}】感到渴望', Icon(Icons.bolt, size: 16, color: colorScheme.primary)),
+        (
+          '你最常因【${triggers.first.key}】感到渴望',
+          Icon(Icons.bolt, size: 16, color: colorScheme.primary)
+        ),
       );
     }
 
@@ -280,14 +332,20 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
     if (peakCount > 0) {
       final hourRange = _getHourRange(peakHour);
       insights.add(
-        ('你的渴望高峰时间是【$hourRange】', Icon(Icons.access_time, size: 16, color: Colors.orange)),
+        (
+          '你的渴望高峰时间是【$hourRange】',
+          Icon(Icons.access_time, size: 16, color: Colors.orange)
+        ),
       );
     }
 
     // Most effective coping
     if (topCoping.isNotEmpty) {
       insights.add(
-        ('你最常用的应对方式是【${topCoping.first.key}】', Icon(Icons.self_improvement, size: 16, color: Colors.teal)),
+        (
+          '你最常用的应对方式是【${topCoping.first.key}】',
+          Icon(Icons.self_improvement, size: 16, color: Colors.teal)
+        ),
       );
     }
 
@@ -296,15 +354,21 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
       final change = ((thisWeekAvg - lastWeekAvg) / lastWeekAvg * 100).round();
       final direction = change < 0 ? '下降' : '上升';
       insights.add(
-        ('本周渴求强度比上周【$direction】了${change.abs()}%', 
-         Icon(change < 0 ? Icons.trending_down : Icons.trending_up, size: 16, color: change < 0 ? Colors.green : Colors.red)),
+        (
+          '本周渴求强度比上周【$direction】了${change.abs()}%',
+          Icon(change < 0 ? Icons.trending_down : Icons.trending_up,
+              size: 16, color: change < 0 ? Colors.green : Colors.red)
+        ),
       );
     }
 
     // Social trigger
     if (socials.isNotEmpty) {
       insights.add(
-        ('社交场景中【${socials.first.key}】最容易触发渴望', Icon(Icons.people, size: 16, color: Colors.purple)),
+        (
+          '社交场景中【${socials.first.key}】最容易触发渴望',
+          Icon(Icons.people, size: 16, color: Colors.purple)
+        ),
       );
     }
 
@@ -319,7 +383,9 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
               children: [
                 const Icon(Icons.lightbulb, size: 18, color: Colors.amber),
                 const SizedBox(width: 8),
-                Text('个性化洞察', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                Text('个性化洞察',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
               ],
             ),
             const SizedBox(height: 12),
@@ -367,7 +433,8 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
   Widget _buildWeeklyTrend(List<Map<String, dynamic>> weeklyTrend) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final maxIntensity = weeklyTrend.fold<double>(0, (m, d) => max(m, (d['avgIntensity'] as double)));
+    final maxIntensity = weeklyTrend.fold<double>(
+        0, (m, d) => max(m, (d['avgIntensity'] as double)));
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -380,7 +447,9 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
               children: [
                 const Icon(Icons.bar_chart, size: 18),
                 const SizedBox(width: 8),
-                Text('本周渴望强度趋势', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                Text('本周渴望强度趋势',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
               ],
             ),
             const SizedBox(height: 16),
@@ -392,7 +461,8 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                   final intensity = day['avgIntensity'] as double;
                   final label = day['label'] as String;
                   final count = day['count'] as int;
-                  final height = maxIntensity > 0 ? (intensity / maxIntensity * 120) : 0.0;
+                  final height =
+                      maxIntensity > 0 ? (intensity / maxIntensity * 120) : 0.0;
 
                   // Color based on intensity
                   Color barColor;
@@ -445,7 +515,8 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                               '$count次',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 fontSize: 9,
-                                color: colorScheme.onSurfaceVariant.withOpacity(0.7),
+                                color: colorScheme.onSurfaceVariant
+                                    .withOpacity(0.7),
                               ),
                             ),
                         ],
@@ -472,12 +543,20 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
     // Group into 6 time blocks of 4 hours each
     final timeBlocks = <Map<String, dynamic>>[];
     final blockLabels = ['0-4时', '4-8时', '8-12时', '12-16时', '16-20时', '20-24时'];
-    final blockIcons = [Icons.nightlight, Icons.bedtime, Icons.wb_sunny, Icons.wb_cloudy, Icons.wb_twilight, Icons.nights_stay];
+    final blockIcons = [
+      Icons.nightlight,
+      Icons.bedtime,
+      Icons.wb_sunny,
+      Icons.wb_cloudy,
+      Icons.wb_twilight,
+      Icons.nights_stay
+    ];
 
     for (int i = 0; i < 6; i++) {
       final start = i * 4;
       final end = start + 4;
-      final blockCount = hourlyCounts.sublist(start, end).fold(0, (a, b) => a + b);
+      final blockCount =
+          hourlyCounts.sublist(start, end).fold(0, (a, b) => a + b);
       timeBlocks.add({
         'label': blockLabels[i],
         'icon': blockIcons[i],
@@ -496,7 +575,9 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
               children: [
                 const Icon(Icons.schedule, size: 18),
                 const SizedBox(width: 8),
-                Text('时段分布', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                Text('时段分布',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
               ],
             ),
             const SizedBox(height: 12),
@@ -513,11 +594,13 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                       width: 56,
                       child: Row(
                         children: [
-                          Icon(block['icon'] as IconData, size: 14, color: colorScheme.onSurfaceVariant),
+                          Icon(block['icon'] as IconData,
+                              size: 14, color: colorScheme.onSurfaceVariant),
                           const SizedBox(width: 4),
                           Text(
                             block['label'] as String,
-                            style: theme.textTheme.bodySmall?.copyWith(fontSize: 11),
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(fontSize: 11),
                           ),
                         ],
                       ),
@@ -611,10 +694,13 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
               children: [
                 const Icon(Icons.account_tree, size: 18),
                 const SizedBox(width: 8),
-                Text('模式三角', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                Text('模式三角',
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                   decoration: BoxDecoration(
                     color: colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(8),
@@ -639,7 +725,8 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                   // Connection lines
                   CustomPaint(
                     size: const Size(300, 180),
-                    painter: _TriangleLinesPainter(color: colorScheme.outlineVariant.withOpacity(0.3)),
+                    painter: _TriangleLinesPainter(
+                        color: colorScheme.outlineVariant.withOpacity(0.3)),
                   ),
                   // Top node: Trigger
                   Positioned(
@@ -677,7 +764,9 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                       width: 140,
                       child: _PatternNode(
                         label: topCopingMethod?.key ?? '未记录',
-                        sublabel: topCopingMethod != null ? '${topCopingMethod.value}次' : '应对',
+                        sublabel: topCopingMethod != null
+                            ? '${topCopingMethod.value}次'
+                            : '应对',
                         icon: Icons.self_improvement,
                         color: Colors.teal,
                         bgColor: Colors.teal.shade50,
@@ -688,16 +777,22 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                   Positioned(
                     top: 48,
                     left: 12,
-                    child: Icon(Icons.arrow_downward, size: 14, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+                    child: Icon(Icons.arrow_downward,
+                        size: 14,
+                        color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
                   ),
                   Positioned(
                     top: 48,
                     right: 12,
-                    child: Icon(Icons.arrow_downward, size: 14, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+                    child: Icon(Icons.arrow_downward,
+                        size: 14,
+                        color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
                   ),
                   Positioned(
                     bottom: 38,
-                    child: Icon(Icons.arrow_back, size: 14, color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
+                    child: Icon(Icons.arrow_back,
+                        size: 14,
+                        color: colorScheme.onSurfaceVariant.withOpacity(0.5)),
                   ),
                 ],
               ),
@@ -711,7 +806,8 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
   // ──────────────────────────────────────────────────────────
   // Existing sections (kept from original)
   // ──────────────────────────────────────────────────────────
-  Widget _buildSection(String title, List<MapEntry<String, int>> items, IconData icon) {
+  Widget _buildSection(
+      String title, List<MapEntry<String, int>> items, IconData icon) {
     final maxVal = items.first.value;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -724,7 +820,11 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
               children: [
                 Icon(icon, size: 18),
                 const SizedBox(width: 8),
-                Text(title, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                Text(title,
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
               ],
             ),
             const SizedBox(height: 12),
@@ -738,8 +838,16 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(item.key, style: Theme.of(context).textTheme.bodyMedium),
-                        Text('${item.value} 次', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        Text(item.key,
+                            style: Theme.of(context).textTheme.bodyMedium),
+                        Text('${item.value} 次',
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant)),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -748,7 +856,9 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                       child: LinearProgressIndicator(
                         value: pct,
                         minHeight: 6,
-                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        backgroundColor: Theme.of(context)
+                            .colorScheme
+                            .surfaceContainerHighest,
                       ),
                     ),
                   ],
@@ -762,7 +872,13 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
   }
 
   Widget _buildRecentLogs(List<Map<String, dynamic>> logs) {
-    final sceneLogs = logs.where((l) => l['location'] != null || l['social_context'] != null || l['activity'] != null).take(10).toList();
+    final sceneLogs = logs
+        .where((l) =>
+            l['location'] != null ||
+            l['social_context'] != null ||
+            l['activity'] != null)
+        .take(10)
+        .toList();
     if (sceneLogs.isEmpty) return const SizedBox.shrink();
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -775,13 +891,18 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
               children: [
                 const Icon(Icons.history, size: 18),
                 const SizedBox(width: 8),
-                Text('最近场景记录', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                Text('最近场景记录',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
               ],
             ),
             const SizedBox(height: 12),
             ...sceneLogs.map((l) {
               final ts = DateTime.parse(l['timestamp'] as String);
-              final dateStr = '${ts.month}/${ts.day} ${ts.hour}:${ts.minute.toString().padLeft(2, '0')}';
+              final dateStr =
+                  '${ts.month}/${ts.day} ${ts.hour}:${ts.minute.toString().padLeft(2, '0')}';
               final parts = [
                 if (l['location'] != null) '📍 ${l['location']}',
                 if (l['social_context'] != null) '👥 ${l['social_context']}',
@@ -794,11 +915,21 @@ class _AnalysisReportScreenState extends ConsumerState<AnalysisReportScreen> {
                   backgroundColor: (l['intensity'] as int) > 7
                       ? Colors.red.shade50
                       : Colors.blue.shade50,
-                  child: Text('${l['intensity']}', style: TextStyle(fontSize: 12, color: (l['intensity'] as int) > 7 ? Colors.red : Colors.blue)),
+                  child: Text('${l['intensity']}',
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: (l['intensity'] as int) > 7
+                              ? Colors.red
+                              : Colors.blue)),
                 ),
-                title: Text('$dateStr · 强度 ${l['intensity']}/10', style: const TextStyle(fontSize: 13)),
+                title: Text('$dateStr · 强度 ${l['intensity']}/10',
+                    style: const TextStyle(fontSize: 13)),
                 subtitle: parts.isNotEmpty
-                    ? Text(parts.join('  '), style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant))
+                    ? Text(parts.join('  '),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant))
                     : null,
               );
             }),

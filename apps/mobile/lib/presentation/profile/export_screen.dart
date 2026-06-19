@@ -27,7 +27,9 @@ class ExportScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('导出选项', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                    Text('导出选项',
+                        style: theme.textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 16),
                     ListTile(
                       leading: const Icon(Icons.code),
@@ -64,7 +66,9 @@ class ExportScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('说明', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
+                    Text('说明',
+                        style: theme.textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Text(
                       '• 导出的数据仅存储在本地设备\n'
@@ -106,16 +110,18 @@ class ExportScreen extends ConsumerWidget {
                 'dailyLifeRegainedMinutes': user.dailyLifeRegainedMinutes,
               }
             : null,
-        'logs': logs.map((log) => {
-          'date': log.date.toIso8601String(),
-          'mood': log.mood,
-          'urgeLevel': log.urgeLevel,
-          'triggers': log.triggers,
-          'coping': log.coping,
-          'relapsed': log.relapsed,
-          'consumption': log.consumption,
-          'notes': log.notes,
-        }).toList(),
+        'logs': logs
+            .map((log) => {
+                  'date': log.date.toIso8601String(),
+                  'mood': log.mood,
+                  'urgeLevel': log.urgeLevel,
+                  'triggers': log.triggers,
+                  'coping': log.coping,
+                  'relapsed': log.relapsed,
+                  'consumption': log.consumption,
+                  'notes': log.notes,
+                })
+            .toList(),
       };
 
       final jsonStr = const JsonEncoder.withIndent('  ').convert(data);
@@ -136,11 +142,13 @@ class ExportScreen extends ConsumerWidget {
       final buffer = StringBuffer();
       buffer.writeln('日期,情绪(1-5),渴望程度(0-10),触发因素,应对方式,是否复发,摄入量,备注');
       for (final log in logs) {
-        final date = '${log.date.year}-${_pad(log.date.month)}-${_pad(log.date.day)}';
+        final date =
+            '${log.date.year}-${_pad(log.date.month)}-${_pad(log.date.day)}';
         final triggers = log.triggers?.join(';') ?? '';
         final coping = _escapeCsv(log.coping ?? '');
         final notes = _escapeCsv(log.notes ?? '');
-        buffer.writeln('$date,${log.mood},${log.urgeLevel ?? ''},"$triggers","$coping",${log.relapsed ? 1 : 0},${log.consumption ?? ''},"$notes"');
+        buffer.writeln(
+            '$date,${log.mood},${log.urgeLevel ?? ''},"$triggers","$coping",${log.relapsed ? 1 : 0},${log.consumption ?? ''},"$notes"');
       }
 
       await Share.share(buffer.toString(), subject: 'QuitMate数据导出(CSV)');
@@ -161,31 +169,43 @@ class ExportScreen extends ConsumerWidget {
       final user = await ref.read(userUseCaseProvider).getCurrentUser();
       final logs = await ref.read(logUseCaseProvider).getAllLogs(limit: 365);
       final streak = await ref.read(logUseCaseProvider).getStreakDays();
-      final abstinenceRate = await ref.read(logUseCaseProvider).getAbstinenceRate();
-      final commonTriggers = await ref.read(logUseCaseProvider).getCommonTriggers();
+      final abstinenceRate =
+          await ref.read(logUseCaseProvider).getAbstinenceRate();
+      final commonTriggers =
+          await ref.read(logUseCaseProvider).getCommonTriggers();
 
       final relapseDays = logs.where((l) => l.relapsed).length;
       final totalDays = logs.length;
-      final avgMood = logs.isEmpty ? 0 : logs.map((l) => l.mood).reduce((a, b) => a + b) / logs.length;
+      final avgMood = logs.isEmpty
+          ? 0
+          : logs.map((l) => l.mood).reduce((a, b) => a + b) / logs.length;
       final avgUrge = logs.where((l) => l.urgeLevel != null).isEmpty
           ? 0
-          : logs.where((l) => l.urgeLevel != null).map((l) => l.urgeLevel!).reduce((a, b) => a + b) / logs.where((l) => l.urgeLevel != null).length;
+          : logs
+                  .where((l) => l.urgeLevel != null)
+                  .map((l) => l.urgeLevel!)
+                  .reduce((a, b) => a + b) /
+              logs.where((l) => l.urgeLevel != null).length;
 
       final buffer = StringBuffer();
       buffer.writeln('═══════════════════════════════════════');
       buffer.writeln('        QuitMate 数据报告摘要');
       buffer.writeln('═══════════════════════════════════════');
       buffer.writeln();
-      buffer.writeln('报告生成时间: ${DateTime.now().toLocal().toString().substring(0, 19)}');
+      buffer.writeln(
+          '报告生成时间: ${DateTime.now().toLocal().toString().substring(0, 19)}');
       buffer.writeln();
       if (user != null) {
         buffer.writeln('--- 用户信息 ---');
         buffer.writeln('目标类型: ${_targetLabel(user.targetType)}');
         buffer.writeln('当前阶段: ${_stageLabel(user.stage)}');
         buffer.writeln('戒断天数: ${user.daysSinceQuit}天');
-        if (user.quitDate != null) buffer.writeln('开始日期: ${user.quitDate!.toLocal().toString().substring(0, 10)}');
+        if (user.quitDate != null)
+          buffer.writeln(
+              '开始日期: ${user.quitDate!.toLocal().toString().substring(0, 10)}');
         buffer.writeln('日均节省: ¥${user.dailyCost.toStringAsFixed(1)}');
-        buffer.writeln('累计节省: ¥${(user.dailyCost * user.daysSinceQuit).toStringAsFixed(1)}');
+        buffer.writeln(
+            '累计节省: ¥${(user.dailyCost * user.daysSinceQuit).toStringAsFixed(1)}');
         buffer.writeln();
       }
       buffer.writeln('--- 记录统计 ---');
@@ -233,19 +253,27 @@ class ExportScreen extends ConsumerWidget {
 
   String _targetLabel(TargetType t) {
     switch (t) {
-      case TargetType.smoking: return '戒烟';
-      case TargetType.alcohol: return '戒酒';
-      case TargetType.both: return '戒烟戒酒';
+      case TargetType.smoking:
+        return '戒烟';
+      case TargetType.alcohol:
+        return '戒酒';
+      case TargetType.both:
+        return '戒烟戒酒';
     }
   }
 
   String _stageLabel(UserStage s) {
     switch (s) {
-      case UserStage.preContemplation: return '前 contemplation';
-      case UserStage.contemplation: return '思考期';
-      case UserStage.preparation: return '准备期';
-      case UserStage.action: return '行动期';
-      case UserStage.maintenance: return '维持期';
+      case UserStage.preContemplation:
+        return '前 contemplation';
+      case UserStage.contemplation:
+        return '思考期';
+      case UserStage.preparation:
+        return '准备期';
+      case UserStage.action:
+        return '行动期';
+      case UserStage.maintenance:
+        return '维持期';
     }
   }
 

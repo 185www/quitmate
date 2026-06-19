@@ -115,7 +115,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       try {
         final service = LlmService(
           apiKey: apiKey,
-          baseUrl: prefs['ai_api_base'] as String? ?? 'https://api.openai.com/v1',
+          baseUrl:
+              prefs['ai_api_base'] as String? ?? 'https://api.openai.com/v1',
           model: prefs['ai_model'] as String? ?? 'gpt-4o-mini',
         );
 
@@ -134,14 +135,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             '连续${gameProfile?.streakDays ?? 0}天 '
             '阶段${user?.stage.name ?? 'unknown'}';
 
-        final llmResponse = await service.chat(history, userContext: contextStr);
+        final llmResponse =
+            await service.chat(history, userContext: contextStr);
 
         // Parse [quick reply] suggestions from the response
         final quickReplies = <String>[];
         for (final match in RegExp(r'\[([^\]]+)\]').allMatches(llmResponse)) {
           quickReplies.add(match.group(1)!);
         }
-        final cleanText = llmResponse.replaceAll(RegExp(r'\[[^\]]+\]'), '').trim();
+        final cleanText =
+            llmResponse.replaceAll(RegExp(r'\[[^\]]+\]'), '').trim();
 
         if (!mounted) return;
 
@@ -275,11 +278,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   return _buildTypingIndicator();
                 }
                 final message = _messages[index];
-                final showQuickReplies = _visibleQuickReplies.contains(message.id);
+                final showQuickReplies =
+                    _visibleQuickReplies.contains(message.id);
 
                 return Column(
-                  crossAxisAlignment:
-                      message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  crossAxisAlignment: message.isUser
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
                   children: [
                     _buildMessageBubble(message, theme),
                     if (showQuickReplies && !message.isUser) ...[
@@ -498,7 +503,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.6),
+              color: Theme.of(context)
+                  .colorScheme
+                  .surfaceContainerHighest
+                  .withOpacity(0.6),
               borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(6),
                 topRight: Radius.circular(20),
@@ -561,7 +569,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       borderSide: BorderSide.none,
                     ),
                     filled: true,
-                    fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                    fillColor:
+                        colorScheme.surfaceContainerHighest.withOpacity(0.5),
                   ),
                 ),
               ),
@@ -643,7 +652,8 @@ class _TypingDotsState extends State<_TypingDots>
               parent: _controller,
               curve: Interval(offset, offset + 0.3, curve: Curves.easeInOut),
             );
-            final opacity = animation.drive(Tween<double>(begin: 0.3, end: 1.0));
+            final opacity =
+                animation.drive(Tween<double>(begin: 0.3, end: 1.0));
             final scale = animation.drive(Tween<double>(begin: 0.8, end: 1.2));
             return Opacity(
               opacity: opacity.value,

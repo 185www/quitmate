@@ -22,7 +22,8 @@ class ChallengeScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: Chip(
-              avatar: const Icon(Icons.emoji_events, size: 16, color: Colors.amber),
+              avatar:
+                  const Icon(Icons.emoji_events, size: 16, color: Colors.amber),
               label: const Text('即将上线', style: TextStyle(fontSize: 12)),
               backgroundColor: colorScheme.primaryContainer,
               side: BorderSide.none,
@@ -581,8 +582,7 @@ class _CompletedChallengeCard extends StatelessWidget {
               ),
             ),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
                 color: Colors.green.shade100,
                 borderRadius: BorderRadius.circular(10),

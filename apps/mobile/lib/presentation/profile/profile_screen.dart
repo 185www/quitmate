@@ -222,7 +222,8 @@ class _UserSummaryCard extends StatelessWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text('🔥', style: TextStyle(fontSize: 12)),
+                                const Text('🔥',
+                                    style: TextStyle(fontSize: 12)),
                                 const SizedBox(width: 2),
                                 Text(
                                   '${gp.streakDays}天',
@@ -262,8 +263,7 @@ class _UserSummaryCard extends StatelessWidget {
                       minHeight: 8,
                       backgroundColor:
                           colorScheme.surfaceContainerHighest.withOpacity(0.5),
-                      valueColor:
-                          AlwaysStoppedAnimation(colorScheme.primary),
+                      valueColor: AlwaysStoppedAnimation(colorScheme.primary),
                     ),
                   ),
                 ),

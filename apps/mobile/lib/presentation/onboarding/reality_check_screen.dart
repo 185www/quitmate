@@ -62,15 +62,19 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
   int get _yearlyCost => _dailyCost * 365;
   int get _totalSpent => _yearlyCost * _years;
   int get _totalAmount => _dailyAmount * 365 * _years;
-  double get _dailyMinutes => _dailyAmount * (_targetType == TargetType.alcohol ? 15 : 5);
+  double get _dailyMinutes =>
+      _dailyAmount * (_targetType == TargetType.alcohol ? 15 : 5);
   int get _yearlyDays => (_dailyMinutes * 365 ~/ 1440);
   int get _totalDays => _yearlyDays * _years;
 
   String get _unitLabel {
     switch (_targetType) {
-      case TargetType.smoking: return '支烟';
-      case TargetType.alcohol: return '杯酒';
-      case TargetType.both: return '支烟+杯酒';
+      case TargetType.smoking:
+        return '支烟';
+      case TargetType.alcohol:
+        return '杯酒';
+      case TargetType.both:
+        return '支烟+杯酒';
     }
   }
 
@@ -106,11 +110,11 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
     setState(() => _saving = true);
     try {
       await ref.read(userUseCaseProvider).updateAssessment(
-        targetType: _targetType,
-        dailyConsumption: _dailyAmount.toDouble(),
-        yearsOfUse: _years,
-        dailyCostAmount: _dailyCost.toDouble(),
-      );
+            targetType: _targetType,
+            dailyConsumption: _dailyAmount.toDouble(),
+            yearsOfUse: _years,
+            dailyCostAmount: _dailyCost.toDouble(),
+          );
       if (mounted) {
         context.push('/onboarding/education');
       }
@@ -132,14 +136,11 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
         title: const Text('看看自己的情况'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => _currentStep > 0
-              ? setState(() => _currentStep--)
-              : context.pop(),
+          onPressed: () =>
+              _currentStep > 0 ? setState(() => _currentStep--) : context.pop(),
         ),
       ),
-      body: _currentStep < 2
-          ? _buildInputStep()
-          : _buildResultStep(),
+      body: _currentStep < 2 ? _buildInputStep() : _buildResultStep(),
     );
   }
 
@@ -182,9 +183,13 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('你主要想了解哪方面？', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        Text('你主要想了解哪方面？',
+            style: theme.textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        Text('选一个你关心的，也可以两个都选', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        Text('选一个你关心的，也可以两个都选',
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
         const SizedBox(height: 24),
         // Target type selector with icons and descriptions
         _TargetOption(
@@ -231,9 +236,13 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('大概说说你的情况', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        Text('大概说说你的情况',
+            style: theme.textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        Text('不用很精确，大概就行', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+        Text('不用很精确，大概就行',
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
         const SizedBox(height: 24),
         // Daily amount
         _InputField(
@@ -284,12 +293,14 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
           const SizedBox(height: 24),
           Text(
             '这是你的数字',
-            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 4),
           Text(
             '没有对错，只是事实',
-            style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyMedium
+                ?.copyWith(color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 24),
 
@@ -302,9 +313,13 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
             items: [
               ('每天', '¥$_dailyCost'),
               ('每年', '¥${NumberFormat.decimalPattern().format(_yearlyCost)}'),
-              ('$_years 年来', '¥${NumberFormat.decimalPattern().format(_totalSpent)}'),
+              (
+                '$_years 年来',
+                '¥${NumberFormat.decimalPattern().format(_totalSpent)}'
+              ),
             ],
-            footer: '相当于 ${(_totalSpent / 5000).toStringAsFixed(1)} 部 iPhone，或 ${( _totalSpent / 300).toStringAsFixed(0)} 顿火锅',
+            footer:
+                '相当于 ${(_totalSpent / 5000).toStringAsFixed(1)} 部 iPhone，或 ${(_totalSpent / 300).toStringAsFixed(0)} 顿火锅',
           ),
           const SizedBox(height: 16),
 
@@ -319,7 +334,8 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
               ('每年', '$_yearlyDays 天'),
               ('$_years 年来', '$_totalDays 天'),
             ],
-            footer: '相当于 ${( _totalDays / 365).toStringAsFixed(1)} 年——${( _totalDays / 30).toStringAsFixed(0)} 个月整',
+            footer:
+                '相当于 ${(_totalDays / 365).toStringAsFixed(1)} 年——${(_totalDays / 30).toStringAsFixed(0)} 个月整',
           ),
           const SizedBox(height: 16),
 
@@ -331,8 +347,14 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
             title: '累计用量',
             items: [
               ('每天', '$_dailyAmount $_unitLabel'),
-              ('每年', '${NumberFormat.decimalPattern().format(_dailyAmount * 365)} $_unitLabel'),
-              ('$_years 年来', '${NumberFormat.decimalPattern().format(_totalAmount)} $_unitLabel'),
+              (
+                '每年',
+                '${NumberFormat.decimalPattern().format(_dailyAmount * 365)} $_unitLabel'
+              ),
+              (
+                '$_years 年来',
+                '${NumberFormat.decimalPattern().format(_totalAmount)} $_unitLabel'
+              ),
             ],
             footer: '如果每天少$_unitLabel，这些就不会进入你的身体',
           ),
@@ -353,7 +375,9 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
                   children: [
                     Icon(Icons.healing, color: colorScheme.primary, size: 20),
                     const SizedBox(width: 8),
-                    Text('健康提示', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                    Text('健康提示',
+                        style: theme.textTheme.titleSmall
+                            ?.copyWith(fontWeight: FontWeight.w600)),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -379,12 +403,14 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
               children: [
                 Text(
                   '看完这些数字，你有什么想法？',
-                  style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                  style: theme.textTheme.titleSmall
+                      ?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   '不管你的答案是什么，我们都可以帮你想清楚接下来怎么做',
-                  style: theme.textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant),
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(color: colorScheme.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
               ],
@@ -399,7 +425,11 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
             child: FilledButton(
               onPressed: _saving ? null : _saveAndContinue,
               child: _saving
-                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
                   : const Text('继续，了解更多'),
             ),
           ),
@@ -410,11 +440,11 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
               onPressed: () async {
                 try {
                   await ref.read(userUseCaseProvider).updateAssessment(
-                    targetType: _targetType,
-                    dailyConsumption: _dailyAmount.toDouble(),
-                    yearsOfUse: _years,
-                    dailyCostAmount: _dailyCost.toDouble(),
-                  );
+                        targetType: _targetType,
+                        dailyConsumption: _dailyAmount.toDouble(),
+                        yearsOfUse: _years,
+                        dailyCostAmount: _dailyCost.toDouble(),
+                      );
                   if (mounted) context.go('/');
                 } catch (e) {
                   if (mounted) {
@@ -452,8 +482,12 @@ class _ProgDot extends StatelessWidget {
             ? Theme.of(context).colorScheme.primary.withOpacity(0.7)
             : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3);
     return Container(
-      width: 10, height: 10,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: done ? color : Colors.transparent, border: Border.all(color: color, width: 2)),
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: done ? color : Colors.transparent,
+          border: Border.all(color: color, width: 2)),
     );
   }
 }
@@ -467,7 +501,9 @@ class _ProgLine extends StatelessWidget {
     return Expanded(
       child: Container(
         height: 2,
-        color: done ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
+        color: done
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
       ),
     );
   }
@@ -482,8 +518,12 @@ class _TargetOption extends StatelessWidget {
   final VoidCallback onTap;
 
   const _TargetOption({
-    required this.icon, required this.color, required this.title,
-    required this.desc, required this.selected, required this.onTap,
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.desc,
+    required this.selected,
+    required this.onTap,
   });
 
   @override
@@ -502,20 +542,35 @@ class _TargetOption extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 44, height: 44,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
-                  color: selected ? color.withOpacity(0.15) : Theme.of(context).colorScheme.surfaceContainerHighest,
+                  color: selected
+                      ? color.withOpacity(0.15)
+                      : Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: selected ? color : Theme.of(context).colorScheme.onSurfaceVariant, size: 24),
+                child: Icon(icon,
+                    color: selected
+                        ? color
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                    size: 24),
               ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: TextStyle(fontWeight: selected ? FontWeight.w600 : FontWeight.normal, fontSize: 16)),
-                    Text(desc, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 13)),
+                    Text(title,
+                        style: TextStyle(
+                            fontWeight:
+                                selected ? FontWeight.w600 : FontWeight.normal,
+                            fontSize: 16)),
+                    Text(desc,
+                        style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontSize: 13)),
                   ],
                 ),
               ),
@@ -534,7 +589,11 @@ class _InputField extends StatelessWidget {
   final IconData icon;
   final String hint;
 
-  const _InputField({required this.label, required this.controller, required this.icon, required this.hint});
+  const _InputField(
+      {required this.label,
+      required this.controller,
+      required this.icon,
+      required this.hint});
 
   @override
   Widget build(BuildContext context) {
@@ -545,7 +604,11 @@ class _InputField extends StatelessWidget {
           children: [
             Icon(icon, size: 18, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 8),
-            Text(label, style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)),
+            Text(label,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyLarge
+                    ?.copyWith(fontWeight: FontWeight.w500)),
           ],
         ),
         const SizedBox(height: 8),
@@ -557,7 +620,8 @@ class _InputField extends StatelessWidget {
             decoration: InputDecoration(
               hintText: hint,
               border: const OutlineInputBorder(),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             ),
           ),
         ),
@@ -575,8 +639,12 @@ class _ResultCard extends StatelessWidget {
   final String footer;
 
   const _ResultCard({
-    required this.icon, required this.iconColor, required this.bgColor,
-    required this.title, required this.items, required this.footer,
+    required this.icon,
+    required this.iconColor,
+    required this.bgColor,
+    required this.title,
+    required this.items,
+    required this.footer,
   });
 
   @override
@@ -595,28 +663,32 @@ class _ResultCard extends StatelessWidget {
               children: [
                 Icon(icon, color: iconColor, size: 20),
                 const SizedBox(width: 8),
-                Text(title, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                Text(title,
+                    style: theme.textTheme.titleSmall
+                        ?.copyWith(fontWeight: FontWeight.w600)),
               ],
             ),
             const SizedBox(height: 12),
             ...items.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 60,
-                    child: Text(item.$1, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      SizedBox(
+                        width: 60,
+                        child: Text(item.$1,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant)),
+                      ),
+                      Text(
+                        item.$2,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: iconColor,
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    item.$2,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: iconColor,
-                    ),
-                  ),
-                ],
-              ),
-            )),
+                )),
             const Divider(height: 16),
             Text(
               footer,
