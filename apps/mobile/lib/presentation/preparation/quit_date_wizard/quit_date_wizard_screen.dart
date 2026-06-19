@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/widgets/widget_service.dart';
 import '../../../domain/entity/user.dart';
 
 class QuitDateWizardScreen extends ConsumerStatefulWidget {
@@ -97,9 +98,11 @@ class _QuitDateWizardScreenState extends ConsumerState<QuitDateWizardScreen> {
         await userUseCase.setQuitDate(_selectedDate);
       }
       if (mounted) {
+        final user = await ref.read(userUseCaseProvider).getCurrentUser();
+        await WidgetService.updateWidget(user);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('戒断日已设置！新的旅程即将开始 🎯'),
+            content: Text('戒断日已设置！新的旅程即将开始'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -123,7 +126,7 @@ class _QuitDateWizardScreenState extends ConsumerState<QuitDateWizardScreen> {
   Widget build(BuildContext context) {
     if (_loading) {
       return Scaffold(
-        appBar: AppBar(title: const Text('设置戒断日')),
+        appBar: AppBar(title: const Text('选个好日子')),
         body: const Center(child: CircularProgressIndicator()),
       );
     }

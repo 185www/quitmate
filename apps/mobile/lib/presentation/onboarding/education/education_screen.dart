@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../domain/entity/user.dart';
 
 class EducationScreen extends StatefulWidget {
@@ -33,6 +34,21 @@ class _EducationScreenState extends State<EducationScreen> {
       ),
       body: Column(
         children: [
+          // Progress indicator
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Row(
+              children: [
+                _StepIndicator(step: 1, label: '评估', active: true, done: true),
+                _StepLine(done: true),
+                _StepIndicator(step: 2, label: '了解', active: true, done: false),
+                _StepLine(done: false),
+                _StepIndicator(step: 3, label: '动机', active: false, done: false),
+                _StepLine(done: false),
+                _StepIndicator(step: 4, label: '开始', active: false, done: false),
+              ],
+            ),
+          ),
           Expanded(
             child: PageView(
               controller: _controller,
@@ -47,6 +63,76 @@ class _EducationScreenState extends State<EducationScreen> {
           ),
           _BottomBar(currentPage: _currentPage, controller: _controller),
         ],
+      ),
+    );
+  }
+}
+
+/// Step indicator showing onboarding progress
+class _StepIndicator extends StatelessWidget {
+  final int step;
+  final String label;
+  final bool active;
+  final bool done;
+
+  const _StepIndicator({
+    required this.step,
+    required this.label,
+    required this.active,
+    required this.done,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = done
+        ? Theme.of(context).colorScheme.primary
+        : active
+            ? Theme.of(context).colorScheme.primary.withOpacity(0.7)
+            : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: done ? Theme.of(context).colorScheme.primary : Colors.transparent,
+            border: Border.all(color: color, width: 2),
+          ),
+          child: done
+              ? const Icon(Icons.check, size: 16, color: Colors.white)
+              : Center(
+                  child: Text(
+                    '$step',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: color),
+                  ),
+                ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(fontSize: 10, color: color, fontWeight: active ? FontWeight.w600 : FontWeight.normal),
+        ),
+      ],
+    );
+  }
+}
+
+class _StepLine extends StatelessWidget {
+  final bool done;
+  const _StepLine({required this.done});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        height: 2,
+        margin: const EdgeInsets.only(bottom: 18),
+        color: done
+            ? Theme.of(context).colorScheme.primary
+            : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
       ),
     );
   }
@@ -72,7 +158,8 @@ class _BottomBar extends StatelessWidget {
           FilledButton(
             onPressed: () {
               if (isLast) {
-                Navigator.of(context).pop();
+                // Navigate forward to motivation screen instead of popping back
+                context.go('/onboarding/motivation');
               } else {
                 controller.nextPage(
                   duration: const Duration(milliseconds: 300),

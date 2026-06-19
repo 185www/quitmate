@@ -1,76 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
+    android:gravity="center_vertical"
     android:background="@drawable/widget_background">
 
-    <TextView
-        android:id="@+id/widget_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="QuitMate"
-        android:textSize="14sp"
-        android:textColor="#82B1FF"
-        android:textStyle="bold" />
-
+    <!-- Day counter -->
     <TextView
         android:id="@+id/widget_days"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:text="第 -- 天"
-        android:textSize="28sp"
+        android:textSize="32sp"
         android:textColor="#FFFFFF"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/widget_money"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="💰 已省 ¥--"
-        android:textSize="14sp"
-        android:textColor="#B0BEC5" />
-
-    <TextView
-        android:id="@+id/widget_life"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="❤️ +-- 天生命"
-        android:textSize="14sp"
-        android:textColor="#B0BEC5" />
-
+    <!-- Recovery progress bar -->
     <ProgressBar
         android:id="@+id/widget_progress"
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="6dp"
-        android:layout_marginTop="10dp"
+        android:layout_height="8dp"
+        android:layout_marginTop="8dp"
         android:max="100"
         android:progress="0"
-        android:progressTint="#82B1FF"
-        android:progressBackgroundTint="#37474F" />
+        android:progressTint="#64B5F6"
+        android:progressBackgroundTint="#2C2C2C" />
 
     <TextView
         android:id="@+id/widget_recovery"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="4dp"
         android:text="身体恢复 --%"
-        android:textSize="11sp"
-        android:textColor="#78909C" />
+        android:textSize="12sp"
+        android:textColor="#90CAF9" />
 
+    <!-- Stats row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/widget_money"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="已省 -- 元"
+            android:textSize="13sp"
+            android:textColor="#B0BEC5" />
+
+        <TextView
+            android:id="@+id/widget_life"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+-- 生命"
+            android:textSize="13sp"
+            android:textColor="#B0BEC5" />
+    </LinearLayout>
+
+    <!-- SOS button -->
     <Button
         android:id="@+id/widget_sos"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="40dp"
         android:layout_marginTop="12dp"
-        android:backgroundTint="#4A90D9"
-        android:text="🧘 SOS 呼吸法"
+        android:backgroundTint="#1565C0"
+        android:text="SOS 渴望来了"
         android:textColor="#FFFFFF"
-        android:textSize="14sp"
-        android:textAllCaps="false" />
+        android:textSize="13sp"
+        android:textAllCaps="false"
+        android:minHeight="0dp" />
 
 </LinearLayout>

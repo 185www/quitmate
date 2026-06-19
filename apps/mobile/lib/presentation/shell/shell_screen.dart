@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/di/providers.dart';
+import '../../core/widgets/widget_service.dart';
 import '../../domain/entity/user.dart';
 import '../../domain/entity/daily_log.dart';
 import '../../domain/entity/badge.dart';
@@ -89,6 +90,8 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
   Future<void> _saveCheckin() async {
     final lc = ref.read(logUseCaseProvider);
     await lc.logToday(mood: _selectedMood, urgeLevel: _selectedUrge);
+    final user = await ref.read(userUseCaseProvider).getCurrentUser();
+    await WidgetService.updateWidget(user);
     _loadData();
   }
 
@@ -130,9 +133,9 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
             padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
             child: Column(
               children: [
-                Text('开始你的旅程', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w300)),
+                Text('想改变，就从这里开始', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w300)),
                 const SizedBox(height: 4),
-                Text('设定一个目标', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                Text('不管之前尝试过多少次，每一次都是新的机会', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: () => context.push('/onboarding/assessment'),
@@ -143,6 +146,23 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
           );
         }
         final days = user.daysSinceQuit;
+        // Empathetic, encouraging messages based on days
+        String message;
+        if (days == 0) {
+          message = '今天是最重要的一天，你已经迈出了第一步';
+        } else if (days <= 3) {
+          message = '最难熬的头几天，你正在坚持，真了不起';
+        } else if (days <= 7) {
+          message = '第一周了！身体的修复已经悄悄开始';
+        } else if (days <= 14) {
+          message = '两周了，味觉和嗅觉都在恢复';
+        } else if (days <= 30) {
+          message = '一个月了，肺部开始清理，体力在回升';
+        } else if (days <= 90) {
+          message = '$days 天了，你的坚持正在重塑自己';
+        } else {
+          message = '$days 天，你已经是自己的英雄了';
+        }
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
           child: Column(
@@ -150,7 +170,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
             children: [
               Text('第 $days 天', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w200, height: 1.1)),
               const SizedBox(height: 4),
-              Text('你的身体正在恢复', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ],
           ),
         );
@@ -396,14 +416,14 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: SizedBox(
         width: double.infinity,
-        height: 50,
+        height: 52,
         child: ElevatedButton.icon(
           onPressed: () => context.push('/action/urge-toolkit'),
-          icon: const Icon(Icons.self_improvement, size: 22),
-          label: const Text('SOS 呼吸法', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+          icon: const Icon(Icons.favorite_border, size: 22),
+          label: const Text('渴望来了？帮你撑过去', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+            backgroundColor: Theme.of(context).colorScheme.errorContainer,
+            foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             elevation: 0,
           ),

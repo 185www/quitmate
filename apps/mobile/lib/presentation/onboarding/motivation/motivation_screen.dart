@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/widgets/widget_service.dart';
 
 class MotivationScreen extends ConsumerStatefulWidget {
   const MotivationScreen({super.key});
@@ -63,7 +64,7 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('动机设置已保存')),
         );
-        context.go('/');
+        context.go('/preparation/quit-date');
       }
     } catch (e) {
       if (mounted) {
@@ -79,10 +80,25 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('动机提升')),
+      appBar: AppBar(title: const Text('找到你的动力')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Progress indicator
+          Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Row(
+              children: [
+                _MStepDot(step: 1, label: '评估', done: true),
+                _MStepLine(done: true),
+                _MStepDot(step: 2, label: '了解', done: true),
+                _MStepLine(done: true),
+                _MStepDot(step: 3, label: '动机', active: true, done: false),
+                _MStepLine(done: false),
+                _MStepDot(step: 4, label: '开始', active: false, done: false),
+              ],
+            ),
+          ),
           _buildReasonsSection(context),
           const SizedBox(height: 16),
           _buildDecisionalBalance(context),
@@ -100,7 +116,7 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                         height: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('完成设置，开始旅程'),
+                    : const Text('确定，选择日期开始'),
               ),
             ),
           ),
@@ -218,26 +234,26 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
               children: [
                 Icon(Icons.balance, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(width: 8),
-                Text('Decisional Balance（决策平衡）', style: Theme.of(context).textTheme.titleMedium),
+                Text('戒还是不戒？想一想', style: Theme.of(context).textTheme.titleMedium),
               ],
             ),
             const SizedBox(height: 4),
             Text(
-              '评估戒断的好处与继续使用的坏处，帮助你坚定决心',
+              '帮你理清戒掉的好处和继续的代价',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
             ),
             const SizedBox(height: 16),
             Text(
-              '戒断的好处对你来说有多重要？',
+              '你觉得戒掉的好处有多重要？',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
             _buildScale(context, _prosScore, (v) => setState(() => _prosScore = v)),
             const SizedBox(height: 16),
             Text(
-              '继续使用的坏处对你来说有多严重？',
+              '你觉得继续下去的危害有多严重？',
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 8),
@@ -255,8 +271,8 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
                 ),
                 child: Text(
                   _prosScore! >= _consScore!
-                      ? '你的决策平衡偏向戒断，这是很好的基础！'
-                      : '你仍然认为继续使用有一些"好处"。思考一下这些好处是否值得你付出健康代价？',
+                      ? '很好！戒掉的好处在你心中分量很重'
+                      : '你觉得继续还有点吸引力？想想这些"好处"是否值得拿健康去换',
                   style: TextStyle(
                     color: _prosScore! >= _consScore! ? Colors.green : Colors.orange,
                     fontWeight: FontWeight.w500,
@@ -442,6 +458,57 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _MStepDot extends StatelessWidget {
+  final int step;
+  final String label;
+  final bool active;
+  final bool done;
+  const _MStepDot({required this.step, required this.label, this.active = false, required this.done});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = done
+        ? Theme.of(context).colorScheme.primary
+        : active
+            ? Theme.of(context).colorScheme.primary.withOpacity(0.7)
+            : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 24, height: 24,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: done ? Theme.of(context).colorScheme.primary : Colors.transparent,
+            border: Border.all(color: color, width: 2),
+          ),
+          child: done
+              ? const Icon(Icons.check, size: 14, color: Colors.white)
+              : Center(child: Text('$step', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color))),
+        ),
+        const SizedBox(height: 2),
+        Text(label, style: TextStyle(fontSize: 9, color: color)),
+      ],
+    );
+  }
+}
+
+class _MStepLine extends StatelessWidget {
+  final bool done;
+  const _MStepLine({required this.done});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        height: 2,
+        margin: const EdgeInsets.only(bottom: 16),
+        color: done ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
       ),
     );
   }
