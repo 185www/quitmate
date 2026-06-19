@@ -90,7 +90,7 @@ class ExportScreen extends ConsumerWidget {
 
       final data = {
         'exportDate': DateTime.now().toIso8601String(),
-        'version': '1.5.0',
+        'version': '1.6.0',
         'appName': 'QuitMate',
         'user': user != null
             ? {
