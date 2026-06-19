@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../presentation/shell/shell_screen.dart';
 import '../../presentation/onboarding/welcome_screen.dart';
@@ -10,6 +9,8 @@ import '../../presentation/preparation/quit_date_wizard/quit_date_wizard_screen.
 import '../../presentation/action/urge_toolkit/urge_toolkit_screen.dart';
 import '../../presentation/action/daily_log/daily_log_screen.dart';
 import '../../presentation/action/skills_lab/skills_lab_screen.dart';
+import '../../presentation/action/coach/chat_screen.dart';
+import '../../presentation/action/challenge/challenge_screen.dart';
 import '../../presentation/maintenance/relapse_plan/relapse_plan_screen.dart';
 import '../../presentation/maintenance/lifestyle/lifestyle_screen.dart';
 import '../../presentation/profile/settings_screen.dart';
@@ -17,6 +18,7 @@ import '../../presentation/profile/export_screen.dart';
 import '../../presentation/profile/about_screen.dart';
 import '../../presentation/profile/badges_screen.dart';
 import '../../presentation/profile/analysis_report/analysis_report_screen.dart';
+import '../../presentation/profile/game_profile_screen.dart';
 import '../../domain/usecase/user_usecase.dart';
 import '../../core/notifications/notification_service.dart';
 
@@ -68,6 +70,8 @@ class AppRouter {
       GoRoute(path: '/action/urge-toolkit', builder: (_, __) => const UrgeToolkitScreen()),
       GoRoute(path: '/action/daily-log', builder: (_, __) => const DailyLogScreen()),
       GoRoute(path: '/action/skills-lab', builder: (_, __) => const SkillsLabScreen()),
+      GoRoute(path: '/action/coach', builder: (_, __) => const ChatScreen()),
+      GoRoute(path: '/action/challenge', builder: (_, __) => const ChallengeScreen()),
 
       // Maintenance tools
       GoRoute(path: '/maintenance/relapse-plan', builder: (_, __) => const RelapsePlanScreen()),
@@ -79,6 +83,7 @@ class AppRouter {
       GoRoute(path: '/profile/export', builder: (_, __) => const ExportScreen()),
       GoRoute(path: '/profile/about', builder: (_, __) => const AboutScreen()),
       GoRoute(path: '/profile/badges', builder: (_, __) => const BadgesScreen()),
+      GoRoute(path: '/profile/game-profile', builder: (_, __) => const GameProfileScreen()),
     ],
   );
 }

@@ -1,9 +1,0 @@
-{
-  "recommendations": [
-    {"id": "exercise", "title": "规律运动", "description": "每周至少150分钟中等强度运动，帮助缓解戒断症状和压力", "category": "运动", "duration": 30},
-    {"id": "sleep", "title": "充足睡眠", "description": "每晚7-9小时睡眠，有助于情绪调节和意志力恢复", "category": "休息", "duration": 480},
-    {"id": "diet", "title": "均衡饮食", "description": "多吃水果蔬菜，减少咖啡因和糖分摄入", "category": "饮食", "duration": 0},
-    {"id": "meditation", "title": "冥想练习", "description": "每天10分钟正念冥想，帮助管理压力和渴望", "category": "心理", "duration": 10},
-    {"id": "social", "title": "社交支持", "description": "与支持你的人保持联系，加入戒烟/酒互助小组", "category": "社交", "duration": 0}
-  ]
-}

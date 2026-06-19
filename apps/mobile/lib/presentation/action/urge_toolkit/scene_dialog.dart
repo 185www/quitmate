@@ -40,6 +40,13 @@ class _SceneCaptureDialogState extends ConsumerState<SceneCaptureDialog> {
             socialContext: _social,
             activity: _activity,
           );
+      // Award XP if craving was resisted
+      if (widget.resolved) {
+        final user = await ref.read(userUseCaseProvider).getCurrentUser();
+        if (user != null) {
+          await ref.read(gameUseCaseProvider).awardCravingResisted(user.id);
+        }
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

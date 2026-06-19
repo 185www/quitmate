@@ -109,6 +109,7 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
         targetType: _targetType,
         dailyConsumption: _dailyAmount.toDouble(),
         yearsOfUse: _years,
+        dailyCostAmount: _dailyCost.toDouble(),
       );
       if (mounted) {
         context.push('/onboarding/education');
@@ -412,6 +413,7 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
                     targetType: _targetType,
                     dailyConsumption: _dailyAmount.toDouble(),
                     yearsOfUse: _years,
+                    dailyCostAmount: _dailyCost.toDouble(),
                   );
                   if (mounted) context.go('/');
                 } catch (e) {

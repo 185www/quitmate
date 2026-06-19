@@ -33,26 +33,10 @@ class QuitMateApp extends ConsumerStatefulWidget {
 }
 
 class _QuitMateAppState extends ConsumerState<QuitMateApp> {
-  bool _darkMode = false;
-
   @override
   void initState() {
     super.initState();
-    _loadDarkMode();
     WidgetsBinding.instance.addPostFrameCallback((_) => _handleWidgetRoute());
-  }
-
-  Future<void> _loadDarkMode() async {
-    try {
-      final prefs = await ref.read(userUseCaseProvider).getPreferences();
-      if (mounted) {
-        setState(() {
-          _darkMode = prefs['dark_mode'] as bool? ?? false;
-        });
-      }
-    } catch (_) {
-      // Ignore - use default (false = light mode)
-    }
   }
 
   Future<void> _handleWidgetRoute() async {
@@ -72,6 +56,7 @@ class _QuitMateAppState extends ConsumerState<QuitMateApp> {
   Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
     final theme = ref.watch(appThemeProvider);
+    final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
       title: 'QuitMate',
@@ -79,7 +64,7 @@ class _QuitMateAppState extends ConsumerState<QuitMateApp> {
       routerConfig: router.router,
       theme: theme.lightTheme,
       darkTheme: theme.darkTheme,
-      themeMode: _darkMode ? ThemeMode.dark : ThemeMode.light,
+      themeMode: themeMode,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

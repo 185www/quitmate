@@ -55,6 +55,11 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
         ...prefs,
         'completed_skills': completed,
       });
+      // Award exercise XP
+      final user = await ref.read(userUseCaseProvider).getCurrentUser();
+      if (user != null) {
+        await ref.read(gameUseCaseProvider).awardExerciseCompleted(user.id);
+      }
       if (_completedExercises.length >= 5) {
         await ref.read(badgeRepositoryProvider).earnBadge('cbt_master');
         if (mounted) {

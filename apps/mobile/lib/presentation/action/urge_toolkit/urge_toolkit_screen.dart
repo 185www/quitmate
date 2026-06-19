@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'scene_dialog.dart';
+import '../../../core/di/providers.dart';
 
 class UrgeToolkitScreen extends ConsumerStatefulWidget {
   const UrgeToolkitScreen({super.key});
@@ -63,6 +64,78 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     super.dispose();
   }
 
+  void _showIntensityPicker({required int defaultIntensity, required void Function(int) onComplete}) {
+    int selected = defaultIntensity;
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('你的渴望有多强？'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('1 = 几乎没有感觉  |  10 = 非常强烈', 
+                  style: TextStyle(fontSize: 12, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(10, (i) {
+                  final val = i + 1;
+                  final isSelected = selected == val;
+                  return GestureDetector(
+                    onTap: () => setDialogState(() => selected = val),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 150),
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? _intensityColor(val)
+                            : Theme.of(context).colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(8),
+                        border: isSelected ? Border.all(color: _intensityColor(val), width: 1.5) : null,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text('$val', style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
+                      )),
+                    ),
+                  );
+                }),
+              ),
+              const SizedBox(height: 12),
+              Text(_intensityLabel(selected), 
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: _intensityColor(selected))),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
+            FilledButton(onPressed: () { Navigator.pop(ctx); onComplete(selected); }, child: const Text('记录')),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _intensityColor(int val) {
+    if (val <= 2) return Colors.green;
+    if (val <= 4) return Colors.lightGreen;
+    if (val <= 6) return Colors.orange;
+    if (val <= 8) return Colors.deepOrange;
+    return Colors.red;
+  }
+
+  String _intensityLabel(int val) {
+    if (val <= 2) return '轻微';
+    if (val <= 4) return '中等';
+    if (val <= 6) return '较强';
+    if (val <= 8) return '强烈';
+    return '非常强烈';
+  }
+
   void _startTimer() {
     setState(() {
       _isTimerRunning = true;
@@ -91,17 +164,19 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
 
   void _onUrgeSurfingComplete() {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('✅ 完成')),
-    );
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => SceneCaptureDialog(
-        intensity: 7,
-        trigger: '渴望冲浪',
-        copingUsed: '渴望冲浪',
-        resolved: true,
-      ),
+    _showIntensityPicker(
+      defaultIntensity: 7,
+      onComplete: (intensity) {
+        showModalBottomSheet(
+          context: context,
+          builder: (_) => SceneCaptureDialog(
+            intensity: intensity,
+            trigger: '渴望冲浪',
+            copingUsed: '渴望冲浪',
+            resolved: true,
+          ),
+        );
+      },
     );
   }
 
@@ -174,15 +249,33 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
 
   void _onSOSComplete() {
     if (!mounted) return;
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => SceneCaptureDialog(
-        intensity: 10,
-        trigger: 'SOS紧急求助',
-        copingUsed: '4-7-8呼吸法',
-        resolved: true,
-      ),
+    // Award SOS XP
+    _awardSosXp();
+    _showIntensityPicker(
+      defaultIntensity: 8,
+      onComplete: (intensity) {
+        showModalBottomSheet(
+          context: context,
+          builder: (_) => SceneCaptureDialog(
+            intensity: intensity,
+            trigger: 'SOS紧急求助',
+            copingUsed: '4-7-8呼吸法',
+            resolved: true,
+          ),
+        );
+      },
     );
+  }
+
+  Future<void> _awardSosXp() async {
+    try {
+      final user = await ref.read(userUseCaseProvider).getCurrentUser();
+      if (user != null) {
+        await ref.read(gameUseCaseProvider).awardSosUsed(user.id);
+      }
+    } catch (e) {
+      debugPrint('Award SOS XP failed: $e');
+    }
   }
 
   void _launchGrounding() {
@@ -241,24 +334,29 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     setState(() {
       _lastLoggedAlternative = title;
     });
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => SceneCaptureDialog(
-        intensity: 5,
-        trigger: '替代行为',
-        copingUsed: title,
-        resolved: true,
-      ),
-    );
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          if (_lastLoggedAlternative == title) {
-            _lastLoggedAlternative = null;
+    _showIntensityPicker(
+      defaultIntensity: 5,
+      onComplete: (intensity) {
+        showModalBottomSheet(
+          context: context,
+          builder: (_) => SceneCaptureDialog(
+            intensity: intensity,
+            trigger: '替代行为',
+            copingUsed: title,
+            resolved: true,
+          ),
+        );
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            setState(() {
+              if (_lastLoggedAlternative == title) {
+                _lastLoggedAlternative = null;
+              }
+            });
           }
         });
-      }
-    });
+      },
+    );
   }
 
   @override

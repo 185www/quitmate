@@ -14,6 +14,7 @@ class UserUseCase {
     int? auditScore,
     double? dailyConsumption,
     int? yearsOfUse,
+    double? dailyCostAmount,
   }) => _repository.createUser(
     targetType: targetType,
     quitDate: quitDate,
@@ -21,6 +22,7 @@ class UserUseCase {
     auditScore: auditScore,
     dailyConsumption: dailyConsumption,
     yearsOfUse: yearsOfUse,
+    dailyCostAmount: dailyCostAmount,
   );
 
   Future<User> setQuitDate(DateTime quitDate) async {
@@ -79,6 +81,7 @@ class UserUseCase {
     int? auditScore,
     double? dailyConsumption,
     int? yearsOfUse,
+    double? dailyCostAmount,
     required TargetType targetType,
   }) async {
     final user = await _repository.getCurrentUser();
@@ -93,6 +96,7 @@ class UserUseCase {
           auditScore: auditScore,
           dailyConsumption: dailyConsumption,
           yearsOfUse: yearsOfUse,
+          dailyCostAmount: dailyCostAmount,
         );
       }
       final now = DateTime.now();
@@ -102,6 +106,7 @@ class UserUseCase {
         auditScore: auditScore,
         dailyConsumption: dailyConsumption,
         yearsOfUse: yearsOfUse,
+        dailyCostAmount: dailyCostAmount,
       );
       return newId;
     }
@@ -111,6 +116,7 @@ class UserUseCase {
       auditScore: auditScore,
       dailyConsumption: dailyConsumption,
       yearsOfUse: yearsOfUse,
+      dailyCostAmount: dailyCostAmount,
     );
   }
 

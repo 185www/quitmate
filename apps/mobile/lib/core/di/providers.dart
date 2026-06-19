@@ -1,17 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/database/app_database.dart';
 import '../../data/repository/user_repository_impl.dart';
 import '../../data/repository/log_repository_impl.dart';
 import '../../data/repository/badge_repository_impl.dart';
 import '../../data/repository/plan_repository_impl.dart';
-import '../../data/repository/content_repository_impl.dart';
 import '../../data/repository/craving_repository_impl.dart';
+import '../../data/repository/game_repository_impl.dart';
 import '../../domain/usecase/user_usecase.dart';
 import '../../domain/usecase/log_usecase.dart';
 import '../../domain/usecase/badge_usecase.dart';
 import '../../domain/usecase/plan_usecase.dart';
-import '../../domain/usecase/content_usecase.dart';
 import '../../domain/usecase/craving_usecase.dart';
+import '../../domain/usecase/game_usecase.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/notifications/notification_service.dart';
 import '../../core/security/encryption_service.dart';
@@ -26,15 +27,15 @@ final userRepositoryProvider = Provider((ref) => UserRepository(ref.watch(appDat
 final logRepositoryProvider = Provider((ref) => LogRepository(ref.watch(appDatabaseProvider)));
 final badgeRepositoryProvider = Provider((ref) => BadgeRepository(ref.watch(appDatabaseProvider)));
 final planRepositoryProvider = Provider((ref) => PlanRepository(ref.watch(appDatabaseProvider)));
-final contentRepositoryProvider = Provider((ref) => ContentRepositoryImpl(ref.watch(contentLoaderProvider)));
 final cravingRepositoryProvider = Provider((ref) => CravingRepository(ref.watch(appDatabaseProvider)));
+final gameRepositoryProvider = Provider((ref) => GameRepository(ref.watch(appDatabaseProvider)));
 
 final userUseCaseProvider = Provider((ref) => UserUseCase(ref.watch(userRepositoryProvider)));
 final logUseCaseProvider = Provider((ref) => LogUseCase(ref.watch(logRepositoryProvider), ref.watch(badgeRepositoryProvider), ref.watch(userRepositoryProvider)));
 final badgeUseCaseProvider = Provider((ref) => BadgeUseCase(ref.watch(badgeRepositoryProvider)));
 final planUseCaseProvider = Provider((ref) => PlanUseCase(ref.watch(planRepositoryProvider)));
-final contentUseCaseProvider = Provider((ref) => ContentUseCase(ref.watch(contentRepositoryProvider)));
 final cravingUseCaseProvider = Provider((ref) => CravingUseCase(ref.watch(cravingRepositoryProvider), ref.watch(userRepositoryProvider)));
+final gameUseCaseProvider = Provider((ref) => GameUseCase(ref.watch(gameRepositoryProvider)));
 
 final notificationServiceProvider = Provider((ref) => NotificationService.instance);
 final appThemeProvider = Provider((ref) => AppTheme());
@@ -44,4 +45,35 @@ final appRouterProvider = Provider((ref) {
     userUseCase: ref.watch(userUseCaseProvider),
     notificationService: ref.watch(notificationServiceProvider),
   );
+});
+
+// ──────────────────────────────────────────────────────────
+// Reactive Theme Mode Provider
+// ──────────────────────────────────────────────────────────
+class ThemeModeNotifier extends StateNotifier<ThemeMode> {
+  final UserUseCase _userUseCase;
+  ThemeModeNotifier(this._userUseCase) : super(ThemeMode.light) {
+    _loadMode();
+  }
+
+  Future<void> _loadMode() async {
+    try {
+      final prefs = await _userUseCase.getPreferences();
+      final dark = prefs['dark_mode'] as bool? ?? false;
+      state = dark ? ThemeMode.dark : ThemeMode.light;
+    } catch (_) {}
+  }
+
+  Future<void> setMode(bool isDark) async {
+    state = isDark ? ThemeMode.dark : ThemeMode.light;
+    try {
+      final prefs = await _userUseCase.getPreferences();
+      prefs['dark_mode'] = isDark;
+      await _userUseCase.savePreferences(prefs);
+    } catch (_) {}
+  }
+}
+
+final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+  return ThemeModeNotifier(ref.read(userUseCaseProvider));
 });

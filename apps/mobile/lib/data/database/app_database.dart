@@ -16,7 +16,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 4,
+      version: 6,
       onCreate: (db, version) async => _createTables(db),
       onUpgrade: (db, oldV, newV) async {
         if (oldV < 2) {
@@ -29,6 +29,12 @@ class AppDatabase {
         }
         if (oldV < 4) {
           try { await db.execute('DROP TABLE IF EXISTS notification_schedule'); } catch (_) {}
+        }
+        if (oldV < 5) {
+          try { await db.execute('ALTER TABLE user_profile ADD COLUMN daily_cost_amount REAL'); } catch (_) {}
+        }
+        if (oldV < 6) {
+          await _createGameProfileTable(db);
         }
       },
     );
@@ -45,6 +51,7 @@ class AppDatabase {
         audit_score INTEGER,
         daily_consumption REAL,
         years_of_use INTEGER,
+        daily_cost_amount REAL,
         preferences_encrypted TEXT,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
@@ -106,7 +113,30 @@ class AppDatabase {
       )
     ''');
 
+    await _createGameProfileTable(db);
+
     await _seedBadges(db);
+  }
+
+  Future<void> _createGameProfileTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS game_profile (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES user_profile(id),
+        level INTEGER DEFAULT 1,
+        xp INTEGER DEFAULT 0,
+        total_xp INTEGER DEFAULT 0,
+        streak_days INTEGER DEFAULT 0,
+        longest_streak INTEGER DEFAULT 0,
+        checkin_total INTEGER DEFAULT 0,
+        last_checkin_date TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        cravings_resisted INTEGER DEFAULT 0,
+        exercises_completed INTEGER DEFAULT 0,
+        sos_used_count INTEGER DEFAULT 0
+      )
+    ''');
   }
 
   Future<void> _seedBadges(Database db) async {

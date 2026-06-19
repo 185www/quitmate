@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +6,7 @@ import '../../core/di/providers.dart';
 import '../../core/widgets/widget_service.dart';
 import '../../domain/entity/user.dart';
 import '../../domain/entity/daily_log.dart';
+import '../../domain/entity/game_profile.dart';
 
 class ShellScreen extends ConsumerStatefulWidget {
   final Widget child;
@@ -64,9 +66,14 @@ class DashboardTab extends ConsumerStatefulWidget {
 class _DashboardTabState extends ConsumerState<DashboardTab> {
   Future<User?>? _userFuture;
   Future<DailyLogEntry?>? _todayLogFuture;
+  Future<GameProfile?>? _gameProfileFuture;
 
   int _selectedMood = 3;
-  int _selectedUrge = 4;
+  int _selectedUrge = 1;
+
+  // XP animation state
+  String? _floatingXpText;
+  bool _showXpAnimation = false;
 
   @override
   void initState() {
@@ -77,12 +84,17 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
   void _loadData() {
     final uc = ref.read(userUseCaseProvider);
     final lc = ref.read(logUseCaseProvider);
+    final gc = ref.read(gameUseCaseProvider);
     _userFuture = uc.getCurrentUser().then((user) async {
       // Check and auto-advance user stage based on days since quit
       final updated = await uc.checkAndAdvanceStage();
       return updated ?? user;
     });
     _todayLogFuture = lc.getTodayLog();
+    _gameProfileFuture = _userFuture?.then((user) {
+      if (user != null) return gc.getGameProfile(user.id);
+      return Future<GameProfile?>.value(null);
+    });
     if (mounted) setState(() {});
   }
 
@@ -90,8 +102,44 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
     final lc = ref.read(logUseCaseProvider);
     await lc.logToday(mood: _selectedMood, urgeLevel: _selectedUrge);
     final user = await ref.read(userUseCaseProvider).getCurrentUser();
+    if (user != null) {
+      final gc = ref.read(gameUseCaseProvider);
+      final updated = await gc.processCheckin(user.id);
+      if (updated != null) {
+        _showXpGain('+${XpRewards.dailyCheckin + updated.streakDays * XpRewards.streakBonus} XP');
+      }
+    }
     await WidgetService.updateWidget(user);
     _loadData();
+  }
+
+  String get _dailyQuote {
+    final quotes = [
+      '"每一次抵抗，你都在重写自己的大脑。"',
+      '"平均需要6-30次尝试——你只是还没到达终点。"',
+      '"渴望像海浪，会来也会走。你不需要和它对抗。"',
+      '"你的身体在20分钟内就开始修复。"',
+      '"一年后，你的冠心病风险降低50%。"',
+      '"运动可以在15分钟内减少50%的渴求感。"',
+      '"你不是在放弃什么——你是在赢得自由。"',
+      '"每一个不抽烟/不喝酒的时刻，都是胜利。"',
+    ];
+    final dayOfYear = DateTime.now().difference(DateTime(DateTime.now().year)).inDays;
+    return quotes[dayOfYear % quotes.length];
+  }
+
+  void _showXpGain(String text) {
+    setState(() {
+      _floatingXpText = text;
+      _showXpAnimation = true;
+    });
+    Future.delayed(const Duration(milliseconds: 1500), () {
+      if (mounted) {
+        setState(() {
+          _showXpAnimation = false;
+        });
+      }
+    });
   }
 
   @override
@@ -105,6 +153,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
             padding: const EdgeInsets.only(bottom: 32),
             child: Column(
               children: [
+                _buildLevelBar(),
                 _buildGreeting(),
                 _buildBodyRecovery(),
                 _buildStatCards(),
@@ -119,8 +168,149 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
     );
   }
 
+  Widget _buildLevelBar() {
+    return FutureBuilder<GameProfile?>(
+      future: _gameProfileFuture,
+      builder: (context, snap) {
+        final gp = snap.data;
+        if (gp == null) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              GestureDetector(
+                onTap: () => context.push('/profile/game-profile'),
+                child: Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            // Level badge
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Theme.of(context).colorScheme.primary,
+                                    Theme.of(context).colorScheme.tertiary,
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'Lv.${gp.level}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${gp.levelEmoji} ${gp.levelTitle}',
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            const Spacer(),
+                            // Streak badge
+                            if (gp.streakDays > 0)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Text('🔥', style: TextStyle(fontSize: 14)),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      '连续${gp.streakDays}天',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.orange.shade800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            const SizedBox(width: 4),
+                            const Icon(Icons.chevron_right, size: 18, color: Colors.grey),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // XP progress bar
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: gp.levelProgress.clamp(0.0, 1.0),
+                                  minHeight: 8,
+                                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                  valueColor: AlwaysStoppedAnimation(
+                                    Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              gp.xpDisplay,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // XP floating animation overlay
+              if (_showXpAnimation && _floatingXpText != null)
+                Positioned(
+                  right: 24,
+                  top: -8,
+                  child: TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0, end: 1),
+                    duration: const Duration(milliseconds: 1200),
+                    builder: (context, value, child) {
+                      return Opacity(
+                        opacity: 1 - value,
+                        child: Transform.translate(
+                          offset: Offset(0, -30 * value),
+                          child: Text(
+                            _floatingXpText!,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _buildGreeting() {
-    return FutureBuilder<User?>(
+    return FutureBuilder<User?>( 
       future: _userFuture,
       builder: (context, snap) {
         final user = snap.data;
@@ -171,6 +361,14 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
               Text('第 $days 天', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w700, height: 1.1)),
               const SizedBox(height: 4),
               Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              const SizedBox(height: 8),
+              Text(
+                _dailyQuote,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.7),
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             ],
           ),
         );
@@ -307,7 +505,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
                     Row(
                       children: [
                         Text('心情: ', style: Theme.of(context).textTheme.bodySmall),
-                        Text(log.mood <= 2 ? '😢' : log.mood <= 4 ? '😐' : '😊', style: const TextStyle(fontSize: 24)),
+                        Text(_moodEmoji(log.mood), style: const TextStyle(fontSize: 24)),
                         const SizedBox(width: 24),
                         Text('渴望: ', style: Theme.of(context).textTheme.bodySmall),
                         Container(
@@ -339,7 +537,9 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _moodButton('😢', 1),
+                        _moodButton('😕', 2),
                         _moodButton('😐', 3),
+                        _moodButton('🙂', 4),
                         _moodButton('😊', 5),
                       ],
                     ),
@@ -348,8 +548,10 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _urgePill('无渴望', 1),
-                        _urgePill('有点想', 4),
-                        _urgePill('非常想', 8),
+                        _urgePill('轻微', 3),
+                        _urgePill('中等', 5),
+                        _urgePill('较强', 7),
+                        _urgePill('强烈', 10),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -374,7 +576,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
 
   Widget _moodButton(String emoji, int value) {
     final selected = _selectedMood == value;
-    final Color bgColor = value <= 2 ? Colors.blue.shade50 : value <= 4 ? Colors.grey.shade200 : Colors.amber.shade50;
+    final Color bgColor = value <= 1 ? Colors.blue.shade50 : value <= 2 ? Colors.indigo.shade50 : value <= 3 ? Colors.grey.shade200 : value <= 4 ? Colors.lime.shade50 : Colors.amber.shade50;
     return GestureDetector(
       onTap: () => setState(() => _selectedMood = value),
       child: AnimatedContainer(
@@ -422,24 +624,84 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
     );
   }
 
+  String _moodEmoji(int mood) {
+    switch (mood) {
+      case 1: return '😢';
+      case 2: return '😕';
+      case 3: return '😐';
+      case 4: return '🙂';
+      case 5: return '😊';
+      default: return '😐';
+    }
+  }
+
   Widget _buildSosButton() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: ElevatedButton.icon(
-          onPressed: () => context.push('/action/urge-toolkit'),
-          icon: const Icon(Icons.emergency, size: 22),
-          label: const Text('渴望来了？帮你撑过去', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.errorContainer,
-            foregroundColor: Theme.of(context).colorScheme.onErrorContainer,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            elevation: 0,
+      child: Column(
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton.icon(
+              onPressed: () => _showSosBottomSheet(),
+              icon: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: const Icon(Icons.emergency, size: 22),
+              ),
+              label: const Text('渴望来了？按下开始呼吸',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.error,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                elevation: 4,
+                shadowColor: Theme.of(context).colorScheme.error.withOpacity(0.3),
+              ),
+            ),
           ),
-        ),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: () => context.push('/action/coach'),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '或者跟教练聊聊',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_rounded,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+
+  void _showSosBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: false,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _SosBreathingSheet(),
     );
   }
 
@@ -522,6 +784,336 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
 }
 
 
+class _SosBreathingSheet extends ConsumerStatefulWidget {
+  const _SosBreathingSheet();
+
+  @override
+  ConsumerState<_SosBreathingSheet> createState() => _SosBreathingSheetState();
+}
+
+class _SosBreathingSheetState extends ConsumerState<_SosBreathingSheet>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _breathController;
+  int _secondsRemaining = 180;
+  Timer? _timer;
+  bool _breathing = true;
+  bool _complete = false;
+  bool _isSubmitting = false;
+
+  final _phaseMessages = [
+    '承认渴望的存在，不评判自己',
+    '你不需要和渴望对抗，只需等待',
+    '渴望像海浪，会来也会走',
+    '每次抵抗，你都在变强',
+    '想想你为什么要戒掉',
+    '你值得更好的生活',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _breathController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat(reverse: true);
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() {
+        if (_secondsRemaining > 0) {
+          _secondsRemaining--;
+        } else {
+          _timer?.cancel();
+          _breathing = false;
+          _complete = true;
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _breathController.dispose();
+    super.dispose();
+  }
+
+  int get _currentPhase {
+    if (_secondsRemaining > 120) return 1;
+    if (_secondsRemaining > 60) return 2;
+    return 3;
+  }
+
+  String get _phaseLabel {
+    switch (_currentPhase) {
+      case 1:
+        return '承认渴望';
+      case 2:
+        return '深呼吸放松';
+      case 3:
+        return '巩固决心';
+      default:
+        return '';
+    }
+  }
+
+  String get _phaseInstruction {
+    switch (_currentPhase) {
+      case 1:
+        return '感觉它，观察它，不评判';
+      case 2:
+        return '跟随圆圈的节奏呼吸';
+      case 3:
+        return '你已经做到了，再坚持一下';
+      default:
+        return '';
+    }
+  }
+
+  Future<void> _onComplete() async {
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+    try {
+      final cravingUC = ref.read(cravingUseCaseProvider);
+      await cravingUC.logCraving(
+        8,
+        trigger: 'SOS紧急救援',
+        copingUsed: '4-7-8呼吸法+正念',
+        resolved: true,
+      );
+      final badgeRepo = ref.read(badgeRepositoryProvider);
+      await badgeRepo.earnBadge('sos_used');
+    } catch (_) {
+      // Silently handle errors — the user still completed the SOS
+    }
+    if (mounted) Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final minutes = _secondsRemaining ~/ 60;
+    final seconds = _secondsRemaining % 60;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Container(
+      height: screenHeight,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            colorScheme.errorContainer,
+            colorScheme.surface,
+          ],
+        ),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Top bar
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('退出',
+                        style: TextStyle(
+                            color: colorScheme.onSurfaceVariant,
+                            fontSize: 15)),
+                  ),
+                  Text('SOS 紧急救援',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleMedium
+                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  const SizedBox(width: 60), // balance
+                ],
+              ),
+            ),
+
+            const Spacer(flex: 2),
+
+            // Phase indicator
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              decoration: BoxDecoration(
+                color: colorScheme.primaryContainer.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    '第$_currentPhase阶段: $_phaseLabel',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    _phaseInstruction,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            // Breathing circle
+            if (_breathing)
+              AnimatedBuilder(
+                animation: _breathController,
+                builder: (context, child) {
+                  final scale = 1 + _breathController.value * 0.3;
+                  final size = 160.0 * scale;
+                  final breathValue = _breathController.value;
+                  final opacity = 0.15 + breathValue * 0.15;
+
+                  return Container(
+                    width: size,
+                    height: size,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: colorScheme.primary.withOpacity(opacity),
+                      border: Border.all(
+                        color: colorScheme.primary.withOpacity(0.3 + breathValue * 0.2),
+                        width: 2,
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: colorScheme.primary.withOpacity(opacity * 0.5),
+                          blurRadius: 20 * breathValue,
+                          spreadRadius: 4 * breathValue,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        breathValue < 0.4
+                            ? '吸气'
+                            : breathValue < 0.6
+                                ? '屏息'
+                                : '呼气',
+                        style: Theme.of(context)
+                            .textTheme
+                            .titleLarge
+                            ?.copyWith(
+                              color: colorScheme.primary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                      ),
+                    ),
+                  );
+                },
+              )
+            else
+              Container(
+                width: 160,
+                height: 160,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.green.withOpacity(0.15),
+                  border: Border.all(color: Colors.green, width: 2),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.green.withOpacity(0.2),
+                      blurRadius: 20,
+                      spreadRadius: 4,
+                    ),
+                  ],
+                ),
+                child: const Center(
+                  child: Icon(Icons.check_circle, size: 64, color: Colors.green),
+                ),
+              ),
+
+            const Spacer(flex: 2),
+
+            // Timer
+            Text(
+              _complete
+                  ? '你撑过去了!'
+                  : '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+              style: TextStyle(
+                fontSize: _complete ? 28 : 48,
+                fontWeight: FontWeight.bold,
+                color: _complete ? Colors.green : colorScheme.onSurface,
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // Motivational message
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 48),
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 500),
+                child: Text(
+                  _complete
+                      ? '每次抵抗都是胜利，你正在改变自己'
+                      : _phaseMessages[
+                          _secondsRemaining ~/ 30 % _phaseMessages.length],
+                  key: ValueKey(_secondsRemaining ~/ 30),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+
+            const Spacer(flex: 2),
+
+            // Complete button
+            if (_complete)
+              Padding(
+                padding: const EdgeInsets.all(32),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: FilledButton.icon(
+                    onPressed: _isSubmitting ? null : _onComplete,
+                    icon: _isSubmitting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Icon(Icons.celebration),
+                    label: Text(
+                      _isSubmitting ? '保存中...' : '我做到了!',
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16)),
+                    ),
+                  ),
+                ),
+              ),
+
+            const SizedBox(height: 32),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
 class ActionTabScreen extends StatelessWidget {
   const ActionTabScreen({super.key});
 
@@ -532,6 +1124,11 @@ class ActionTabScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          _ActionTile(
+            icon: Icons.smart_toy, title: 'AI戒烟教练', subtitle: '随时聊聊你的感受和挑战',
+            onTap: () => context.push('/action/coach'),
+            iconBgColor: Colors.purple,
+          ),
           _ActionTile(
             icon: Icons.psychology, title: '渴望管理工具箱', subtitle: '冲浪法、替代行为、SOS求助',
             onTap: () => context.push('/action/urge-toolkit'),
@@ -546,6 +1143,11 @@ class ActionTabScreen extends StatelessWidget {
             icon: Icons.school, title: 'CBT技能训练', subtitle: '认知行为疗法技巧学习',
             onTap: () => context.push('/action/skills-lab'),
             iconBgColor: Colors.indigo,
+          ),
+          _ActionTile(
+            icon: Icons.emoji_events, title: '每周挑战', subtitle: '7天打卡挑战，赢取XP奖励',
+            onTap: () => context.push('/action/challenge'),
+            iconBgColor: Colors.amber,
           ),
         ],
       ),
@@ -589,6 +1191,11 @@ class ProfileTabScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          _ActionTile(
+            icon: Icons.stars, title: '我的等级', subtitle: '查看等级、经验和战斗数据',
+            onTap: () => context.push('/profile/game-profile'),
+            iconBgColor: Colors.deepPurple,
+          ),
           _ActionTile(
             icon: Icons.analytics, title: '高危场景分析', subtitle: '查看你的渴望触发场景报告',
             onTap: () => context.push('/profile/analysis'),

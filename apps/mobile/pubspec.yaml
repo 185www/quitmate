@@ -40,7 +40,6 @@ dependencies:
 
   # 工具库
   intl: ^0.19.0
-  uuid: ^4.0.0
 
 dev_dependencies:
   flutter_test:
@@ -50,16 +49,5 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/content/courses/manifest.json
-    - assets/content/courses/stage1_awakening/content.json
-    - assets/content/courses/stage2_action/content.json
-    - assets/content/courses/stage3_maintenance/content.json
-    - assets/content/assessments/audit_c.json
-    - assets/content/assessments/ftnd.json
-    - assets/content/urge_toolkit/alternatives.json
-    - assets/content/relapse_templates.json
-    - assets/content/lifestyle/recommendations.json
-    - assets/legal/privacy.md
-    - assets/legal/disclaimer.md
-    - assets/legal/terms.md
+    - assets/content/assessments/
     - assets/brand/badges/

@@ -19,12 +19,13 @@ class UserRepository {
       auditScore: profile['audit_score'] as int?,
       dailyConsumption: profile['daily_consumption'] != null ? (profile['daily_consumption'] as num).toDouble() : null,
       yearsOfUse: profile['years_of_use'] as int?,
+      dailyCostAmount: profile['daily_cost_amount'] != null ? (profile['daily_cost_amount'] as num).toDouble() : null,
       createdAt: DateTime.parse(profile['created_at'] as String),
       updatedAt: DateTime.parse(profile['updated_at'] as String),
     );
   }
 
-  Future<User> createUser({required TargetType targetType, DateTime? quitDate, int? fagerstromScore, int? auditScore, double? dailyConsumption, int? yearsOfUse}) async {
+  Future<User> createUser({required TargetType targetType, DateTime? quitDate, int? fagerstromScore, int? auditScore, double? dailyConsumption, int? yearsOfUse, double? dailyCostAmount}) async {
     final now = DateTime.now();
     final id = await _database.createUserProfile({
       'target_type': targetType.name,
@@ -34,13 +35,14 @@ class UserRepository {
       'audit_score': auditScore,
       'daily_consumption': dailyConsumption,
       'years_of_use': yearsOfUse,
+      'daily_cost_amount': dailyCostAmount,
       'created_at': now.toIso8601String(),
       'updated_at': now.toIso8601String(),
     });
-    return User(id: id, targetType: targetType, quitDate: quitDate, stage: UserStage.preContemplation, fagerstromScore: fagerstromScore, auditScore: auditScore, dailyConsumption: dailyConsumption, yearsOfUse: yearsOfUse, createdAt: now, updatedAt: now);
+    return User(id: id, targetType: targetType, quitDate: quitDate, stage: UserStage.preContemplation, fagerstromScore: fagerstromScore, auditScore: auditScore, dailyConsumption: dailyConsumption, yearsOfUse: yearsOfUse, dailyCostAmount: dailyCostAmount, createdAt: now, updatedAt: now);
   }
 
-  Future<User> updateUser({required int id, TargetType? targetType, DateTime? quitDate, UserStage? stage, int? fagerstromScore, int? auditScore, double? dailyConsumption, int? yearsOfUse}) async {
+  Future<User> updateUser({required int id, TargetType? targetType, DateTime? quitDate, UserStage? stage, int? fagerstromScore, int? auditScore, double? dailyConsumption, int? yearsOfUse, double? dailyCostAmount}) async {
     final values = <String, dynamic>{'updated_at': DateTime.now().toIso8601String()};
     if (targetType != null) values['target_type'] = targetType.name;
     if (quitDate != null) values['quit_date'] = quitDate.toIso8601String();
@@ -49,6 +51,7 @@ class UserRepository {
     if (auditScore != null) values['audit_score'] = auditScore;
     if (dailyConsumption != null) values['daily_consumption'] = dailyConsumption;
     if (yearsOfUse != null) values['years_of_use'] = yearsOfUse;
+    if (dailyCostAmount != null) values['daily_cost_amount'] = dailyCostAmount;
     await _database.updateUserProfile(id, values);
     final user = await getCurrentUser();
     return user!;

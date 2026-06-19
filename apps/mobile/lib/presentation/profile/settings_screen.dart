@@ -13,7 +13,6 @@ class SettingsScreen extends ConsumerStatefulWidget {
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _dailyReminder = true;
   bool _urgeReminder = true;
-  bool _darkMode = false;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
   bool _loading = true;
   bool _saving = false;
@@ -31,7 +30,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         setState(() {
           _dailyReminder = prefs['daily_reminder'] as bool? ?? true;
           _urgeReminder = prefs['urge_reminder'] as bool? ?? true;
-          _darkMode = prefs['dark_mode'] as bool? ?? false;
           final hour = prefs['reminder_hour'] as int? ?? 9;
           final minute = prefs['reminder_minute'] as int? ?? 0;
           _reminderTime = TimeOfDay(hour: hour, minute: minute);
@@ -49,7 +47,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       final prefs = await ref.read(userUseCaseProvider).getPreferences();
       prefs['daily_reminder'] = _dailyReminder;
       prefs['urge_reminder'] = _urgeReminder;
-      prefs['dark_mode'] = _darkMode;
       prefs['reminder_hour'] = _reminderTime.hour;
       prefs['reminder_minute'] = _reminderTime.minute;
       await ref.read(userUseCaseProvider).savePreferences(prefs);
@@ -84,7 +81,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final isDark = ref.watch(themeModeProvider) == ThemeMode.dark;
 
     if (_loading) {
       return Scaffold(
@@ -141,9 +138,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           _SectionHeader(title: '显示设置'),
           SwitchListTile(
             title: const Text('深色模式'),
-            subtitle: const Text('跟随系统设置'),
-            value: _darkMode,
-            onChanged: (v) => setState(() => _darkMode = v),
+            subtitle: const Text('手动切换深色/浅色主题'),
+            value: isDark,
+            onChanged: (v) => ref.read(themeModeProvider.notifier).setMode(v),
           ),
           const Divider(),
           _SectionHeader(title: '数据管理'),
@@ -184,11 +181,14 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 await db.delete('craving_log');
                 await db.delete('relapse_plan');
                 await db.delete('user_profile');
+                // Reset badges (keep definitions, clear earned status)
+                await db.update('badge', {'earned_at': null});
                 await ref.read(notificationServiceProvider).cancelAll();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('数据已清除')),
                   );
+                  // Force navigation to welcome by clearing all routes
                   context.go('/welcome');
                 }
               } catch (e) {

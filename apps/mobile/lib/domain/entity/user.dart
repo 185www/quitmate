@@ -10,6 +10,7 @@ class User {
   final int? auditScore;
   final double? dailyConsumption;
   final int? yearsOfUse;
+  final double? dailyCostAmount;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -22,6 +23,7 @@ class User {
     this.auditScore,
     this.dailyConsumption,
     this.yearsOfUse,
+    this.dailyCostAmount,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -52,14 +54,11 @@ class User {
 
   /// Money saved per day (based on avg price)
   double get dailyCost {
-    // Use user-entered daily cost if available (from reality check)
+    if (dailyCostAmount != null && dailyCostAmount! > 0) return dailyCostAmount!;
     if (dailyConsumption != null && dailyConsumption! > 0) {
-      // dailyConsumption stores the amount, we need cost per unit
-      // We'll use estimated cost per unit as fallback
       final costPerUnit = targetType == TargetType.alcohol ? 15.0 : 0.5;
       return dailyConsumption! * costPerUnit;
     }
-    // Fallback: derive from clinical scores
     double cost = 0;
     if (targetType != TargetType.alcohol) cost += estimatedDailyCigarettes * 0.5;
     if (targetType != TargetType.smoking) cost += estimatedDailyDrinks * 15.0;
@@ -69,7 +68,7 @@ class User {
   /// Years of life regained per day (statistical)
   double get dailyLifeRegainedMinutes => (targetType == TargetType.alcohol ? 11 : 0) + (targetType == TargetType.smoking ? 11 : 0);
 
-  User copyWith({int? id, TargetType? targetType, DateTime? quitDate, UserStage? stage, int? fagerstromScore, int? auditScore, double? dailyConsumption, int? yearsOfUse, DateTime? createdAt, DateTime? updatedAt}) {
+  User copyWith({int? id, TargetType? targetType, DateTime? quitDate, UserStage? stage, int? fagerstromScore, int? auditScore, double? dailyConsumption, int? yearsOfUse, double? dailyCostAmount, DateTime? createdAt, DateTime? updatedAt}) {
     return User(
       id: id ?? this.id,
       targetType: targetType ?? this.targetType,
@@ -79,6 +78,7 @@ class User {
       auditScore: auditScore ?? this.auditScore,
       dailyConsumption: dailyConsumption ?? this.dailyConsumption,
       yearsOfUse: yearsOfUse ?? this.yearsOfUse,
+      dailyCostAmount: dailyCostAmount ?? this.dailyCostAmount,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -123,40 +123,6 @@ class HealthMilestone {
     {'days': 1825, 'title': '肺癌风险降低50%', 'desc': '5年后，肺癌风险降低至非使用者的一半', 'organ': '肺部', 'pct': 95},
     {'days': 3650, 'title': '心脏病风险与非使用者相同', 'desc': '10年后，心脏病风险与从未使用过的人相同', 'organ': '心血管', 'pct': 100},
   ];
-}
-
-/// CBT Exercise types
-enum CbtExerciseType {
-  thoughtRecord,
-  urgeSurfing,
-  grounding,
-  breathing,
-  copingCard,
-  costBenefit,
-  triggerMapping,
-  progressiveRelaxation,
-}
-
-class CbtExercise {
-  final String id;
-  final CbtExerciseType type;
-  final String title;
-  final String description;
-  final int durationSeconds;
-  final List<String> steps;
-  final String category;
-  final String academicRef;
-
-  const CbtExercise({
-    required this.id,
-    required this.type,
-    required this.title,
-    required this.description,
-    required this.durationSeconds,
-    required this.steps,
-    required this.category,
-    required this.academicRef,
-  });
 }
 
 class CravingEntry {

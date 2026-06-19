@@ -1,9 +1,0 @@
-{
-  "templates": [
-    {"id": "social_pressure", "situation": "参加聚会，有人递烟/酒", "trigger": "社交压力", "coping_plan": "提前告知朋友我在戒烟/酒；手里拿饮料；如果感到不舒服，可以提前离开"},
-    {"id": "stress", "situation": "工作压力大，想用烟/酒缓解", "trigger": "压力", "coping_plan": "做5分钟深呼吸；出去散步；听一首喜欢的歌；给朋友打电话"},
-    {"id": "after_meal", "situation": "饭后，习惯性想抽烟", "trigger": "习惯", "coping_plan": "立刻刷牙；吃一块口香糖；站起来走动"},
-    {"id": "boredom", "situation": "无聊时，想抽支烟打发时间", "trigger": "无聊", "coping_plan": "找一件喜欢的事情做；玩手机游戏；看书"},
-    {"id": "anger", "situation": "生气时，想用烟/酒发泄", "trigger": "愤怒", "coping_plan": "离开现场；深呼吸；数到10；写下发泄日记"}
-  ]
-}
