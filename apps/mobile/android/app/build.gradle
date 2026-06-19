@@ -27,33 +27,29 @@ android {
         versionName = flutter.versionName
     }
 
-    def keystorePropsFile = rootProject.file("key.properties")
-    if (keystorePropsFile.exists()) {
-        def props = new Properties()
-        props.load(new FileInputStream(keystorePropsFile))
-        signingConfigs {
-            release {
-                storeFile file(props.getProperty("storeFile"))
-                storePassword props.getProperty("storePassword")
-                keyAlias props.getProperty("keyAlias")
-                keyPassword props.getProperty("keyPassword")
-            }
-        }
-        buildTypes {
-            release {
-                signingConfig = signingConfigs.release
-                minificationEnabled = true
-                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            }
-        }
-    } else {
-        buildTypes {
-            release {
-                minificationEnabled = true
-                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            }
+    buildTypes {
+        release {
+            minificationEnabled = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+// Load release signing from key.properties (if available)
+// Must be outside android{} block to avoid Gradle evaluation issues
+def keystorePropsFile = rootProject.file("key.properties")
+if (keystorePropsFile.exists()) {
+    def props = new Properties()
+    props.load(new FileInputStream(keystorePropsFile))
+    android.signingConfigs {
+        release {
+            storeFile file(props['storeFile'])
+            storePassword props['storePassword']
+            keyAlias props['keyAlias']
+            keyPassword props['keyPassword']
+        }
+    }
+    android.buildTypes.release.signingConfig = android.signingConfigs.release
 }
 
 flutter {
