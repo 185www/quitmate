@@ -27,13 +27,11 @@ android {
         versionName = flutter.versionName
     }
 
-    signingConfigs {
-        // Release signing: uses key.properties if available (GitHub Actions Secrets)
-        // If no key.properties, release falls back to debug signing automatically
-        def keystorePropsFile = rootProject.file("key.properties")
-        if (keystorePropsFile.exists()) {
-            def props = new Properties()
-            props.load(new FileInputStream(keystorePropsFile))
+    def keystorePropsFile = rootProject.file("key.properties")
+    if (keystorePropsFile.exists()) {
+        def props = new Properties()
+        props.load(new FileInputStream(keystorePropsFile))
+        signingConfigs {
             release {
                 storeFile file(props.getProperty("storeFile"))
                 storePassword props.getProperty("storePassword")
@@ -41,13 +39,19 @@ android {
                 keyPassword props.getProperty("keyPassword")
             }
         }
-    }
-
-    buildTypes {
-        release {
-            signingConfig = signingConfigs.release
-            minificationEnabled = true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        buildTypes {
+            release {
+                signingConfig = signingConfigs.release
+                minificationEnabled = true
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            }
+        }
+    } else {
+        buildTypes {
+            release {
+                minificationEnabled = true
+                proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            }
         }
     }
 }
