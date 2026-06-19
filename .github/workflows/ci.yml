@@ -1,28 +1,104 @@
 name: CI
+
 on:
+  push:
+    branches: [main, develop]
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-debug:
+  # ── Static Analysis ──────────────────────────────────────────────────
+  analyze:
+    name: Analyze
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
           channel: 'stable'
           cache: true
-      - name: Install dependencies
+
+      - name: Get dependencies
         run: flutter pub get
         working-directory: apps/mobile
-      - name: Build Debug APK
-        run: flutter build apk --debug
+
+      - name: Run Flutter analyze
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
         working-directory: apps/mobile
-      - name: Upload APK
+
+      - name: Check for formatting issues
+        run: dart format --set-exit-if-changed .
+        working-directory: apps/mobile
+
+  # ── Unit Tests ───────────────────────────────────────────────────────
+  test:
+    name: Test
+    needs: analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: apps/mobile
+
+      - name: Run unit tests
+        run: flutter test --coverage --reporter=expanded
+        working-directory: apps/mobile
+
+      - name: Upload coverage
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: quitmate-debug
+          name: coverage
+          path: apps/mobile/coverage/
+          retention-days: 7
+
+  # ── Build Android (Debug APK) ────────────────────────────────────────
+  build-android:
+    name: Build Android
+    needs: analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: apps/mobile
+
+      - name: Build Debug APK
+        run: flutter build apk --debug --target-platform android-arm64
+        working-directory: apps/mobile
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: quitmate-debug-arm64
           path: apps/mobile/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
+
+      - name: Report build size
+        run: |
+          echo "## Build Size" >> $GITHUB_STEP_SUMMARY
+          ls -lh apps/mobile/build/app/outputs/flutter-apk/app-debug.apk | awk '{print "- APK: "$5}' >> $GITHUB_STEP_SUMMARY

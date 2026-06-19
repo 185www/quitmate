@@ -1,44 +1,137 @@
 name: Release
+
 on:
   push:
     tags: ['v*']
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  build:
+  # ── Build & Sign Release ─────────────────────────────────────────────
+  build-release:
+    name: Build Release
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: write
+    env:
+      KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
           channel: 'stable'
           cache: true
-      - name: Install dependencies
+
+      - name: Get dependencies
         run: flutter pub get
         working-directory: apps/mobile
+
+      - name: Decode keystore
+        if: env.KEYSTORE_BASE64 != ''
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/app/keystore.jks
+          working-directory: apps/mobile
+
+      - name: Create key.properties
+        if: env.KEYSTORE_BASE64 != ''
+        run: |
+          cat > apps/mobile/android/key.properties <<EOF
+          storePassword=${KEYSTORE_PASSWORD}
+          keyPassword=${KEY_PASSWORD}
+          keyAlias=${KEY_ALIAS}
+          storeFile=keystore.jks
+          EOF
+
+      # ── Build App Bundle (for Play Store) ──
       - name: Build App Bundle
-        run: flutter build appbundle --release --obfuscate --split-debug-info=build/symbols
+        run: |
+          BUILD_CMD="flutter build appbundle --release --obfuscate --split-debug-info=build/symbols"
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            BUILD_CMD="$BUILD_CMD --dart-define=BUILD_SIGNED=true"
+          fi
+          eval $BUILD_CMD
         working-directory: apps/mobile
+
+      # ── Build Split APKs ──
       - name: Build APKs (per ABI)
-        run: flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/symbols
+        run: |
+          BUILD_CMD="flutter build apk --release --split-per-abi --obfuscate --split-debug-info=build/symbols"
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            BUILD_CMD="$BUILD_CMD --dart-define=BUILD_SIGNED=true"
+          fi
+          eval $BUILD_CMD
         working-directory: apps/mobile
+
+      # ── Build Universal APK ──
+      - name: Build Universal APK
+        run: |
+          BUILD_CMD="flutter build apk --release --obfuscate --split-debug-info=build/symbols --target-platform android-arm64"
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            BUILD_CMD="$BUILD_CMD --dart-define=BUILD_SIGNED=true"
+          fi
+          eval $BUILD_CMD
+        working-directory: apps/mobile
+
+      # ── Collect version info ──
       - name: Get version
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Collect build artifacts
+        id: artifacts
+        run: |
+          echo "AAB=$(ls apps/mobile/build/app/outputs/bundle/release/*.aab 2>/dev/null | head -1)" >> $GITHUB_OUTPUT
+          echo "APK_ARM64=$(ls apps/mobile/build/app/outputs/flutter-apk/*arm64*.apk 2>/dev/null | head -1)" >> $GITHUB_OUTPUT
+          echo "APK_ARMEABI=$(ls apps/mobile/build/app/outputs/flutter-apk/*armeabi*.apk 2>/dev/null | head -1)" >> $GITHUB_OUTPUT
+          echo "APK_UNIVERSAL=$(ls apps/mobile/build/app/outputs/flutter-apk/app-release.apk 2>/dev/null | head -1)" >> $GITHUB_OUTPUT
+
+      # ── Build size report ──
+      - name: Build size report
+        run: |
+          echo "## Build Sizes" >> $GITHUB_STEP_SUMMARY
+          for f in apps/mobile/build/app/outputs/flutter-apk/*.apk apps/mobile/build/app/outputs/bundle/release/*.aab; do
+            if [ -f "$f" ]; then
+              SIZE=$(ls -lh "$f" | awk '{print $5}')
+              echo "- $(basename $f): $SIZE" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+      # ── Create GitHub Release ──
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           name: QuitMate v${{ steps.version.outputs.VERSION }}
           body: |
             ## QuitMate v${{ steps.version.outputs.VERSION }}
-            ### 下载
-            - **APK ARM64**: app-arm64-v8a-release.apk
-            - **APK ARMv7**: app-armeabi-v7a-release.apk
-            - **AAB**: app-release.aab
+
+            ### Downloads
+            | File | Description |
+            |------|-------------|
+            | `app-arm64-v8a-release.apk` | ARM64 (recommended for modern phones) |
+            | `app-armeabi-v7a-release.apk` | ARMv7 (older phones) |
+            | `app-release.apk` | Universal (all architectures, larger) |
+            | `app-release.aab` | Android App Bundle (Play Store) |
+
+            > **推荐下载**: `app-arm64-v8a-release.apk`（体积最小，适配绝大多数现代手机）
+
+            ${{ github.event.head_commit.message }}
           files: |
-            apps/mobile/build/app/outputs/bundle/release/app-release.aab
-            apps/mobile/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
-            apps/mobile/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+            ${{ steps.artifacts.outputs.AAB }}
+            ${{ steps.artifacts.outputs.APK_ARM64 }}
+            ${{ steps.artifacts.outputs.APK_ARMEABI }}
+            ${{ steps.artifacts.outputs.APK_UNIVERSAL }}
           generate_release_notes: true
+
+      # ── Cleanup keystore ──
+      - name: Cleanup keystore
+        if: always()
+        run: rm -f apps/mobile/android/app/keystore.jks apps/mobile/android/key.properties
