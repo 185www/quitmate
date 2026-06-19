@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
@@ -9,6 +10,7 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
+  bool _permissionGranted = false;
 
   Future<void> initialize() async {
     if (_initialized) return;
@@ -24,8 +26,73 @@ class NotificationService {
         InitializationSettings(android: androidSettings, iOS: iosSettings);
     await _plugin.initialize(initSettings,
         onDidReceiveNotificationResponse: _onNotificationTapped);
+
+    // --- 国产ROM兼容：Android 13+ 运行时通知权限 ---
+    if (Platform.isAndroid) {
+      await _requestNotificationPermission();
+      await _createNotificationChannels();
+    }
+
     _initialized = true;
   }
+
+  /// Android 13+ 运行时请求 POST_NOTIFICATIONS 权限
+  /// 国内MIUI/ColorOS/HarmonyOS均需要
+  Future<bool> _requestNotificationPermission() async {
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (android == null) return true;
+    try {
+      _permissionGranted = await android.requestNotificationsPermission() ?? true;
+      if (!_permissionGranted) {
+        debugPrint('NotificationService: 用户拒绝了通知权限');
+      }
+    } catch (e) {
+      debugPrint('NotificationService: 请求通知权限异常: $e');
+      _permissionGranted = false;
+    }
+    return _permissionGranted;
+  }
+
+  /// 显式创建通知通道，避免国产ROM忽略importance设置
+  /// OPPO/ColorOS、MIUI可能重置或忽略隐式创建的通道设置
+  Future<void> _createNotificationChannels() async {
+    final android = _plugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>();
+    if (android == null) return;
+
+    const channels = <AndroidNotificationChannel>[
+      AndroidNotificationChannel(
+        'daily_reminder',
+        '每日提醒',
+        description: '每日戒烟戒酒提醒',
+        importance: Importance.high,
+      ),
+      AndroidNotificationChannel(
+        'urge_reminder',
+        '渴望提醒',
+        description: '渴望高峰期提醒',
+        importance: Importance.max,
+      ),
+      AndroidNotificationChannel(
+        'milestone',
+        '里程碑',
+        description: '成就里程碑通知',
+        importance: Importance.high,
+      ),
+    ];
+
+    for (final channel in channels) {
+      try {
+        await android.createNotificationChannel(channel);
+      } catch (e) {
+        debugPrint('NotificationService: 创建通道 ${channel.id} 失败: $e');
+      }
+    }
+  }
+
+  /// 当前是否拥有通知权限
+  bool get hasPermission => _permissionGranted;
 
   void _onNotificationTapped(NotificationResponse response) {
     if (response.payload != null)
@@ -102,4 +169,16 @@ class NotificationService {
   }
 
   Future<void> cancelAll() async => await _plugin.cancelAll();
+
+  /// 打开系统通知设置页面（国产ROM引导）
+  Future<void> openNotificationSettings() async {
+    if (!Platform.isAndroid) return;
+    try {
+      // flutter_local_notifications 不直接提供此API
+      // 可在SettingsScreen中通过app_settings或url_launcher实现
+      debugPrint('NotificationService: 请在设置中配置通知通道');
+    } catch (e) {
+      debugPrint('NotificationService: 打开通知设置失败: $e');
+    }
+  }
 }

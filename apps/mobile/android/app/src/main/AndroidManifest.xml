@@ -7,8 +7,11 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <!-- FOREGROUND_SERVICE 兼容国产ROM后台保活（Android 14+ 需要 FOREGROUND_SERVICE 类型声明） -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
 
     <application
         android:label="QuitMate"
@@ -46,5 +49,23 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/quitmate_widget_info" />
         </receiver>
+
+        <!-- Boot Receiver: 开机后重新注册通知提醒（国产ROM保活） -->
+        <receiver
+            android:name=".BootCompletedReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- 特殊用途前台服务声明（Android 14+ 国产ROM兼容） -->
+        <service
+            android:name=".NotificationRescheduleService"
+            android:foregroundServiceType="specialUse"
+            android:exported="false"
+            tools:ignore="ForegroundServicePermission" />
     </application>
 </manifest>

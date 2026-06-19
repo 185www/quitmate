@@ -157,6 +157,44 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             },
           ),
           const Divider(),
+          _SectionHeader(title: '电池与后台'),
+          ListTile(
+            leading: const Icon(Icons.battery_charging_full),
+            title: const Text('电池优化白名单'),
+            subtitle: const Text('允许后台运行，确保提醒正常送达'),
+            trailing: const Icon(Icons.chevron_right, size: 18),
+            onTap: () => _openBatterySettings(),
+          ),
+          ExpansionTile(
+            leading: const Icon(Icons.devices),
+            title: const Text('各品牌设置指引'),
+            children: [
+              _OemGuideTile(
+                brand: '小米/Redmi',
+                steps: ['设置 → 应用设置 → 应用管理 → QuitMate',
+                  '开启「自启动」',
+                  '电池优化中选择「不优化」'],
+              ),
+              _OemGuideTile(
+                brand: 'OPPO/一加',
+                steps: ['设置 → 电池 → 更多电池设置',
+                  '允许 QuitMate「后台高耗电」',
+                  '或在应用详情中开启「允许后台活动」'],
+              ),
+              _OemGuideTile(
+                brand: 'vivo/iQOO',
+                steps: ['i管家 → 应用管理 → QuitMate',
+                  '开启「自启动」和「后台高耗电」'],
+              ),
+              _OemGuideTile(
+                brand: '华为/荣耀',
+                steps: ['设置 → 电池 → 应用启动管理 → QuitMate',
+                  '关闭「自动管理」，手动开启全部三项',
+                  '或在「受保护应用」中添加 QuitMate'],
+              ),
+            ],
+          ),
+          const Divider(),
           _SectionHeader(title: '显示设置'),
           SwitchListTile(
             title: const Text('深色模式'),
@@ -329,6 +367,22 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     }
   }
 
+  void _openBatterySettings() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          '请前往系统设置 → 应用管理 → QuitMate，\n'
+          '关闭电池优化，并允许自启动',
+        ),
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+          label: '知道了',
+          onPressed: () {},
+        ),
+      ),
+    );
+  }
+
   void _showClearDataDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -369,6 +423,53 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             },
             child: const Text('确认清除', style: TextStyle(color: Colors.red)),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OemGuideTile extends StatelessWidget {
+  final String brand;
+  final List<String> steps;
+
+  const _OemGuideTile({required this.brand, required this.steps});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(brand,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: colorScheme.onSurface,
+              )),
+          const SizedBox(height: 4),
+          ...steps.map((step) => Padding(
+                padding: const EdgeInsets.only(left: 12, bottom: 2),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('• ',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onSurfaceVariant,
+                        )),
+                    Expanded(
+                      child: Text(step,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
+                          )),
+                    ),
+                  ],
+                ),
+              )),
         ],
       ),
     );
