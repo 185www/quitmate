@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/di/providers.dart';
+import '../../core/coach/llm_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -16,6 +17,15 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
   bool _loading = true;
   bool _saving = false;
+
+  // LLM settings
+  String _apiKey = '';
+  String _apiBaseUrl = 'https://api.openai.com/v1';
+  String _aiModel = 'gpt-4o-mini';
+  bool _useLlm = false;
+  bool _testingLlm = false;
+  bool _llmTested = false;
+  bool _llmConnected = false;
 
   @override
   void initState() {
@@ -33,6 +43,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           final hour = prefs['reminder_hour'] as int? ?? 9;
           final minute = prefs['reminder_minute'] as int? ?? 0;
           _reminderTime = TimeOfDay(hour: hour, minute: minute);
+          _useLlm = prefs['use_llm'] as bool? ?? false;
+          _apiKey = prefs['ai_api_key'] as String? ?? '';
+          _apiBaseUrl = prefs['ai_api_base'] as String? ?? 'https://api.openai.com/v1';
+          _aiModel = prefs['ai_model'] as String? ?? 'gpt-4o-mini';
           _loading = false;
         });
       }
@@ -49,6 +63,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       prefs['urge_reminder'] = _urgeReminder;
       prefs['reminder_hour'] = _reminderTime.hour;
       prefs['reminder_minute'] = _reminderTime.minute;
+      prefs['use_llm'] = _useLlm;
+      prefs['ai_api_key'] = _apiKey;
+      prefs['ai_api_base'] = _apiBaseUrl;
+      prefs['ai_model'] = _aiModel;
       await ref.read(userUseCaseProvider).savePreferences(prefs);
 
       final notif = ref.read(notificationServiceProvider);
@@ -143,6 +161,54 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onChanged: (v) => ref.read(themeModeProvider.notifier).setMode(v),
           ),
           const Divider(),
+          _SectionHeader(title: 'AI教练设置'),
+          SwitchListTile(
+            title: const Text('启用LLM增强'),
+            subtitle: Text(_useLlm ? '使用API获取更智能的回复' : '使用内置规则引擎'),
+            value: _useLlm,
+            onChanged: (v) => setState(() => _useLlm = v),
+          ),
+          if (_useLlm) ...[
+            ListTile(
+              title: const Text('API地址'),
+              subtitle: Text(_apiBaseUrl, style: const TextStyle(fontSize: 12)),
+              trailing: const Icon(Icons.link, size: 18),
+              onTap: () => _showEditDialog('API地址', 'https://api.openai.com/v1', _apiBaseUrl, (v) => setState(() => _apiBaseUrl = v)),
+            ),
+            ListTile(
+              title: const Text('API Key'),
+              subtitle: Text(
+                _apiKey.isEmpty ? '未设置' : '${_apiKey.substring(0, 8.clamp(0, _apiKey.length))}...',
+                style: TextStyle(fontSize: 12, color: _apiKey.isEmpty ? Colors.grey : null),
+              ),
+              trailing: const Icon(Icons.key, size: 18),
+              onTap: () => _showEditDialog('API Key', 'sk-...', _apiKey, (v) => setState(() => _apiKey = v), isSecret: true),
+            ),
+            ListTile(
+              title: const Text('模型'),
+              subtitle: Text(_aiModel, style: const TextStyle(fontSize: 12)),
+              trailing: const Icon(Icons.memory, size: 18),
+              onTap: () => _showModelPicker(),
+            ),
+            ListTile(
+              title: const Text('测试连接'),
+              subtitle: Text(
+                _llmTested ? (_llmConnected ? '✅ 成功' : '❌ 失败') : '点击测试',
+              ),
+              trailing: _testingLlm
+                  ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.network_check, size: 18),
+              onTap: _testLlmConnection,
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Text(
+                '支持OpenAI、DeepSeek、Ollama等兼容API',
+                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+              ),
+            ),
+          ],
+          const Divider(),
           _SectionHeader(title: '数据管理'),
           ListTile(
             title: const Text('导出数据'),
@@ -159,6 +225,85 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  void _showEditDialog(String title, String hint, String current, void Function(String) onSave, {bool isSecret = false}) {
+    final controller = TextEditingController(text: current);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: TextField(
+          controller: controller,
+          obscureText: isSecret,
+          decoration: InputDecoration(
+            hintText: hint,
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () {
+              onSave(controller.text.trim());
+              Navigator.pop(ctx);
+            },
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showModelPicker() {
+    final models = ['gpt-4o-mini', 'gpt-4o', 'gpt-3.5-turbo', 'deepseek-chat', 'claude-3-haiku'];
+    showDialog(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: const Text('选择模型'),
+        children: models.map((model) => RadioListTile<String>(
+          title: Text(model, style: const TextStyle(fontSize: 14)),
+          value: model,
+          groupValue: _aiModel,
+          onChanged: (value) {
+            if (value != null) {
+              setState(() => _aiModel = value);
+              Navigator.pop(ctx);
+            }
+          },
+        )).toList(),
+      ),
+    );
+  }
+
+  Future<void> _testLlmConnection() async {
+    setState(() => _testingLlm = true);
+    try {
+      final service = LlmService(
+        apiKey: _apiKey,
+        baseUrl: _apiBaseUrl,
+        model: _aiModel,
+      );
+      final ok = await service.testConnection();
+      if (mounted) {
+        setState(() {
+          _llmTested = true;
+          _llmConnected = ok;
+          _testingLlm = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _llmTested = true;
+          _llmConnected = false;
+          _testingLlm = false;
+        });
+      }
+    }
   }
 
   void _showClearDataDialog(BuildContext context) {

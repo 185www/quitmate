@@ -7,6 +7,9 @@ import '../../core/widgets/widget_service.dart';
 import '../../domain/entity/user.dart';
 import '../../domain/entity/daily_log.dart';
 import '../../domain/entity/game_profile.dart';
+import '../../domain/entity/companion.dart';
+import '../../domain/entity/daily_task.dart';
+import '../../core/daily_task/daily_task_generator.dart';
 
 class ShellScreen extends ConsumerStatefulWidget {
   final Widget child;
@@ -75,10 +78,25 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
   String? _floatingXpText;
   bool _showXpAnimation = false;
 
+  // Daily task state
+  List<DailyTask> _dailyTasks = [];
+  final Set<String> _completedTaskIds = {};
+
   @override
   void initState() {
     super.initState();
     _loadData();
+    _initDailyTasks();
+  }
+
+  void _initDailyTasks() {
+    _userFuture?.then((user) {
+      if (mounted) {
+        setState(() {
+          _dailyTasks = DailyTaskGenerator.generateForToday(user);
+        });
+      }
+    });
   }
 
   void _loadData() {
@@ -96,6 +114,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
       return Future<GameProfile?>.value(null);
     });
     if (mounted) setState(() {});
+    _initDailyTasks();
   }
 
   Future<void> _saveCheckin() async {
@@ -158,6 +177,8 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
                 _buildBodyRecovery(),
                 _buildStatCards(),
                 _buildCheckin(),
+                _buildDailyTasks(),
+                _buildCompanionPreview(),
                 _buildSosButton(),
                 _buildTimeline(),
               ],
@@ -632,6 +653,259 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
       case 4: return '🙂';
       case 5: return '😊';
       default: return '😐';
+    }
+  }
+
+  Widget _buildCompanionPreview() {
+    return FutureBuilder<User?>(
+      future: _userFuture,
+      builder: (context, userSnap) {
+        final user = userSnap.data;
+        if (user == null || !user.hasQuitDate) return const SizedBox.shrink();
+        final daysSinceQuit = user.daysSinceQuit;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: Card(
+            color: Colors.pink.shade50,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => context.push('/action/companion'),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    const Text('🤝', style: TextStyle(fontSize: 28)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                '小明说：',
+                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.pink.shade700,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(
+                                  QuitCompanion.dailyChallenge(daysSinceQuit),
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right, color: Colors.pink),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDailyTasks() {
+    if (_dailyTasks.isEmpty) return const SizedBox.shrink();
+    final completedCount = _dailyTasks.where((t) => _completedTaskIds.contains(t.id)).length;
+    final totalXp = _dailyTasks.fold<int>(0, (sum, t) => sum + t.xpReward);
+    final earnedXp = _dailyTasks.where((t) => _completedTaskIds.contains(t.id)).fold<int>(0, (sum, t) => sum + t.xpReward);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Text('📋', style: TextStyle(fontSize: 18)),
+                  const SizedBox(width: 8),
+                  Text(
+                    '今日任务',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      '$completedCount/${_dailyTasks.length}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ...List.generate(_dailyTasks.length, (i) {
+                final task = _dailyTasks[i];
+                final isCompleted = _completedTaskIds.contains(task.id);
+                return _buildTaskItem(task, isCompleted, i);
+              }),
+              const SizedBox(height: 8),
+              Divider(color: Theme.of(context).colorScheme.surfaceContainerHighest, height: 1),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Icons.star, size: 14, color: Colors.amber.shade700),
+                  const SizedBox(width: 4),
+                  Text(
+                    '可获得 $totalXp XP',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
+                  const Spacer(),
+                  if (earnedXp > 0)
+                    Text(
+                      '已获得 $earnedXp XP',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.green,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTaskItem(DailyTask task, bool isCompleted, int index) {
+    final typeColor = switch (task.type) {
+      'exercise' => Colors.teal,
+      'challenge' => Colors.orange,
+      'reflection' => Colors.purple,
+      _ => Theme.of(context).colorScheme.primary,
+    };
+    final typeIcon = switch (task.type) {
+      'exercise' => Icons.fitness_center,
+      'challenge' => Icons.emoji_events,
+      'reflection' => Icons.psychology,
+      _ => Icons.check_circle_outline,
+    };
+
+    return Padding(
+      padding: EdgeInsets.only(top: index > 0 ? 6 : 0),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: isCompleted ? null : () => _completeDailyTask(task),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            color: isCompleted
+                ? Theme.of(context).colorScheme.surfaceContainerHighest.withOpacity(0.5)
+                : null,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 28,
+                height: 28,
+                child: Checkbox(
+                  value: isCompleted,
+                  onChanged: isCompleted ? null : (_) => _completeDailyTask(task),
+                  shape: const CircleBorder(),
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: typeColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Icon(typeIcon, size: 14, color: typeColor),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      task.title,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            decoration: isCompleted ? TextDecoration.lineThrough : null,
+                            color: isCompleted
+                                ? Theme.of(context).colorScheme.onSurfaceVariant
+                                : null,
+                          ),
+                    ),
+                    Text(
+                      task.description,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontSize: 11,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: isCompleted ? Colors.green.withOpacity(0.1) : Colors.amber.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  isCompleted ? '✓' : '+${task.xpReward}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: isCompleted ? Colors.green : Colors.amber.shade800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _completeDailyTask(DailyTask task) async {
+    if (_completedTaskIds.contains(task.id)) return;
+    setState(() {
+      _completedTaskIds.add(task.id);
+    });
+    try {
+      final user = await ref.read(userUseCaseProvider).getCurrentUser();
+      if (user != null) {
+        await ref.read(gameUseCaseProvider).awardExerciseCompleted(user.id);
+        _showXpGain('+${task.xpReward} XP');
+      }
+    } catch (e) {
+      debugPrint('Dashboard: 完成每日任务失败: $e');
     }
   }
 
@@ -1128,6 +1402,11 @@ class ActionTabScreen extends StatelessWidget {
             icon: Icons.smart_toy, title: 'AI戒烟教练', subtitle: '随时聊聊你的感受和挑战',
             onTap: () => context.push('/action/coach'),
             iconBgColor: Colors.purple,
+          ),
+          _ActionTile(
+            icon: Icons.favorite, title: '戒烟伙伴', subtitle: '小明的每日问候和挑战',
+            onTap: () => context.push('/action/companion'),
+            iconBgColor: Colors.pink,
           ),
           _ActionTile(
             icon: Icons.psychology, title: '渴望管理工具箱', subtitle: '冲浪法、替代行为、SOS求助',

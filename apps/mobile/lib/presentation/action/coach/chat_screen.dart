@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/coach/ai_coach_engine.dart';
+import '../../../core/coach/llm_service.dart';
 import '../../../core/di/providers.dart';
 import '../../../domain/entity/coach_message.dart';
 import '../../../domain/entity/game_profile.dart';
@@ -103,12 +104,73 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       todayLog = await ref.read(logUseCaseProvider).getTodayLog();
     }
 
+    // Check if LLM is enabled
+    final prefs = await ref.read(userUseCaseProvider).getPreferences();
+    final useLlm = prefs['use_llm'] as bool? ?? false;
+    final apiKey = prefs['ai_api_key'] as String? ?? '';
+    final useLlmNow = useLlm && apiKey.isNotEmpty;
+
+    if (useLlmNow) {
+      // Use LLM for response generation
+      try {
+        final service = LlmService(
+          apiKey: apiKey,
+          baseUrl: prefs['ai_api_base'] as String? ?? 'https://api.openai.com/v1',
+          model: prefs['ai_model'] as String? ?? 'gpt-4o-mini',
+        );
+
+        // Build conversation history from messages (exclude empty ones)
+        final history = _messages
+            .where((m) => m.text.isNotEmpty)
+            .map((m) => {
+                  'role': m.isUser ? 'user' : 'assistant',
+                  'content': m.text,
+                })
+            .toList();
+
+        // Build user context string
+        final contextStr = '戒断${user?.daysSinceQuit ?? 0}天 '
+            '等级${gameProfile?.levelTitle ?? '未定'} '
+            '连续${gameProfile?.streakDays ?? 0}天 '
+            '阶段${user?.stage.name ?? 'unknown'}';
+
+        final llmResponse = await service.chat(history, userContext: contextStr);
+
+        // Parse [quick reply] suggestions from the response
+        final quickReplies = <String>[];
+        for (final match in RegExp(r'\[([^\]]+)\]').allMatches(llmResponse)) {
+          quickReplies.add(match.group(1)!);
+        }
+        final cleanText = llmResponse.replaceAll(RegExp(r'\[[^\]]+\]'), '').trim();
+
+        if (!mounted) return;
+
+        setState(() {
+          _isTyping = false;
+          _messages.add(CoachMessage(
+            id: CoachMessage.generateId(),
+            isUser: false,
+            text: cleanText,
+            timestamp: DateTime.now(),
+            quickReplies: quickReplies.isNotEmpty ? quickReplies : null,
+          ));
+          _visibleQuickReplies.clear();
+        });
+
+        _scrollToBottom();
+        return; // Skip fallback
+      } catch (e) {
+        // LLM failed — fall through to rule-based engine below
+        debugPrint('LLM error, falling back to rule-based: $e');
+      }
+    }
+
     // Simulate thinking delay (1.5 seconds)
     await Future.delayed(const Duration(milliseconds: 1500));
 
     if (!mounted) return;
 
-    // Generate coach response
+    // Generate coach response (rule-based fallback or default)
     final response = _engine.generateResponse(
       userInput: text,
       user: user,

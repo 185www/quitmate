@@ -38,6 +38,9 @@ dependencies:
   # 桌面小组件
   home_widget: ^0.7.0
 
+  # HTTP客户端（LLM集成）
+  http: ^1.1.0
+
   # 工具库
   intl: ^0.19.0
 

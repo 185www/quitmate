@@ -11,6 +11,7 @@ import '../../presentation/action/daily_log/daily_log_screen.dart';
 import '../../presentation/action/skills_lab/skills_lab_screen.dart';
 import '../../presentation/action/coach/chat_screen.dart';
 import '../../presentation/action/challenge/challenge_screen.dart';
+import '../../presentation/action/companion/companion_screen.dart';
 import '../../presentation/maintenance/relapse_plan/relapse_plan_screen.dart';
 import '../../presentation/maintenance/lifestyle/lifestyle_screen.dart';
 import '../../presentation/profile/settings_screen.dart';
@@ -72,6 +73,7 @@ class AppRouter {
       GoRoute(path: '/action/skills-lab', builder: (_, __) => const SkillsLabScreen()),
       GoRoute(path: '/action/coach', builder: (_, __) => const ChatScreen()),
       GoRoute(path: '/action/challenge', builder: (_, __) => const ChallengeScreen()),
+      GoRoute(path: '/action/companion', builder: (_, __) => const CompanionScreen()),
 
       // Maintenance tools
       GoRoute(path: '/maintenance/relapse-plan', builder: (_, __) => const RelapsePlanScreen()),
