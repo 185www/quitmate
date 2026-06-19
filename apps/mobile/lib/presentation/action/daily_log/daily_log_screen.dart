@@ -117,10 +117,23 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
 
   Widget _buildAlreadyLogged(ThemeData theme) {
     final log = _existingLog!;
-    final moodEmoji = _moodOptions.firstWhere(
-      (o) => o['value'] == log.mood,
-      orElse: () => {'emoji': '😐', 'value': 3},
-    )['emoji'] as String;
+
+    IconData moodIcon;
+    Color moodColor;
+    switch (log.mood) {
+      case 1:
+        moodIcon = Icons.sentiment_very_dissatisfied;
+        moodColor = Colors.blue;
+        break;
+      case 5:
+        moodIcon = Icons.sentiment_very_satisfied;
+        moodColor = Colors.amber;
+        break;
+      default:
+        moodIcon = Icons.sentiment_neutral;
+        moodColor = Colors.grey;
+        break;
+    }
 
     final urgeLabel = _urgeOptions.firstWhere(
       (o) => o['value'] == log.urgeLevel,
@@ -131,9 +144,27 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('✅ 今日已记录', style: TextStyle(fontSize: 28)),
+          Icon(Icons.check_circle_outline,
+              size: 48, color: theme.colorScheme.primary),
+          const SizedBox(height: 12),
+          const Text('今日已记录', style: TextStyle(fontSize: 28)),
           const SizedBox(height: 32),
-          Text(moodEmoji, style: const TextStyle(fontSize: 64)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.sentiment_very_dissatisfied,
+                  size: 48,
+                  color: log.mood == 1 ? moodColor : Colors.grey.shade300),
+              const SizedBox(width: 24),
+              Icon(Icons.sentiment_neutral,
+                  size: 48,
+                  color: log.mood == 3 ? moodColor : Colors.grey.shade300),
+              const SizedBox(width: 24),
+              Icon(Icons.sentiment_very_satisfied,
+                  size: 48,
+                  color: log.mood == 5 ? moodColor : Colors.grey.shade300),
+            ],
+          ),
           const SizedBox(height: 16),
           if (urgeLabel.isNotEmpty)
             Text(
@@ -157,150 +188,262 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('今天感觉怎么样？', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 20),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: _moodOptions.map((opt) {
-                final value = opt['value'] as int;
-                final selected = _mood == value;
-                return GestureDetector(
-                  onTap: () => setState(() => _mood = value),
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: selected ? primary : Colors.grey.shade300,
-                        width: 3,
-                      ),
-                    ),
-                    child: Center(
-                      child: Text(
-                        opt['emoji'] as String,
-                        style: const TextStyle(fontSize: 36),
-                      ),
+          // ── Mood section ──
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.sentiment_satisfied_alt, color: primary),
+                      const SizedBox(width: 8),
+                      Text('今天感觉怎么样？', style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: _moodOptions.map((opt) {
+                        final value = opt['value'] as int;
+                        final selected = _mood == value;
+                        Color selectedColor;
+                        Color selectedBg;
+                        switch (value) {
+                          case 1:
+                            selectedColor = Colors.blue;
+                            selectedBg = Colors.blue.shade50;
+                            break;
+                          case 3:
+                            selectedColor = Colors.grey;
+                            selectedBg = Colors.grey.shade100;
+                            break;
+                          case 5:
+                            selectedColor = Colors.amber;
+                            selectedBg = Colors.amber.shade50;
+                            break;
+                          default:
+                            selectedColor = primary;
+                            selectedBg = Colors.white;
+                            break;
+                        }
+                        return GestureDetector(
+                          onTap: () => setState(() => _mood = value),
+                          child: Container(
+                            width: 72,
+                            height: 72,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: selected ? selectedBg : Colors.white,
+                              border: Border.all(
+                                color: selected ? selectedColor : Colors.grey.shade300,
+                                width: 3,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                opt['emoji'] as String,
+                                style: const TextStyle(fontSize: 36),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
                     ),
                   ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 48),
-          Text('今天有想抽/喝吗？', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 20),
-          Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: _urgeOptions.map((opt) {
-                final value = opt['value'] as int;
-                final selected = _urgeLevel == value;
-                return GestureDetector(
-                  onTap: () => setState(() => _urgeLevel = value),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      color: selected ? primary : Colors.transparent,
-                      border: Border.all(
-                        color: selected ? primary : Colors.grey.shade300,
-                      ),
-                    ),
-                    child: Text(
-                      opt['label'] as String,
-                      style: TextStyle(
-                        color: selected ? Colors.white : Colors.black87,
-                        fontWeight: selected ? FontWeight.w500 : FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 48),
-          Text('今天有使用吗？', style: theme.textTheme.titleMedium),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => setState(() {
-                  _relapsed = false;
-                  _consumption = null;
-                  _consumptionController.clear();
-                }),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: !_relapsed ? primary : Colors.transparent,
-                    border: Border.all(
-                      color: !_relapsed ? primary : Colors.grey.shade300,
-                    ),
-                  ),
-                  child: Text(
-                    '没有',
-                    style: TextStyle(
-                      color: !_relapsed ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              GestureDetector(
-                onTap: () => setState(() => _relapsed = true),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: _relapsed ? primary : Colors.transparent,
-                    border: Border.all(
-                      color: _relapsed ? primary : Colors.grey.shade300,
-                    ),
-                  ),
-                  child: Text(
-                    '有',
-                    style: TextStyle(
-                      color: _relapsed ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          if (_relapsed) ...[
-            const SizedBox(height: 20),
-            SizedBox(
-              width: 140,
-              child: TextField(
-                controller: _consumptionController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  hintText: '支/杯',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                ),
-                onChanged: (v) {
-                  _consumption = int.tryParse(v);
-                },
+                ],
               ),
             ),
-          ],
-          const SizedBox(height: 48),
-          Text(
-            '想补充什么吗？',
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.grey),
           ),
-          const SizedBox(height: 8),
-          TextField(
-            controller: _notesController,
-            maxLines: 2,
-            decoration: const InputDecoration(
-              hintText: '可选',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          const SizedBox(height: 24),
+
+          // ── Urge level section ──
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.local_fire_department, color: primary),
+                      const SizedBox(width: 8),
+                      Text('今天有想抽/喝吗？', style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: _urgeOptions.map((opt) {
+                        final value = opt['value'] as int;
+                        final selected = _urgeLevel == value;
+                        Color selectedColor;
+                        switch (value) {
+                          case 1:
+                            selectedColor = Colors.green;
+                            break;
+                          case 3:
+                            selectedColor = Colors.orange;
+                            break;
+                          case 5:
+                            selectedColor = Colors.red;
+                            break;
+                          default:
+                            selectedColor = primary;
+                            break;
+                        }
+                        return GestureDetector(
+                          onTap: () => setState(() => _urgeLevel = value),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              color: selected ? selectedColor : Colors.transparent,
+                              border: Border.all(
+                                color: selected ? selectedColor : Colors.grey.shade300,
+                              ),
+                            ),
+                            child: Text(
+                              opt['label'] as String,
+                              style: TextStyle(
+                                color: selected ? Colors.white : Colors.black87,
+                                fontWeight: selected ? FontWeight.w500 : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // ── Relapse section ──
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.help_outline, color: primary),
+                      const SizedBox(width: 8),
+                      Text('今天有使用吗？', style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() {
+                          _relapsed = false;
+                          _consumption = null;
+                          _consumptionController.clear();
+                        }),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: !_relapsed ? Colors.green : Colors.transparent,
+                            border: Border.all(
+                              color: !_relapsed ? Colors.green : Colors.grey.shade300,
+                            ),
+                          ),
+                          child: Text(
+                            '没有',
+                            style: TextStyle(
+                              color: !_relapsed ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      GestureDetector(
+                        onTap: () => setState(() => _relapsed = true),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: _relapsed ? Colors.red : Colors.transparent,
+                            border: Border.all(
+                              color: _relapsed ? Colors.red : Colors.grey.shade300,
+                            ),
+                          ),
+                          child: Text(
+                            '有',
+                            style: TextStyle(
+                              color: _relapsed ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_relapsed) ...[
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: 140,
+                      child: TextField(
+                        controller: _consumptionController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          hintText: '支/杯',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                        onChanged: (v) {
+                          _consumption = int.tryParse(v);
+                        },
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // ── Notes section ──
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.edit_note, color: primary),
+                      const SizedBox(width: 8),
+                      Text('想补充什么吗？', style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _notesController,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      hintText: '可选',
+                      border: OutlineInputBorder(),
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 48),
@@ -326,7 +469,7 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
                           color: Colors.white,
                         ),
                       )
-                    : const Text('完成 ✓', style: TextStyle(fontSize: 18)),
+                    : const Text('完成', style: TextStyle(fontSize: 18)),
               ),
             ),
           ),

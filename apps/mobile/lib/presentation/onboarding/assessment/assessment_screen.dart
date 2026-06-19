@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/widgets/onboarding_stepper.dart';
 import '../../../domain/entity/user.dart';
 
 class AssessmentScreen extends ConsumerStatefulWidget {
@@ -226,20 +227,8 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           // Progress indicator
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Row(
-              children: [
-                _StepDot(step: 1, label: '评估', active: true, done: false),
-                _StepLineSeg(done: false),
-                _StepDot(step: 2, label: '了解', active: false, done: false),
-                _StepLineSeg(done: false),
-                _StepDot(step: 3, label: '动机', active: false, done: false),
-                _StepLineSeg(done: false),
-                _StepDot(step: 4, label: '开始', active: false, done: false),
-              ],
-            ),
-          ),
+          const OnboardingStepper(currentStep: 0),
+          const SizedBox(height: 8),
           // Friendly intro
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
@@ -520,59 +509,4 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
   }
 }
 
-/// Step dot for onboarding progress
-class _StepDot extends StatelessWidget {
-  final int step;
-  final String label;
-  final bool active;
-  final bool done;
 
-  const _StepDot({required this.step, required this.label, required this.active, required this.done});
-
-  @override
-  Widget build(BuildContext context) {
-    final color = done
-        ? Theme.of(context).colorScheme.primary
-        : active
-            ? Theme.of(context).colorScheme.primary.withOpacity(0.7)
-            : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.3);
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: done ? Theme.of(context).colorScheme.primary : Colors.transparent,
-            border: Border.all(color: color, width: 2),
-          ),
-          child: done
-              ? const Icon(Icons.check, size: 14, color: Colors.white)
-              : Center(
-                  child: Text('$step', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color)),
-                ),
-        ),
-        const SizedBox(height: 2),
-        Text(label, style: TextStyle(fontSize: 9, color: color)),
-      ],
-    );
-  }
-}
-
-class _StepLineSeg extends StatelessWidget {
-  final bool done;
-  const _StepLineSeg({required this.done});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        height: 2,
-        margin: const EdgeInsets.only(bottom: 16),
-        color: done ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.2),
-      ),
-    );
-  }
-}

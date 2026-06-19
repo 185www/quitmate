@@ -168,7 +168,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('第 $days 天', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w200, height: 1.1)),
+              Text('第 $days 天', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.w700, height: 1.1)),
               const SizedBox(height: 4),
               Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             ],
@@ -239,16 +239,17 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
             children: [
               Expanded(
                 child: Card(
+                  color: Colors.amber.shade50,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                     child: Column(
                       children: [
-                        const Text('💰', style: TextStyle(fontSize: 28)),
+                        const Icon(Icons.savings_outlined, color: Colors.amber, size: 28),
                         const SizedBox(height: 4),
                         Text('已节省', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         const SizedBox(height: 2),
                         Text('¥${saved.toStringAsFixed(0)}',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.amber.shade700)),
                       ],
                     ),
                   ),
@@ -257,16 +258,17 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
               const SizedBox(width: 12),
               Expanded(
                 child: Card(
+                  color: Colors.red.shade50,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                     child: Column(
                       children: [
-                        const Text('❤️', style: TextStyle(fontSize: 28)),
+                        const Icon(Icons.favorite, color: Colors.redAccent, size: 28),
                         const SizedBox(height: 4),
                         Text('生命', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                         const SizedBox(height: 2),
                         Text('+$lifeDays 天',
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.red.shade400)),
                       ],
                     ),
                   ),
@@ -296,7 +298,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
                   if (logged) ...[
                     Row(
                       children: [
-                        const Text('✅', style: TextStyle(fontSize: 20)),
+                        const Icon(Icons.check_circle, color: Colors.green, size: 20),
                         const SizedBox(width: 8),
                         Text('今日已记录', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                       ],
@@ -372,12 +374,21 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
 
   Widget _moodButton(String emoji, int value) {
     final selected = _selectedMood == value;
+    final Color bgColor = value == 1 ? Colors.blue.shade50 : value == 2 ? Colors.grey.shade200 : Colors.amber.shade50;
     return GestureDetector(
       onTap: () => setState(() => _selectedMood = value),
-      child: AnimatedOpacity(
-        opacity: selected ? 1 : 0.35,
+      child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        child: Text(emoji, style: TextStyle(fontSize: selected ? 36 : 28)),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: AnimatedOpacity(
+          opacity: selected ? 1 : 0.35,
+          duration: const Duration(milliseconds: 200),
+          child: Text(emoji, style: TextStyle(fontSize: selected ? 36 : 28)),
+        ),
       ),
     );
   }
@@ -419,7 +430,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
         height: 52,
         child: ElevatedButton.icon(
           onPressed: () => context.push('/action/urge-toolkit'),
-          icon: const Icon(Icons.favorite_border, size: 22),
+          icon: const Icon(Icons.emergency, size: 22),
           label: const Text('渴望来了？帮你撑过去', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.errorContainer,
@@ -616,14 +627,17 @@ class ActionTabScreen extends StatelessWidget {
           _ActionTile(
             icon: Icons.psychology, title: '渴望管理工具箱', subtitle: '冲浪法、替代行为、SOS求助',
             onTap: () => context.push('/action/urge-toolkit'),
+            iconBgColor: Colors.deepPurple,
           ),
           _ActionTile(
             icon: Icons.edit_note, title: '每日记录', subtitle: '记录情绪、诱因和应对方式',
             onTap: () => context.push('/action/daily-log'),
+            iconBgColor: Colors.teal,
           ),
           _ActionTile(
             icon: Icons.school, title: 'CBT技能训练', subtitle: '认知行为疗法技巧学习',
             onTap: () => context.push('/action/skills-lab'),
+            iconBgColor: Colors.indigo,
           ),
         ],
       ),
@@ -644,10 +658,12 @@ class MaintenanceTabScreen extends StatelessWidget {
           _ActionTile(
             icon: Icons.shield, title: '复发预防计划', subtitle: '高危情境预案和应对策略',
             onTap: () => context.push('/maintenance/relapse-plan'),
+            iconBgColor: Colors.orange,
           ),
           _ActionTile(
             icon: Icons.fitness_center, title: '生活方式重塑', subtitle: '运动、冥想、健康习惯',
             onTap: () => context.push('/maintenance/lifestyle'),
+            iconBgColor: Colors.green,
           ),
         ],
       ),
@@ -668,22 +684,27 @@ class ProfileTabScreen extends StatelessWidget {
           _ActionTile(
             icon: Icons.analytics, title: '高危场景分析', subtitle: '查看你的渴望触发场景报告',
             onTap: () => context.push('/profile/analysis'),
+            iconBgColor: Colors.blue,
           ),
           _ActionTile(
             icon: Icons.assessment, title: '评估报告', subtitle: '查看你的依赖性评估结果',
             onTap: () => context.push('/onboarding/assessment'),
+            iconBgColor: Colors.blue,
           ),
           _ActionTile(
             icon: Icons.settings, title: '设置', subtitle: '通知、提醒、偏好设置',
             onTap: () => context.push('/profile/settings'),
+            iconBgColor: Colors.grey,
           ),
           _ActionTile(
             icon: Icons.download, title: '导出数据', subtitle: '导出你的记录和报告',
             onTap: () => context.push('/profile/export'),
+            iconBgColor: Colors.teal,
           ),
           _ActionTile(
             icon: Icons.info_outline, title: '关于', subtitle: '版本信息、隐私政策、免责声明',
             onTap: () => context.push('/profile/about'),
+            iconBgColor: Colors.blue,
           ),
         ],
       ),
@@ -696,7 +717,8 @@ class _ActionTile extends StatelessWidget {
   final String title;
   final String subtitle;
   final VoidCallback onTap;
-  const _ActionTile({required this.icon, required this.title, required this.subtitle, required this.onTap});
+  final Color iconBgColor;
+  const _ActionTile({required this.icon, required this.title, required this.subtitle, required this.onTap, this.iconBgColor = const Color(0xFF6750A4)});
 
   @override
   Widget build(BuildContext context) {
@@ -704,8 +726,8 @@ class _ActionTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          child: Icon(icon, color: Theme.of(context).colorScheme.primary),
+          backgroundColor: iconBgColor.withOpacity(0.15),
+          child: Icon(icon, color: iconBgColor),
         ),
         title: Text(title),
         subtitle: Text(subtitle),

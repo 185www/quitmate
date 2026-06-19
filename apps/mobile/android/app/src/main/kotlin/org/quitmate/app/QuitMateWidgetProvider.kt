@@ -19,7 +19,7 @@ class QuitMateWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
-        const val PREFS_NAME = "home_widget"
+        const val PREFS_NAME = "HomeWidgetPreferences"
         const val KEY_DAYS = "widget_days"
         const val KEY_MONEY = "widget_money"
         const val KEY_LIFE = "widget_life"
