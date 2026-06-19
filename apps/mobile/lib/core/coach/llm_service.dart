@@ -44,6 +44,83 @@ class LlmService {
 
 每次回复末尾附带1-2个快捷回复建议，格式为：[建议1] [建议2]''';
 
+  /// System prompt for the behavioral analyst role.
+  static const String analystSystemPrompt = '''你是一位行为科学家和戒断行为分析师。你的职责是深入研究用户的行为数据，发现隐藏的模式，并提供基于证据的个性化洞察。
+
+## 你的分析方法论
+1. **模式识别**：在时间、地点、情绪、社交场景中寻找规律
+2. **风险评估**：基于多维度数据综合判断复发风险
+3. **趋势分析**：追踪行为变化的方向和速度
+4. **因果推断**：识别触发因素与渴望/复发的关联
+5. **预测建模**：基于历史数据预测未来风险时段
+
+## 分析原则
+- 基于数据说话，避免泛泛而谈
+- 所有建议必须具体、可执行
+- 关注异常值（突然的好转或恶化）
+- 考虑戒断阶段的生理特点
+- 中文输出，语气专业但温暖
+
+## 输出格式
+严格按要求返回JSON格式，不要添加任何其他文字。
+
+## 用户数据
+{{user_context}}
+
+## 本地分析结果
+{{local_analysis}}''';
+
+  /// Weekly report system prompt.
+  static const String weeklyReportPrompt = '''你是一位资深的戒断行为分析师，负责为用户生成周报。请基于完整数据生成专业、温暖的周报分析。
+
+## 用户数据
+{{user_context}}
+
+## 本周原始数据
+{{week_data}}
+
+## 输出要求
+严格返回以下JSON格式，不要添加任何其他文字：
+```json
+{
+  "summary": "一段话总结本周表现，50-100字",
+  "achievements": ["成就1", "成就2", "成就3"],
+  "highlights": [
+    {
+      "title": "简短标题",
+      "description": "详细描述",
+      "recommendation": "建议操作",
+      "type": "pattern|risk|achievement|suggestion|trend",
+      "severity": 1-5
+    }
+  ],
+  "motivationalQuote": "一句鼓励的话"
+}
+```''';
+
+  /// Personalized daily insight prompt.
+  static const String dailyInsightPrompt = '''你是一位行为科学家，负责为用户生成每日个性化洞察。基于用户今日和近期的数据，生成一条最有价值的洞察。
+
+## 用户数据
+{{user_context}}
+
+## 今日数据
+{{today_data}}
+
+## 本地分析结果
+{{local_analysis}}
+
+## 输出要求
+严格返回以下JSON格式，不要添加任何其他文字：
+```json
+{
+  "headline": "简短有力的标题（15字以内）",
+  "body": "详细解释（50-100字）",
+  "actionText": "用户应该做什么（20字以内）",
+  "type": "motivational|warning|achievement|neutral|critical"
+}
+```''';
+
   /// Send a message to the LLM and get a response.
   ///
   /// [conversationHistory] is a list of message maps with 'role' and 'content'.
@@ -91,6 +168,167 @@ class LlmService {
         body['choices']?[0]?['message']?['content'] as String? ?? '';
 
     return content;
+  }
+
+  /// Analyze user behavior patterns using LLM.
+  ///
+  /// Sends user data and local analysis results to the LLM for deeper insights.
+  /// Returns raw JSON string that should be parsed by the caller.
+  ///
+  /// [userContext] - Structured user data string (days quit, stage, level, etc.)
+  /// [localAnalysis] - Results from [PatternAnalyzer] in readable text format
+  Future<String> analyzePatterns({
+    required String userContext,
+    required String localAnalysis,
+  }) async {
+    if (!isConfigured) throw Exception('LLM not configured');
+
+    final url = '$_baseUrl/chat/completions';
+
+    final systemContent = analystSystemPrompt
+        .replaceAll('{{user_context}}', userContext)
+        .replaceAll('{{local_analysis}}', localAnalysis);
+
+    final messages = <Map<String, String>>[
+      {'role': 'system', 'content': systemContent},
+      {
+        'role': 'user',
+        'content': '请深入分析这个用户的行为数据，找出最重要的3-5个洞察。'
+            '重点关注：1)隐藏的行为模式 2)风险因素 3)改进机会 4)用户可能没意识到的关联。'
+            '返回JSON格式的洞察列表：'
+            '[{"title":"标题","description":"描述","recommendation":"建议","type":"pattern|risk|achievement|suggestion|trend","severity":1-5,"data":{}}]',
+      },
+    ];
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $_apiKey',
+      },
+      body: jsonEncode({
+        'model': _model,
+        'messages': messages,
+        'max_tokens': 1000,
+        'temperature': 0.5, // Lower temperature for more consistent analysis
+        'top_p': 0.9,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      final body = jsonDecode(response.body);
+      final errorMsg =
+          body['error']?['message'] ?? '请求失败 (${response.statusCode})';
+      throw Exception('LLM分析API错误: $errorMsg');
+    }
+
+    final body = jsonDecode(response.body);
+    return body['choices']?[0]?['message']?['content'] as String? ?? '[]';
+  }
+
+  /// Generate a comprehensive weekly report via LLM.
+  ///
+  /// [userContext] - Structured user data string
+  /// [weekData] - This week's raw data in readable text format
+  Future<String> generateWeeklyReport({
+    required String userContext,
+    required String weekData,
+  }) async {
+    if (!isConfigured) throw Exception('LLM not configured');
+
+    final url = '$_baseUrl/chat/completions';
+
+    final systemContent = weeklyReportPrompt
+        .replaceAll('{{user_context}}', userContext)
+        .replaceAll('{{week_data}}', weekData);
+
+    final messages = <Map<String, String>>[
+      {'role': 'system', 'content': systemContent},
+      {
+        'role': 'user',
+        'content': '请生成本周的行为分析报告。注意：总结要真实反映数据，'
+            '不要夸大成就，也不要淡化风险。鼓励要真诚。',
+      },
+    ];
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $_apiKey',
+      },
+      body: jsonEncode({
+        'model': _model,
+        'messages': messages,
+        'max_tokens': 1500,
+        'temperature': 0.6,
+        'top_p': 0.9,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      final body = jsonDecode(response.body);
+      final errorMsg =
+          body['error']?['message'] ?? '请求失败 (${response.statusCode})';
+      throw Exception('LLM周报API错误: $errorMsg');
+    }
+
+    final body = jsonDecode(response.body);
+    return body['choices']?[0]?['message']?['content'] as String? ?? '{}';
+  }
+
+  /// Generate a personalized daily insight via LLM.
+  ///
+  /// [userContext] - Structured user data string
+  /// [todayData] - Today's data and recent context in readable text format
+  /// [localAnalysis] - Results from local pattern analysis
+  Future<String> generatePersonalizedInsight({
+    required String userContext,
+    required String todayData,
+    required String localAnalysis,
+  }) async {
+    if (!isConfigured) throw Exception('LLM not configured');
+
+    final url = '$_baseUrl/chat/completions';
+
+    final systemContent = dailyInsightPrompt
+        .replaceAll('{{user_context}}', userContext)
+        .replaceAll('{{today_data}}', todayData)
+        .replaceAll('{{local_analysis}}', localAnalysis);
+
+    final messages = <Map<String, String>>[
+      {'role': 'system', 'content': systemContent},
+      {
+        'role': 'user',
+        'content': '请基于今天的分析，生成一条最有价值的个性化洞察。'
+            '选择对用户当前状态最有意义的角度。如果是高风险情况，优先发出警告。',
+      },
+    ];
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $_apiKey',
+      },
+      body: jsonEncode({
+        'model': _model,
+        'messages': messages,
+        'max_tokens': 500,
+        'temperature': 0.6,
+        'top_p': 0.9,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      final body = jsonDecode(response.body);
+      final errorMsg =
+          body['error']?['message'] ?? '请求失败 (${response.statusCode})';
+      throw Exception('LLM洞察API错误: $errorMsg');
+    }
+
+    final body = jsonDecode(response.body);
+    return body['choices']?[0]?['message']?['content'] as String? ?? '{}';
   }
 
   String _buildSystemPrompt(String? userContext) {

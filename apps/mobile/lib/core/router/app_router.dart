@@ -1,5 +1,9 @@
 import 'package:go_router/go_router.dart';
 import '../../presentation/shell/shell_screen.dart';
+import '../../presentation/home/dashboard_screen.dart';
+import '../../presentation/action/action_screen.dart';
+import '../../presentation/maintenance/maintenance_screen.dart';
+import '../../presentation/profile/profile_screen.dart';
 import '../../presentation/onboarding/welcome_screen.dart';
 import '../../presentation/onboarding/reality_check_screen.dart';
 import '../../presentation/onboarding/assessment/assessment_screen.dart';
@@ -25,10 +29,9 @@ import '../../core/notifications/notification_service.dart';
 
 class AppRouter {
   final UserUseCase _userUseCase;
-  final NotificationService _notificationService;
 
   AppRouter({required UserUseCase userUseCase, required NotificationService notificationService})
-    : _userUseCase = userUseCase, _notificationService = notificationService;
+    : _userUseCase = userUseCase;
 
   Future<bool> _isLoggedIn() async {
     final user = await _userUseCase.getCurrentUser();
@@ -54,10 +57,10 @@ class AppRouter {
       ShellRoute(
         builder: (context, state, child) => ShellScreen(child: child),
         routes: [
-          GoRoute(path: '/', builder: (_, __) => const DashboardTab()),
-          GoRoute(path: '/action', builder: (_, __) => const ActionTabScreen()),
-          GoRoute(path: '/maintenance', builder: (_, __) => const MaintenanceTabScreen()),
-          GoRoute(path: '/profile', builder: (_, __) => const ProfileTabScreen()),
+          GoRoute(path: '/', builder: (_, __) => const DashboardScreen()),
+          GoRoute(path: '/action', builder: (_, __) => const ActionScreen()),
+          GoRoute(path: '/maintenance', builder: (_, __) => const MaintenanceScreen()),
+          GoRoute(path: '/profile', builder: (_, __) => const ProfileScreen()),
         ],
       ),
 
