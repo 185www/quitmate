@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import '../../../core/di/providers.dart';
 import '../../../domain/entity/user.dart';
 
@@ -288,8 +289,8 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
             title: '这些年花掉的',
             items: [
               ('每天', '¥$_dailyCost'),
-              ('每年', '¥${_yearlyCost.toLocaleString()}'),
-              ('$_years 年来', '¥${_totalSpent.toLocaleString()}'),
+              ('每年', '¥${NumberFormat.decimalPattern().format(_yearlyCost)}'),
+              ('$_years 年来', '¥${NumberFormat.decimalPattern().format(_totalSpent)}'),
             ],
             footer: '相当于 ${(_totalSpent / 5000).toStringAsFixed(1)} 部 iPhone，或 ${( _totalSpent / 300).toStringAsFixed(0)} 顿火锅',
           ),
@@ -318,9 +319,10 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
             title: '累计用量',
             items: [
               ('每天', '$_dailyAmount $_unitLabel'),
-              ('每年', '${( _dailyAmount * 365).toLocaleString()} $_unitLabel'),
-              ('$_years 年来', '${_totalAmount.toLocaleString()} $_unitLabel'),
+              ('每年', '${NumberFormat.decimalPattern().format(_dailyAmount * 365)} $_unitLabel'),
+              ('$_years 年来', '${NumberFormat.decimalPattern().format(_totalAmount)} $_unitLabel'),
             ],
+            footer: '如果每天少$_unitLabel，这些就不会进入你的身体',
           ),
           const SizedBox(height: 24),
 

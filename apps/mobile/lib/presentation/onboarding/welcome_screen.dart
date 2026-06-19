@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
+import '../../../domain/entity/user.dart';
 
 /// First-time entry screen with two paths:
 /// A. "我现在就很难受" → instant help, no questions
