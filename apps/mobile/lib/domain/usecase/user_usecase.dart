@@ -26,7 +26,11 @@ class UserUseCase {
   Future<User> setQuitDate(DateTime quitDate) async {
     final user = await _repository.getCurrentUser();
     if (user == null) throw StateError('No user found');
-    return _repository.updateUser(id: user.id, quitDate: quitDate, stage: UserStage.preparation);
+    // Only advance to preparation if user is in an earlier stage
+    final newStage = user.stage.index < UserStage.preparation.index
+        ? UserStage.preparation
+        : user.stage;
+    return _repository.updateUser(id: user.id, quitDate: quitDate, stage: newStage);
   }
 
   Future<User> advanceStage() async {
@@ -80,6 +84,17 @@ class UserUseCase {
     final user = await _repository.getCurrentUser();
     final id = user?.id;
     if (id == null) {
+      // Double-check to prevent race condition duplicates
+      final existing = await _repository.getCurrentUser();
+      if (existing != null) {
+        return _repository.updateUser(
+          id: existing.id,
+          fagerstromScore: fagerstromScore,
+          auditScore: auditScore,
+          dailyConsumption: dailyConsumption,
+          yearsOfUse: yearsOfUse,
+        );
+      }
       final now = DateTime.now();
       final newId = await _repository.createUser(
         targetType: targetType,

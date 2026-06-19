@@ -1,5 +1,3 @@
-import 'dart:math';
-
 enum TargetType { smoking, alcohol, both }
 enum UserStage { preContemplation, contemplation, preparation, action, maintenance }
 
@@ -54,6 +52,14 @@ class User {
 
   /// Money saved per day (based on avg price)
   double get dailyCost {
+    // Use user-entered daily cost if available (from reality check)
+    if (dailyConsumption != null && dailyConsumption! > 0) {
+      // dailyConsumption stores the amount, we need cost per unit
+      // We'll use estimated cost per unit as fallback
+      final costPerUnit = targetType == TargetType.alcohol ? 15.0 : 0.5;
+      return dailyConsumption! * costPerUnit;
+    }
+    // Fallback: derive from clinical scores
     double cost = 0;
     if (targetType != TargetType.alcohol) cost += estimatedDailyCigarettes * 0.5;
     if (targetType != TargetType.smoking) cost += estimatedDailyDrinks * 15.0;

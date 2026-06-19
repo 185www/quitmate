@@ -184,12 +184,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 await db.delete('craving_log');
                 await db.delete('relapse_plan');
                 await db.delete('user_profile');
-                await db.delete('notification_schedule');
                 await ref.read(notificationServiceProvider).cancelAll();
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('数据已清除')),
                   );
+                  context.go('/welcome');
                 }
               } catch (e) {
                 if (mounted) {

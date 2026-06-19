@@ -86,8 +86,19 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
   }
 
   void _nextStep() {
-    if (_currentStep < 2 && mounted) {
-      setState(() => _currentStep++);
+    if (_currentStep == 0) {
+      // Step 0 just selects target type, always allow
+      if (mounted) setState(() => _currentStep++);
+    } else if (_currentStep == 1) {
+      // Step 1 requires at least one number entered
+      final amount = int.tryParse(_amountController.text);
+      if (amount == null || amount <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('请输入一个大概的数字')),
+        );
+        return;
+      }
+      if (mounted) setState(() => _currentStep++);
     }
   }
 
@@ -395,14 +406,21 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
           SizedBox(
             width: double.infinity,
             child: TextButton(
-              onPressed: () {
-                // Save and go directly to dashboard
-                ref.read(userUseCaseProvider).updateAssessment(
-                  targetType: _targetType,
-                  dailyConsumption: _dailyAmount.toDouble(),
-                  yearsOfUse: _years,
-                );
-                context.go('/');
+              onPressed: () async {
+                try {
+                  await ref.read(userUseCaseProvider).updateAssessment(
+                    targetType: _targetType,
+                    dailyConsumption: _dailyAmount.toDouble(),
+                    yearsOfUse: _years,
+                  );
+                  if (mounted) context.go('/');
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('保存失败: $e')),
+                    );
+                  }
+                }
               },
               child: Text(
                 '先到这里，我需要想一想',

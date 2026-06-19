@@ -1,4 +1,3 @@
-import '../../domain/entity/user.dart';
 import '../database/app_database.dart';
 
 class CravingRepository {

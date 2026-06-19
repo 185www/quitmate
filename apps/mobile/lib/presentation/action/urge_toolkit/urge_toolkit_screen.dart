@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/di/providers.dart';
 import 'scene_dialog.dart';
 
 class UrgeToolkitScreen extends ConsumerStatefulWidget {
@@ -98,7 +97,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     showModalBottomSheet(
       context: context,
       builder: (_) => SceneCaptureDialog(
-        intensity: 5,
+        intensity: 7,
         trigger: '渴望冲浪',
         copingUsed: '渴望冲浪',
         resolved: true,
@@ -178,7 +177,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     showModalBottomSheet(
       context: context,
       builder: (_) => SceneCaptureDialog(
-        intensity: 8,
+        intensity: 10,
         trigger: 'SOS紧急求助',
         copingUsed: '4-7-8呼吸法',
         resolved: true,
@@ -245,7 +244,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     showModalBottomSheet(
       context: context,
       builder: (_) => SceneCaptureDialog(
-        intensity: 3,
+        intensity: 5,
         trigger: '替代行为',
         copingUsed: title,
         resolved: true,

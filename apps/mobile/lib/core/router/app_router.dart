@@ -15,6 +15,7 @@ import '../../presentation/maintenance/lifestyle/lifestyle_screen.dart';
 import '../../presentation/profile/settings_screen.dart';
 import '../../presentation/profile/export_screen.dart';
 import '../../presentation/profile/about_screen.dart';
+import '../../presentation/profile/badges_screen.dart';
 import '../../presentation/profile/analysis_report/analysis_report_screen.dart';
 import '../../domain/usecase/user_usecase.dart';
 import '../../core/notifications/notification_service.dart';
@@ -26,33 +27,19 @@ class AppRouter {
   AppRouter({required UserUseCase userUseCase, required NotificationService notificationService})
     : _userUseCase = userUseCase, _notificationService = notificationService;
 
-  /// Tracks whether we've checked the user state to avoid redirect loops
-  bool _initialCheckDone = false;
-  bool _hasUser = false;
-
-  Future<bool> _checkHasUser() async {
-    if (!_initialCheckDone) {
-      final user = await _userUseCase.getCurrentUser();
-      _hasUser = user != null;
-      _initialCheckDone = true;
-    }
-    return _hasUser;
+  Future<bool> _isLoggedIn() async {
+    final user = await _userUseCase.getCurrentUser();
+    return user != null;
   }
 
   late final GoRouter router = GoRouter(
     initialLocation: '/',
     redirect: (context, state) async {
-      final loc = state.uri.toString();
-      // Onboarding paths — never redirect away from these
-      if (loc.startsWith('/onboarding') ||
-          loc.startsWith('/action/urge-toolkit')) {
-        return null;
-      }
-      // If no user exists and we're trying to go to a main tab, redirect to welcome
-      final hasUser = await _checkHasUser();
-      if (!hasUser && (loc == '/' || loc.startsWith('/action') || loc.startsWith('/maintenance') || loc.startsWith('/profile'))) {
-        return '/welcome';
-      }
+      final loggedIn = await _isLoggedIn();
+      final onBoardingRoutes = ['/welcome', '/onboarding/reality-check', '/onboarding/assessment', '/onboarding/education', '/onboarding/motivation', '/preparation/quit-date'];
+      if (onBoardingRoutes.any((r) => state.matchedLocation.startsWith(r))) return null;
+      if (!loggedIn && state.matchedLocation != '/welcome') return '/welcome';
+      if (loggedIn && state.matchedLocation == '/welcome') return '/';
       return null;
     },
     routes: [
@@ -91,6 +78,7 @@ class AppRouter {
       GoRoute(path: '/profile/settings', builder: (_, __) => const SettingsScreen()),
       GoRoute(path: '/profile/export', builder: (_, __) => const ExportScreen()),
       GoRoute(path: '/profile/about', builder: (_, __) => const AboutScreen()),
+      GoRoute(path: '/profile/badges', builder: (_, __) => const BadgesScreen()),
     ],
   );
 }

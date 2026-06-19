@@ -31,7 +31,7 @@ final cravingRepositoryProvider = Provider((ref) => CravingRepository(ref.watch(
 
 final userUseCaseProvider = Provider((ref) => UserUseCase(ref.watch(userRepositoryProvider)));
 final logUseCaseProvider = Provider((ref) => LogUseCase(ref.watch(logRepositoryProvider), ref.watch(badgeRepositoryProvider), ref.watch(userRepositoryProvider)));
-final badgeUseCaseProvider = Provider((ref) => BadgeUseCase(ref.watch(badgeRepositoryProvider), ref.watch(logRepositoryProvider)));
+final badgeUseCaseProvider = Provider((ref) => BadgeUseCase(ref.watch(badgeRepositoryProvider)));
 final planUseCaseProvider = Provider((ref) => PlanUseCase(ref.watch(planRepositoryProvider)));
 final contentUseCaseProvider = Provider((ref) => ContentUseCase(ref.watch(contentRepositoryProvider)));
 final cravingUseCaseProvider = Provider((ref) => CravingUseCase(ref.watch(cravingRepositoryProvider), ref.watch(userRepositoryProvider)));

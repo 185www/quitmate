@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:convert';
 import '../../core/di/providers.dart';
-import '../../domain/entity/daily_log.dart';
 import '../../domain/entity/user.dart';
 
 class ExportScreen extends ConsumerWidget {
@@ -90,7 +89,7 @@ class ExportScreen extends ConsumerWidget {
 
       final data = {
         'exportDate': DateTime.now().toIso8601String(),
-        'version': '1.6.0',
+        'version': '1.7.0',
         'appName': 'QuitMate',
         'user': user != null
             ? {
@@ -219,7 +218,7 @@ class ExportScreen extends ConsumerWidget {
       buffer.writeln('• Cochrane Database - CBT有效性');
       buffer.writeln('• Ussher et al. - 运动减少渴求强度');
       buffer.writeln();
-      buffer.writeln('数据来源: QuitMate v1.4.0');
+      buffer.writeln('数据来源: QuitMate v1.7.0');
       buffer.writeln('═══════════════════════════════════════');
 
       await Share.share(buffer.toString(), subject: 'QuitMate数据报告');

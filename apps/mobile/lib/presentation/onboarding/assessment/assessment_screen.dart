@@ -292,12 +292,7 @@ class _AssessmentScreenState extends ConsumerState<AssessmentScreen> {
                 const SizedBox(height: 8),
                 TextButton(
                   onPressed: () {
-                    // Quick start: skip assessment, go straight to education with defaults
-                    ref.read(userUseCaseProvider).updateAssessment(
-                      fagerstromScore: _targetType != TargetType.alcohol ? 3 : null,
-                      auditScore: _targetType != TargetType.smoking ? 2 : null,
-                      targetType: _targetType,
-                    );
+                    // Skip assessment without fabricating scores
                     context.push('/onboarding/education');
                   },
                   child: Text(

@@ -5,7 +5,6 @@ import '../../core/di/providers.dart';
 import '../../core/widgets/widget_service.dart';
 import '../../domain/entity/user.dart';
 import '../../domain/entity/daily_log.dart';
-import '../../domain/entity/badge.dart';
 
 class ShellScreen extends ConsumerStatefulWidget {
   final Widget child;
@@ -66,8 +65,8 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
   Future<User?>? _userFuture;
   Future<DailyLogEntry?>? _todayLogFuture;
 
-  int _selectedMood = 2;
-  int _selectedUrge = 1;
+  int _selectedMood = 3;
+  int _selectedUrge = 4;
 
   @override
   void initState() {
@@ -308,7 +307,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
                     Row(
                       children: [
                         Text('心情: ', style: Theme.of(context).textTheme.bodySmall),
-                        Text(['😢', '😐', '😊'][(log.mood - 1).clamp(0, 2)], style: const TextStyle(fontSize: 24)),
+                        Text(log.mood <= 2 ? '😢' : log.mood <= 4 ? '😐' : '😊', style: const TextStyle(fontSize: 24)),
                         const SizedBox(width: 24),
                         Text('渴望: ', style: Theme.of(context).textTheme.bodySmall),
                         Container(
@@ -340,8 +339,8 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         _moodButton('😢', 1),
-                        _moodButton('😐', 2),
-                        _moodButton('😊', 3),
+                        _moodButton('😐', 3),
+                        _moodButton('😊', 5),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -375,7 +374,7 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
 
   Widget _moodButton(String emoji, int value) {
     final selected = _selectedMood == value;
-    final Color bgColor = value == 1 ? Colors.blue.shade50 : value == 2 ? Colors.grey.shade200 : Colors.amber.shade50;
+    final Color bgColor = value <= 2 ? Colors.blue.shade50 : value <= 4 ? Colors.grey.shade200 : Colors.amber.shade50;
     return GestureDetector(
       onTap: () => setState(() => _selectedMood = value),
       child: AnimatedContainer(
@@ -522,98 +521,6 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-  const _StatCard({required this.icon, required this.label, required this.value, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 32),
-            const SizedBox(height: 8),
-            Text(label, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 4),
-            Text(value, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: color, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-  const _ActionButton({required this.icon, required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(height: 8),
-              Text(label, style: Theme.of(context).textTheme.bodyMedium),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LogEntryTile extends StatelessWidget {
-  final DailyLogEntry log;
-  const _LogEntryTile({required this.log});
-
-  @override
-  Widget build(BuildContext context) {
-    final dateStr = '${log.date.month}月${log.date.day}日';
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: log.relapsed
-              ? Theme.of(context).colorScheme.errorContainer
-              : Theme.of(context).colorScheme.primaryContainer,
-          child: Icon(
-            log.relapsed ? Icons.error_outline : Icons.check_circle_outline,
-            color: log.relapsed ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        title: Text('$dateStr - 情绪${log.mood}/5'),
-        subtitle: Text(
-          log.triggers != null && log.triggers!.isNotEmpty ? '诱因: ${log.triggers!.join(", ")}' : log.notes ?? '无备注',
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: log.urgeLevel != null
-            ? Text(
-                '渴望 ${log.urgeLevel}/10',
-                style: TextStyle(
-                  color: log.urgeLevel! > 7
-                      ? Theme.of(context).colorScheme.error
-                      : Theme.of(context).colorScheme.primary,
-                ),
-              )
-            : null,
-      ),
-    );
-  }
-}
 
 class ActionTabScreen extends StatelessWidget {
   const ActionTabScreen({super.key});
@@ -691,6 +598,11 @@ class ProfileTabScreen extends StatelessWidget {
             icon: Icons.assessment, title: '评估报告', subtitle: '查看你的依赖性评估结果',
             onTap: () => context.push('/onboarding/assessment'),
             iconBgColor: Colors.blue,
+          ),
+          _ActionTile(
+            icon: Icons.emoji_events, title: '我的成就', subtitle: '查看已获得的徽章',
+            onTap: () => context.push('/profile/badges'),
+            iconBgColor: Colors.amber,
           ),
           _ActionTile(
             icon: Icons.settings, title: '设置', subtitle: '通知、提醒、偏好设置',

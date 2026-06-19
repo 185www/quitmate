@@ -1,6 +1,5 @@
 import 'dart:convert';
 import '../../domain/entity/daily_log.dart';
-import '../../domain/entity/user.dart';
 import '../database/app_database.dart';
 
 class LogRepository {
