@@ -133,13 +133,14 @@ class _DashboardTabState extends ConsumerState<DashboardTab> {
             padding: const EdgeInsets.fromLTRB(16, 40, 16, 8),
             child: Column(
               children: [
-                Text('想改变，就从这里开始', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w300)),
+                Text('准备好了吗？', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700)),
                 const SizedBox(height: 4),
-                Text('不管之前尝试过多少次，每一次都是新的机会', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                Text('选一个好日子，正式开始', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                 const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => context.push('/onboarding/assessment'),
-                  child: const Text('开始'),
+                ElevatedButton.icon(
+                  onPressed: () => context.push('/preparation/quit-date'),
+                  icon: const Icon(Icons.edit_calendar),
+                  label: const Text('选择开始日期'),
                 ),
               ],
             ),
