@@ -45,7 +45,7 @@ class _MoneyTimelineVisualizationState extends State<MoneyTimelineVisualization>
     // Animate longer when there are more years to show.
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(
+      duration: Duration)(
         milliseconds: 1200 + widget.yearsOfUse * 200,
       ),
     )..forward();
