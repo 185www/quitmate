@@ -19,6 +19,7 @@ import '../../core/security/encryption_service.dart';
 import '../../data/source/content_loader.dart';
 import '../../core/router/app_router.dart';
 import '../../core/health/health_data_service.dart';
+import '../../core/privacy/pipl_consent_service.dart';
 
 final appDatabaseProvider = Provider((ref) => AppDatabase());
 final encryptionServiceProvider = Provider((ref) => EncryptionService());
@@ -59,6 +60,11 @@ final appThemeProvider = Provider((ref) => AppTheme());
 final healthServiceProvider = Provider((ref) {
   final db = ref.watch(appDatabaseProvider);
   return SelfReportHealthService(db);
+});
+
+final piplConsentServiceProvider = Provider((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return PiplConsentService(db);
 });
 
 final appRouterProvider = Provider((ref) {

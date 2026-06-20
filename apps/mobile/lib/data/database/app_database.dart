@@ -16,7 +16,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 7,
+      version: 8,
       onCreate: (db, version) async => _createTables(db),
       onUpgrade: (db, oldV, newV) async {
         if (oldV < 2) {
@@ -46,6 +46,9 @@ class AppDatabase {
         }
         if (oldV < 7) {
           await _createHealthDataTable(db);
+        }
+        if (oldV < 8) {
+          await _createAppConfigTable(db);
         }
       },
     );
@@ -126,8 +129,19 @@ class AppDatabase {
 
     await _createGameProfileTable(db);
     await _createHealthDataTable(db);
+    await _createAppConfigTable(db);
 
     await _seedBadges(db);
+  }
+
+  Future<void> _createAppConfigTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS app_config (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )
+    ''');
   }
 
   Future<void> _createHealthDataTable(Database db) async {
@@ -341,5 +355,28 @@ class AppDatabase {
   Future<int> deleteRelapsePlan(int id) async {
     final db = await database;
     return db.delete('relapse_plan', where: 'id = ?', whereArgs: [id]);
+  }
+
+  // App config (key-value store)
+  Future<String?> getConfig(String key) async {
+    final db = await database;
+    final results = await db.query(
+      'app_config',
+      columns: ['value'],
+      where: 'key = ?',
+      whereArgs: [key],
+      limit: 1,
+    );
+    return results.isNotEmpty ? results.first['value'] as String? : null;
+  }
+
+  Future<void> setConfig(String key, String value) async {
+    final db = await database;
+    final now = DateTime.now().toIso8601String();
+    await db.insert(
+      'app_config',
+      {'key': key, 'value': value, 'updated_at': now},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 }

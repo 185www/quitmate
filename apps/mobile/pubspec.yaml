@@ -14,40 +14,40 @@ dependencies:
     sdk: flutter
 
   # 状态管理
-  flutter_riverpod: ^2.4.0
+  flutter_riverpod: ^2.5.1
 
   # 本地数据库
   sqflite: ^2.3.0
   path_provider: ^2.1.0
   path: ^1.8.0
 
-  # 加密存储
-  flutter_secure_storage: ^9.0.0
+  # 加密存储 (v10修复Android数据丢失问题)
+  flutter_secure_storage: ^10.0.0
   encrypt: ^5.0.0
 
-  # 本地通知
-  flutter_local_notifications: ^17.0.0
-  timezone: ^0.9.0
+  # 本地通知 (v18+支持Android 14+ POST_NOTIFICATIONS)
+  flutter_local_notifications: ^18.0.0
+  timezone: ^0.10.0
 
-  # 文件/分享/导出
-  share_plus: ^7.0.0
+  # 文件/分享/导出 (v10+支持Android 13+分享Intent)
+  share_plus: ^10.0.0
 
   # 路由
-  go_router: ^14.0.0
+  go_router: ^14.6.0
 
   # 桌面小组件
-  home_widget: ^0.7.0
+  home_widget: ^0.7.0 # 注意: 0.9.x需要较大适配，暂保持当前版本
 
   # HTTP客户端（LLM集成）
   http: ^1.1.0
 
   # 工具库
-  intl: ^0.19.0
+  intl: ^0.19.0 # 注意: 0.20.x有breaking changes，暂保持当前版本
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^3.0.0
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true
