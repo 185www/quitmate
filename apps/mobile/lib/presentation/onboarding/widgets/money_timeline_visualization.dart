@@ -431,7 +431,7 @@ class _TimelineEntryWidget extends StatelessWidget {
                                 ),
                             );
                           }
-                        ),
+                        )),
                     ],
                     const SizedBox(height: 4),
                   ],
