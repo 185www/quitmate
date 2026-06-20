@@ -20,6 +20,8 @@ import '../../data/source/content_loader.dart';
 import '../../core/router/app_router.dart';
 import '../../core/health/health_data_service.dart';
 import '../../core/privacy/pipl_consent_service.dart';
+import '../../core/relapse/relapse_tolerance_service.dart';
+import '../../core/llm/llm_policy.dart';
 
 final appDatabaseProvider = Provider((ref) => AppDatabase());
 final encryptionServiceProvider = Provider((ref) => EncryptionService());
@@ -65,6 +67,14 @@ final healthServiceProvider = Provider((ref) {
 final piplConsentServiceProvider = Provider((ref) {
   final db = ref.watch(appDatabaseProvider);
   return PiplConsentService(db);
+});
+
+final relapseToleranceServiceProvider =
+    Provider((ref) => RelapseToleranceService());
+
+final llmPolicyProvider = Provider((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return LlmPolicy(db);
 });
 
 final appRouterProvider = Provider((ref) {
