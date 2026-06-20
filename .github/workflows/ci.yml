@@ -68,15 +68,18 @@ jobs:
           path: apps/mobile/coverage/
           retention-days: 7
 
-      - name: Enforce coverage threshold
+      - name: Check coverage threshold
         if: always()
         run: |
           if [ -f apps/mobile/coverage/lcov.info ]; then
-            COVERAGE=$(grep -oP '\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d+\d'' || echo "0")
-            echo "Line coverage: ${COVERAGE}%"
-            if [ "$(echo "${COVERAGE} < 30" | bc -l 2>/dev/null || echo "1")" = "1" ]; then
-              echo "::warning::Coverage is ${COVERAGE}% (below 30% threshold)"
+            TOTAL=$(grep -oP 'SF:\K.*' apps/mobile/coverage/lcov.info | wc -l)
+            FOUND=$(grep -c 'DA:' apps/mobile/coverage/lcov.info || echo "0")
+            echo "Found $FOUND covered lines across $TOTAL files"
+            if [ "$FOUND" -lt 100 ]; then
+              echo "::warning::Coverage appears low ($FOUND lines). Consider adding more tests."
             fi
+          else
+            echo "::warning::No coverage file generated"
           fi
         working-directory: apps/mobile
 

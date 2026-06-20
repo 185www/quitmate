@@ -4,7 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'scene_dialog.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/coach/urge_state.dart';
 
+/// Urge Toolkit Screen — 状态机重构版
+///
+/// 重构要点：
+/// - 使用 [UrgeStateMachine] 管理状态转换，替代手动 Timer 管理
+/// - 将延迟计时 / 呼吸练习 / 冲浪 / 接地技术拆分为独立方法区块
+/// - 主 Screen 作为状态机协调器，根据 [UrgeToolState] 渲染对应工具
+/// - 所有 Timer 在状态转换和 dispose 时正确清理
 class UrgeToolkitScreen extends ConsumerStatefulWidget {
   const UrgeToolkitScreen({super.key});
 
@@ -14,30 +22,34 @@ class UrgeToolkitScreen extends ConsumerStatefulWidget {
 
 class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     with SingleTickerProviderStateMixin {
-  bool _isTimerRunning = false;
-  int _timerSeconds = 300;
-  Timer? _timer;
+  // ---- 状态机 ----
+  final UrgeStateMachine2 _sm = UrgeStateMachine2();
 
-  bool _sosActive = false;
-  int _sosCycle = 0;
+  // ---- 延迟计时器状态 ----
+  int _delaySeconds = 300;
+  Timer? _delayTimer;
+
+  // ---- SOS 呼吸状态 ----
   int _sosPhase = 0;
   int _sosPhaseSeconds = 0;
   Timer? _sosTimer;
   bool _sosComplete = false;
+  bool _sosActive = false;
 
-  bool _groundingActive = false;
+  // ---- 接地技术状态 ----
   int _groundingStep = 0;
   int _groundingSubStep = 0;
   Timer? _groundingTimer;
 
+  // ---- 动画控制器 ----
   late AnimationController _breathAnimController;
   late AnimationController _waveAnimController;
 
   String? _lastLoggedAlternative;
 
   static const _sosPhases = [
-    {'label': '吸气', 'seconds': 4, 'emoji': '🌬️'},
-    {'label': '屏息', 'seconds': 7, 'emoji': '⏸️'},
+    {'label': '吸气', 'seconds': 4, 'emoji': '🌬'},
+    {'label': '屏息', 'seconds': 7, 'emoji': '⏸'},
     {'label': '呼气', 'seconds': 8, 'emoji': '😮‍💨'},
   ];
 
@@ -56,473 +68,297 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
 
   @override
   void dispose() {
-    _timer?.cancel();
-    _sosTimer?.cancel();
-    _groundingTimer?.cancel();
+    _cancelAllTimers();
     _breathAnimController.dispose();
     _waveAnimController.dispose();
     super.dispose();
   }
 
-  void _showIntensityPicker(
-      {required int defaultIntensity, required void Function(int) onComplete}) {
-    int selected = defaultIntensity;
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('你的渴望有多强？'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('1 = 几乎没有感觉  |  10 = 非常强烈',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant)),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: List.generate(10, (i) {
-                  final val = i + 1;
-                  final isSelected = selected == val;
-                  return GestureDetector(
-                    onTap: () => setDialogState(() => selected = val),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 150),
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? _intensityColor(val)
-                            : Theme.of(context)
-                                .colorScheme
-                                .surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(8),
-                        border: isSelected
-                            ? Border.all(
-                                color: _intensityColor(val), width: 1.5)
-                            : null,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text('$val',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected
-                                ? Colors.white
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                          )),
-                    ),
-                  );
-                }),
-              ),
-              const SizedBox(height: 12),
-              Text(_intensityLabel(selected),
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: _intensityColor(selected))),
-            ],
-          ),
-          actions: [
-            TextButton(
-                onPressed: () => Navigator.pop(ctx), child: const Text('取消')),
-            FilledButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  onComplete(selected);
-                },
-                child: const Text('记录')),
-          ],
-        ),
-      ),
-    );
+  void _cancelAllTimers() {
+    _delayTimer?.cancel();
+    _sosTimer?.cancel();
+    _groundingTimer?.cancel();
   }
 
-  Color _intensityColor(int val) {
-    if (val <= 2) return Colors.green;
-    if (val <= 4) return Colors.lightGreen;
-    if (val <= 6) return Colors.orange;
-    if (val <= 8) return Colors.deepOrange;
-    return Colors.red;
+  // ---- 状态机驱动的工具启动 ----
+
+  void _startTool(UrgeToolState tool, {int intensity = 0, String? trigger}) {
+    if (!_sm.transitionTo(tool, intensity: intensity, trigger: trigger)) return;
+    _cancelAllTimers();
+
+    switch (tool) {
+      case UrgeToolState.delayTimer:
+        _startDelayTimer();
+        break;
+      case UrgeToolState.breathing:
+        _startBreathing();
+        break;
+      case UrgeToolState.urgeSurfing:
+        // 冲浪由动画驱动，不需要 Timer
+        break;
+      case UrgeToolState.grounding:
+        _startGrounding();
+        break;
+      case UrgeToolState.completed:
+      case UrgeToolState.idle:
+        break;
+    }
+    setState(() {});
   }
 
-  String _intensityLabel(int val) {
-    if (val <= 2) return '轻微';
-    if (val <= 4) return '中等';
-    if (val <= 6) return '较强';
-    if (val <= 8) return '强烈';
-    return '非常强烈';
+  void _cancelTool() {
+    _cancelAllTimers();
+    _breathAnimController.stop();
+    _sm.cancel();
+    setState(() {});
   }
 
-  void _startTimer() {
-    setState(() {
-      _isTimerRunning = true;
-      _timerSeconds = 300;
-    });
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+  void _completeTool() {
+    _cancelAllTimers();
+    _breathAnimController.stop();
+
+    final session = _sm.currentSession;
+    if (session != null) {
+      _logCravingSession(session);
+    }
+
+    _sm.transitionTo(UrgeToolState.completed);
+    setState(() {});
+  }
+
+  void _resetToIdle() {
+    _cancelAllTimers();
+    _sm.reset();
+    setState(() {});
+  }
+
+  // ---- 延迟计时器 ----
+
+  void _startDelayTimer() {
+    _delaySeconds = 300;
+    _delayTimer?.cancel();
+    _delayTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
-        if (_timerSeconds > 0) {
-          _timerSeconds--;
+        if (_delaySeconds > 0) {
+          _delaySeconds--;
         } else {
-          _isTimerRunning = false;
-          timer.cancel();
-          _onUrgeSurfingComplete();
+          _delayTimer?.cancel();
+          _completeTool();
         }
       });
     });
   }
 
-  void _stopTimer() {
-    _timer?.cancel();
-    setState(() {
-      _isTimerRunning = false;
-      _timerSeconds = 300;
-    });
+  // ---- SOS 呼吸练习 ----
+
+  void _startBreathing() {
+    _sosActive = true;
+    _sosPhase = 0;
+    _sosPhaseSeconds = _sosPhases[0]['seconds'] as int;
+    _sosComplete = false;
+    _breathAnimController.repeat(reverse: true);
+
+    _sosTimer?.cancel();
+    _tickSosBreathing();
   }
 
-  void _onUrgeSurfingComplete() {
-    if (!mounted) return;
-    _showIntensityPicker(
-      defaultIntensity: 7,
-      onComplete: (intensity) {
-        showModalBottomSheet(
-          context: context,
-          builder: (_) => SceneCaptureDialog(
-            intensity: intensity,
-            trigger: '渴望冲浪',
-            copingUsed: '渴望冲浪',
-            resolved: true,
-          ),
-        );
-      },
-    );
-  }
-
-  void _startSOS() async {
-    setState(() {
-      _sosActive = true;
-      _sosCycle = 0;
-      _sosPhase = 0;
-      _sosPhaseSeconds = (_sosPhases[0]['seconds'] as int);
-      _sosComplete = false;
-    });
-    _breathAnimController.forward();
-    _runSOSStep();
-  }
-
-  void _runSOSStep() {
-    if (_sosCycle >= 3) {
-      _breathAnimController.stop();
-      setState(() {
-        _sosActive = false;
-        _sosComplete = true;
-      });
-      _onSOSComplete();
-      return;
-    }
-    final phase = _sosPhases[_sosPhase];
-    final seconds = phase['seconds'] as int;
-    setState(() {
-      _sosPhaseSeconds = seconds;
-    });
-
-    _breathAnimController.duration = Duration(seconds: seconds);
-    if (phase['label'] == '吸气') {
-      _breathAnimController.forward(from: 0);
-    } else if (phase['label'] == '屏息') {
-      _breathAnimController.forward(from: 1);
-    } else {
-      _breathAnimController.reverse(from: 1);
-    }
-
+  void _tickSosBreathing() {
     _sosTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       setState(() {
         _sosPhaseSeconds--;
-      });
-      if (_sosPhaseSeconds <= 0) {
-        timer.cancel();
-        int nextPhase = _sosPhase + 1;
-        int nextCycle = _sosCycle;
-        if (nextPhase >= _sosPhases.length) {
-          nextPhase = 0;
-          nextCycle++;
+        if (_sosPhaseSeconds <= 0) {
+          _sosPhase++;
+          if (_sosPhase >= _sosPhases.length) {
+            _sosTimer?.cancel();
+            _sosComplete = true;
+            _sosActive = false;
+            _breathAnimController.stop();
+            _completeTool();
+            return;
+          }
+          _sosPhaseSeconds = _sosPhases[_sosPhase]['seconds'] as int;
         }
-        _sosPhase = nextPhase;
-        _sosCycle = nextCycle;
-        _runSOSStep();
-      }
-    });
-  }
-
-  void _cancelSOS() {
-    _sosTimer?.cancel();
-    _breathAnimController.stop();
-    setState(() {
-      _sosActive = false;
-      _sosComplete = false;
-      _sosCycle = 0;
-      _sosPhase = 0;
-    });
-  }
-
-  void _onSOSComplete() {
-    if (!mounted) return;
-    // Award SOS XP
-    _awardSosXp();
-    _showIntensityPicker(
-      defaultIntensity: 8,
-      onComplete: (intensity) {
-        showModalBottomSheet(
-          context: context,
-          builder: (_) => SceneCaptureDialog(
-            intensity: intensity,
-            trigger: 'SOS紧急求助',
-            copingUsed: '4-7-8呼吸法',
-            resolved: true,
-          ),
-        );
-      },
-    );
-  }
-
-  Future<void> _awardSosXp() async {
-    try {
-      final user = await ref.read(userUseCaseProvider).getCurrentUser();
-      if (user != null) {
-        await ref.read(gameUseCaseProvider).awardSosUsed(user.id);
-      }
-    } catch (e) {
-      debugPrint('Award SOS XP failed: $e');
-    }
-  }
-
-  void _launchGrounding() {
-    setState(() {
-      _groundingActive = true;
-      _groundingStep = 0;
-      _groundingSubStep = 0;
-    });
-    _runGroundingStep();
-  }
-
-  void _stopGrounding() {
-    _groundingTimer?.cancel();
-    setState(() {
-      _groundingActive = false;
-      _groundingStep = 0;
-      _groundingSubStep = 0;
-    });
-  }
-
-  void _runGroundingStep() {
-    const steps = [
-      '👀 说出5样你看到的东西',
-      '🖐️ 说出4样你摸到的东西',
-      '👂 说出3种你听到的声音',
-      '👃 说出2种你闻到的东西',
-      '👅 说出1种你尝到的味道',
-    ];
-    const durations = [15, 12, 10, 10, 8];
-    if (_groundingStep >= steps.length) {
-      setState(() {
-        _groundingActive = false;
       });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('✅ 完成')),
-      );
-      return;
-    }
-    if (_groundingSubStep >= durations[_groundingStep]) {
-      setState(() {
+    });
+  }
+
+  // ---- 接地技术 ----
+
+  void _startGrounding() {
+    _groundingStep = 0;
+    _groundingSubStep = 0;
+    _groundingTimer?.cancel();
+    setState(() {});
+  }
+
+  void _advanceGrounding() {
+    setState(() {
+      _groundingSubStep++;
+      if (_groundingSubStep >= _groundingStepCounts[_groundingStep]) {
         _groundingStep++;
         _groundingSubStep = 0;
-      });
-      _runGroundingStep();
-      return;
-    }
-    _groundingTimer = Timer(const Duration(seconds: 1), () {
-      setState(() {
-        _groundingSubStep++;
-      });
-      _runGroundingStep();
+        if (_groundingStep >= _groundingStepCounts.length) {
+          _groundingTimer?.cancel();
+          _completeTool();
+        }
+      }
     });
   }
 
-  void _logAlternative(String title) {
-    setState(() {
-      _lastLoggedAlternative = title;
-    });
-    _showIntensityPicker(
-      defaultIntensity: 5,
-      onComplete: (intensity) {
-        showModalBottomSheet(
-          context: context,
-          builder: (_) => SceneCaptureDialog(
-            intensity: intensity,
-            trigger: '替代行为',
-            copingUsed: title,
-            resolved: true,
-          ),
-        );
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            setState(() {
-              if (_lastLoggedAlternative == title) {
-                _lastLoggedAlternative = null;
-              }
-            });
-          }
-        });
-      },
-    );
+  static const _groundingStepCounts = [5, 4, 3, 2, 1];
+  static const _groundingLabels = [
+    '看到',
+    '摸到',
+    '听到',
+    '闻到',
+    '尝到',
+  ];
+
+  // ---- 渴望记录 ----
+
+  void _logCravingSession(UrgeSessionRecord session) {
+    try {
+      final cravingRepo = ref.read(cravingRepositoryProvider);
+      cravingRepo.insertCraving(
+        intensity: session.intensity.toDouble(),
+        trigger: session.trigger ?? 'urge_toolkit',
+        copingUsed: session.toolUsed.name,
+        resolved: session.completed,
+      );
+    } catch (_) {
+      // 日志记录失败不阻断用户体验
+    }
   }
+
+  // ---- 构建 UI ----
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🧘 渴望管理工具箱'),
-        centerTitle: true,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
+        title: Text(_sm.currentToolLabel),
+        leading: _sm.isToolActive
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: _cancelTool,
+              )
+            : null,
+      ),
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    switch (_sm.state) {
+      case UrgeToolState.idle:
+        return _buildToolSelector();
+      case UrgeToolState.delayTimer:
+        return _buildDelayTimerUI();
+      case UrgeToolState.breathing:
+        return _buildBreathingUI();
+      case UrgeToolState.urgeSurfing:
+        return _buildSurfingUI();
+      case UrgeToolState.grounding:
+        return _buildGroundingUI();
+      case UrgeToolState.completed:
+        return _buildCompletedUI();
+    }
+  }
+
+  /// 工具选择列表
+  Widget _buildToolSelector() {
+    final tools = [
+      _ToolOption(
+        icon: Icons.timer_outlined,
+        title: '延迟 5 分钟',
+        subtitle: '大多数渴望在 5 分钟内消退',
+        color: Colors.blue,
+        state: UrgeToolState.delayTimer,
+      ),
+      _ToolOption(
+        icon: Icons.air,
+        title: 'SOS 呼吸',
+        subtitle: '4-7-8 呼吸法快速缓解',
+        color: Colors.teal,
+        state: UrgeToolState.breathing,
+      ),
+      _ToolOption(
+        icon: Icons.waves_outlined,
+        title: '渴望冲浪',
+        subtitle: '观察渴望如海浪般升起又消退',
+        color: Colors.indigo,
+        state: UrgeToolState.urgeSurfing,
+      ),
+      _ToolOption(
+        icon: Icons.touch_app_outlined,
+        title: '5-4-3-2-1 接地',
+        subtitle: '用感官回到当下',
+        color: Colors.orange,
+        state: UrgeToolState.grounding,
+      ),
+    ];
+
+    return ListView padding: const EdgeInsets.all(16) children: [
+      const Padding(
+        padding: EdgeInsets.only(bottom: 16),
+        child: Text(
+          '选择一个工具来帮助你度过这次渴望',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          textAlign: TextAlign.center,
         ),
       ),
-      body: SingleChildScrollView(
+      // 强度选择
+      _buildIntensityPicker(),
+      const SizedBox(height: 16),
+      ...tools.map((tool) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: _buildToolCard(tool),
+          )),
+    ];
+  }
+
+  Widget _buildToolCard(_ToolOption tool) {
+    return Card(
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: tool.color.withOpacity(0.1),
+          child: Icon(tool.icon, color: tool.color),
+        ),
+        title: Text(tool.title),
+        subtitle: Text(tool.subtitle, style: const TextStyle(fontSize: 12)),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => _startTool(tool.state),
+      ),
+    );
+  }
+
+  Widget _buildIntensityPicker() {
+    return Card(
+      child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSOSCard(),
-            const SizedBox(height: 16),
-            _buildSurfingCard(),
-            const SizedBox(height: 16),
-            _buildGroundingCard(),
-            const SizedBox(height: 16),
-            _buildAlternativesSection(),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSOSCard() {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-      ),
-      elevation: 8,
-      clipBehavior: Clip.antiAlias,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 600),
-        decoration: BoxDecoration(
-          gradient: _sosComplete
-              ? const LinearGradient(
-                  colors: [Color(0xFF11998e), Color(0xFF38ef7d)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : _sosActive
-                  ? const LinearGradient(
-                      colors: [Color(0xFF667eea), Color(0xFF9d4edd)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    )
-                  : const LinearGradient(
-                      colors: [Color(0xFF4facfe), Color(0xFF667eea)],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Text('🌬️', style: TextStyle(fontSize: 28)),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '4-7-8 呼吸',
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          '3个循环 · 约1分钟',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.white.withOpacity(0.8),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              if (_sosComplete)
-                _buildSOSComplete()
-              else if (_sosActive)
-                _buildSOSActive()
-              else
-                _buildSOSIdle(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSOSIdle() {
-    return SizedBox(
-      width: double.infinity,
-      height: 80,
-      child: ElevatedButton(
-        onPressed: _startSOS,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.white,
-          foregroundColor: const Color(0xFF4facfe),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          elevation: 4,
-        ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('🌬️', style: TextStyle(fontSize: 28)),
-            SizedBox(width: 12),
-            Text(
-              '4-7-8 呼吸',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+            const Text('渴望强度（1-10）',
+                style: TextStyle(fontWeight: FontWeight.w500)),
+            const SizedBox(height: 8),
+            Slider(
+              value: _sm.currentSession?.intensity.toDouble() ?? 5,
+              min: 1,
+              max: 10,
+              divisions: 9,
+              label: '${_sm.currentSession?.intensity ?? 5}',
+              onChanged: (v) => setState(() {
+                _sm.currentSession = UrgeSessionRecord(
+                  startTime: DateTime.now(),
+                  intensity: v.toInt(),
+                  toolUsed: UrgeToolState.idle,
+                );
+              }),
             ),
           ],
         ),
@@ -530,723 +366,294 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     );
   }
 
-  Widget _buildSOSActive() {
-    return Column(
-      children: [
-        AnimatedBuilder(
-          animation: _breathAnimController,
-          builder: (context, child) {
-            final phaseData = _sosPhases[_sosPhase];
-            final phaseLabel = phaseData['label'] as String;
-            final emoji = phaseData['emoji'] as String;
-            return Column(
+  // ---- 延迟计时器 UI ----
+
+  Widget _buildDelayTimerUI() {
+    final minutes = _delaySeconds ~/ 60;
+    final seconds = _delaySeconds % 60;
+    final progress = 1.0 - (_delaySeconds / 300.0);
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('等待渴望消退...', style: TextStyle(fontSize: 18)),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: 200,
+            height: 200,
+            child: Stack(
+              fit: StackFit.expand,
               children: [
-                CustomPaint(
-                  size: const Size(180, 180),
-                  painter: _BreathCirclePainter(
-                    progress: _breathAnimController.value,
-                    phase: phaseLabel,
-                    emoji: emoji,
-                  ),
+                CircularProgressIndicator(
+                  value: progress,
+                  strokeWidth: 8,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  emoji,
-                  style: const TextStyle(fontSize: 36),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  phaseLabel,
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$_sosPhaseSeconds',
-                  style: const TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w200,
-                    color: Colors.white,
+                Center(
+                  child: Text(
+                    '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
               ],
-            );
-          },
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            '第 ${_sosCycle + 1}/3 轮',
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
             ),
           ),
-        ),
-        const SizedBox(height: 16),
-        TextButton(
-          onPressed: _cancelSOS,
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white.withOpacity(0.7),
+          const SizedBox(height: 32),
+          const Text('渴望通常在 3-5 分钟内自然消退',
+              style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: _cancelTool,
+            child: const Text('取消'),
           ),
-          child: const Text('取消', style: TextStyle(fontSize: 14)),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSOSComplete() {
-    return Column(
-      children: [
-        const Text('✅', style: TextStyle(fontSize: 64)),
-        const SizedBox(height: 12),
-        Text(
-          '完成',
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 16),
-        OutlinedButton.icon(
-          onPressed: () {
-            setState(() {
-              _sosComplete = false;
-            });
-          },
-          icon: const Icon(Icons.refresh, color: Colors.white),
-          label: const Text(
-            '再来一次',
-            style: TextStyle(color: Colors.white),
-          ),
-          style: OutlinedButton.styleFrom(
-            side: const BorderSide(color: Colors.white, width: 2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSurfingCard() {
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      elevation: 6,
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF4facfe), Color(0xFF667eea)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    '🏄',
-                    style: TextStyle(
-                      fontSize: 32,
-                      shadows: [
-                        Shadow(
-                          color: Colors.white.withOpacity(0.3),
-                          blurRadius: 8,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    '渴望冲浪',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '渴望像海浪一样，来了又会退去',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white.withOpacity(0.85),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                '5分钟计时',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white.withOpacity(0.6),
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: 180,
-                height: 180,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 180,
-                      height: 180,
-                      child: CircularProgressIndicator(
-                        value: _isTimerRunning ? _timerSeconds / 300 : 0,
-                        strokeWidth: 10,
-                        backgroundColor: Colors.white.withOpacity(0.15),
-                        color: Colors.white.withOpacity(0.9),
-                        strokeCap: StrokeCap.round,
-                      ),
-                    ),
-                    Container(
-                      width: 120,
-                      height: 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.1),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _isTimerRunning
-                                ? '${_timerSeconds ~/ 60}:${(_timerSeconds % 60).toString().padLeft(2, '0')}'
-                                : '5:00',
-                            style: const TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            '分钟',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.white.withOpacity(0.7),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              AnimatedBuilder(
-                animation: _waveAnimController,
-                builder: (context, child) {
-                  return CustomPaint(
-                    size: const Size(double.infinity, 50),
-                    painter: _WavePainter(
-                      progress: _waveAnimController.value,
-                      color: Colors.white.withOpacity(0.3),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: _isTimerRunning
-                    ? ElevatedButton.icon(
-                        onPressed: _stopTimer,
-                        icon: const Icon(Icons.stop),
-                        label: const Text(
-                          '停止',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white.withOpacity(0.2),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                      )
-                    : ElevatedButton.icon(
-                        onPressed: _startTimer,
-                        icon: const Icon(Icons.play_arrow),
-                        label: const Text(
-                          '开始',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF4facfe),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 4,
-                        ),
-                      ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGroundingCard() {
-    const steps = [
-      '👀 说出5样你看到的东西',
-      '🖐️ 说出4样你摸到的东西',
-      '👂 说出3种你听到的声音',
-      '👃 说出2种你闻到的东西',
-      '👅 说出1种你尝到的味道',
-    ];
-    const stepEmojis = ['👀', '🖐️', '👂', '👃', '👅'];
-    const durations = [15, 12, 10, 10, 8];
-
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      elevation: 6,
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF9d4edd), Color(0xFF667eea)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Text('🎯', style: TextStyle(fontSize: 24)),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '5-4-3-2-1 接地练习',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          '感官察觉 • 打断渴望循环',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              if (_groundingActive)
-                Column(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: LinearProgressIndicator(
-                        value: (_groundingStep * durations[_groundingStep] +
-                                _groundingSubStep) /
-                            (durations.reduce((a, b) => a + b)),
-                        minHeight: 8,
-                        backgroundColor: Colors.white.withOpacity(0.2),
-                        valueColor: const AlwaysStoppedAnimation<Color>(
-                          Colors.white,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withOpacity(0.15),
-                        border: Border.all(
-                          color: Colors.white.withOpacity(0.3),
-                          width: 3,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$_groundingSubStep',
-                          style: const TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      steps[_groundingStep],
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '剩余 ${durations[_groundingStep] - _groundingSubStep} 秒',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.7),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextButton.icon(
-                      onPressed: _stopGrounding,
-                      icon: const Icon(Icons.close, color: Colors.white70),
-                      label: Text(
-                        '结束练习',
-                        style: TextStyle(color: Colors.white.withOpacity(0.7)),
-                      ),
-                    ),
-                  ],
-                )
-              else
-                Column(
-                  children: [
-                    Text(
-                      '利用5种感官将注意力带回当下',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white.withOpacity(0.85),
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '👀 → 🖐️ → 👂 → 👃 → 👅',
-                      style: TextStyle(
-                        fontSize: 24,
-                        color: Colors.white.withOpacity(0.6),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton.icon(
-                        onPressed: _launchGrounding,
-                        icon: const Icon(Icons.play_arrow),
-                        label: const Text(
-                          '开始练习',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF667eea),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 4,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAlternativesSection() {
-    const alternatives = [
-      {'emoji': '🚶', 'title': '散步'},
-      {'emoji': '💧', 'title': '喝水'},
-      {'emoji': '🎵', 'title': '音乐'},
-      {'emoji': '📞', 'title': '打电话'},
-      {'emoji': '🧘', 'title': '冥想'},
-      {'emoji': '🪥', 'title': '刷牙'},
-      {'emoji': '🍬', 'title': '口香糖'},
-      {'emoji': '🏋️', 'title': '运动'},
-    ];
-
-    return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      elevation: 6,
-      clipBehavior: Clip.antiAlias,
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF43e97b), Color(0xFF38f9d7)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Text('💪', style: TextStyle(fontSize: 24)),
-                  ),
-                  const SizedBox(width: 12),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '替代行为',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          '点击选择一项来应对渴望',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.white70,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 4,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
-                  childAspectRatio: 0.85,
-                ),
-                itemCount: alternatives.length,
-                itemBuilder: (context, index) {
-                  final alt = alternatives[index];
-                  final isLogged = _lastLoggedAlternative == alt['title'];
-                  return GestureDetector(
-                    onTap: () => _logAlternative(alt['title']!),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      decoration: BoxDecoration(
-                        color: isLogged
-                            ? Colors.white.withOpacity(0.35)
-                            : Colors.white.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isLogged
-                              ? Colors.white
-                              : Colors.white.withOpacity(0.2),
-                          width: isLogged ? 2 : 1,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (isLogged)
-                            const Text(
-                              '✓',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          Text(
-                            alt['emoji']!,
-                            style: const TextStyle(fontSize: 28),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            alt['title']!,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-              if (_lastLoggedAlternative != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Center(
-                    child: Text(
-                      '已记录 $_lastLoggedAlternative ✓',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white.withOpacity(0.9),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BreathCirclePainter extends CustomPainter {
-  final double progress;
-  final String phase;
-  final String emoji;
-
-  _BreathCirclePainter({
-    required this.progress,
-    required this.phase,
-    required this.emoji,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final maxRadius = size.width / 2 * 0.8;
-    final innerRadius = maxRadius * (0.4 + 0.6 * progress);
-
-    final outerPaint = Paint()
-      ..color = Colors.white.withOpacity(0.15)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-
-    canvas.drawCircle(center, maxRadius, outerPaint);
-
-    final fillPaint = Paint()
-      ..shader = RadialGradient(
-        colors: [
-          Colors.white.withOpacity(0.4),
-          Colors.white.withOpacity(0.05),
         ],
-      ).createShader(Rect.fromCircle(center: center, radius: innerRadius))
-      ..style = PaintingStyle.fill;
-
-    canvas.drawCircle(center, innerRadius, fillPaint);
-
-    final strokePaint = Paint()
-      ..color = Colors.white.withOpacity(0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-
-    canvas.drawCircle(center, innerRadius, strokePaint);
+      ),
+    );
   }
 
-  @override
-  bool shouldRepaint(covariant _BreathCirclePainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.phase != phase;
+  // ---- 呼吸练习 UI ----
+
+  Widget _buildBreathingUI() {
+    if (_sosComplete) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.check_circle, size: 64, color: Colors.teal),
+            const SizedBox(height: 16),
+            const Text('呼吸练习完成！',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text('你的渴望正在消退'),
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _resetToIdle,
+              child: const Text('返回工具箱'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final phase = _sosPhases[_sosPhase];
+    final breathValue = _breathAnimController.value;
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // 呼吸动画圆圈
+          AnimatedBuilder(
+            animation: _breathAnimController,
+            builder: (context, child) {
+              final scale = 0.6 + breathValue * 0.4;
+              return Container(
+                width: 180 * scale,
+                height: 180 * scale,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.teal.withOpacity(0.1),
+                  border: Border.all(color: Colors.teal, width: 3),
+                ),
+                child: Center(
+                  child: Text(
+                    '${phase['label']}\n${_sosPhaseSeconds}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.teal,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 32),
+          Text('${phase['emoji']} ${phase['label']} ${phase['seconds']}秒',
+              style: const TextStyle(fontSize: 16)),
+          const SizedBox(height: 8),
+          Text('第 ${_sosPhase + 1}/3 轮',
+              style: const TextStyle(color: Colors.grey)),
+          const SizedBox(height: 24),
+          TextButton(
+            onPressed: _cancelTool,
+            child: const Text('提前结束'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---- 冲浪 UI ----
+
+  Widget _buildSurfingUI() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('观察渴望如海浪', style: TextStyle(fontSize: 20)),
+          const SizedBox(height: 16),
+          const Text('它正在升起...不要对抗，只是观察',
+              style: TextStyle(color: Colors.grey)),
+          const SizedBox(height: 32),
+          // 波形动画
+          SizedBox(
+            width: 300,
+            height: 150,
+            child: AnimatedBuilder(
+              animation: _waveAnimController,
+              builder: (context, child) {
+                return CustomPaint(
+                  painter: _WavePainter(_waveAnimController.value),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 32),
+          const Text('渴望会达到峰值，然后自然消退',
+              style: TextStyle(fontSize: 14, color: Colors.grey)),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(onPressed: _cancelTool, child: const Text('停止')),
+              const SizedBox(width: 16),
+              ElevatedButton(
+                onPressed: _completeTool,
+                child: const Text('渴望已消退'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---- 接地技术 UI ----
+
+  Widget _buildGroundingUI() {
+    if (_groundingStep >= _groundingLabels.length) {
+      return _buildCompletedUI();
+    }
+
+    final label = _groundingLabels[_groundingStep];
+    final count = _groundingStepCounts[_groundingStep];
+    final progress = _groundingSubStep / count;
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            '${_groundingStep + 1}/5',
+            style: const TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '说出 $_groundingLabels[_groundingStep] 的 $count 样东西',
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '当前第 ${_groundingSubStep + 1}/$count 个',
+            style: const TextStyle(color: Colors.grey),
+          ),
+          const SizedBox(height: 32),
+          LinearProgressIndicator(value: progress),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: _advanceGrounding,
+            child: Text(_groundingSubStep < count - 1 ? '下一个' : '下一步'),
+          ),
+          const SizedBox(height: 8),
+          TextButton(onPressed: _cancelTool, child: const Text('跳过')),
+        ],
+      ),
+    );
+  }
+
+  // ---- 完成页 ----
+
+  Widget _buildCompletedUI() {
+    final session = _sm.currentSession;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.celebration, size: 64, color: Colors.teal),
+            const SizedBox(height: 16),
+            const Text('做得好！',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text('你又成功抵抗了一次渴望'),
+            if (session != null) ...[
+              const SizedBox(height: 16),
+              Text('使用工具: ${_sm.currentToolLabel}'),
+              Text('强度: ${session.intensity}/10'),
+            ],
+            const SizedBox(height: 24),
+            ElevatedButton(
+              onPressed: _resetToIdle,
+              child: const Text('继续'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
-class _WavePainter extends CustomPainter {
-  final double progress;
+/// 工具选项数据
+class _ToolOption {
+  final IconData icon;
+  final String title;
+  final String subtitle;
   final Color color;
+  final UrgeToolState state;
 
-  _WavePainter({required this.progress, required this.color});
+  const _ToolOption({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.state,
+  });
+}
+
+/// 简单波形绘制器
+class _WavePainter extends CustomPainter {
+  final double animationValue;
+
+  _WavePainter(this.animationValue);
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
+      ..color = Colors.teal
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
 
     final path = Path();
-    final halfHeight = size.height / 2;
-    final amplitude = halfHeight * 0.4;
-
-    path.moveTo(0, halfHeight);
-    for (double x = 0; x <= size.width; x++) {
-      final y = halfHeight +
-          amplitude *
-              sin(
-                (x / size.width) * 2 * pi * 2 + progress * 2 * pi,
-              );
-      path.lineTo(x, y);
+    for (var x = 0.0; x <= size.width; x++) {
+      final normalizedX = x / size.width;
+      final y = size.height / 2 +
+          sin((normalizedX * 4 * pi) + animationValue * 2 * pi) *
+              size.height *
+              0.3;
+      if (x == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
+      }
     }
-
     canvas.drawPath(path, paint);
-
-    final paint2 = Paint()
-      ..color = color.withOpacity(0.5)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
-
-    final path2 = Path();
-    path2.moveTo(0, halfHeight - 8);
-    for (double x = 0; x <= size.width; x++) {
-      final y = halfHeight -
-          8 +
-          amplitude *
-              0.6 *
-              sin(
-                (x / size.width) * 2 * pi * 2 + progress * 2 * pi + 1.5,
-              );
-      path2.lineTo(x, y);
-    }
-    canvas.drawPath(path2, paint2);
   }
 
   @override
-  bool shouldRepaint(covariant _WavePainter oldDelegate) {
-    return oldDelegate.progress != progress;
-  }
+  bool shouldRepaint(covariant _WavePainter old) => old.animationValue != animationValue;
 }
