@@ -13,6 +13,7 @@ import 'package:home_widget/home_widget.dart';
 import '../../domain/entity/user.dart';
 import '../../domain/entity/game_profile.dart';
 import '../../domain/entity/daily_log.dart';
+import '../coach/llm_service.dart';
 
 /// 小组件数据模型
 class WidgetData {
@@ -28,6 +29,7 @@ class WidgetData {
   final int dailyTasksCompleted;
   final int dailyTasksTotal;
   final String tipOfTheDay;
+  final String personalizedInsight;
 
   const WidgetData({
     this.userName = '',
@@ -42,6 +44,7 @@ class WidgetData {
     this.dailyTasksCompleted = 0,
     this.dailyTasksTotal = 0,
     this.tipOfTheDay = '',
+    this.personalizedInsight = '',
   });
 
   Map<String, dynamic> toMap() => {
@@ -57,6 +60,7 @@ class WidgetData {
         'daily_tasks_completed': dailyTasksCompleted,
         'daily_tasks_total': dailyTasksTotal,
         'tip_of_the_day': tipOfTheDay,
+        'personalized_insight': personalizedInsight,
       };
 
   /// 转为 JSON 字符串（用于 Widget 存储）
@@ -75,6 +79,7 @@ class WidgetData {
         dailyTasksCompleted: map['daily_tasks_completed'] as int? ?? 0,
         dailyTasksTotal: map['daily_tasks_total'] as int? ?? 0,
         tipOfTheDay: map['tip_of_the_day'] as String? ?? '',
+        personalizedInsight: map['personalized_insight'] as String? ?? '',
       );
 }
 
@@ -112,6 +117,40 @@ class WidgetTips {
 class WidgetServiceV2 {
   static const _widgetName = 'QuitMateWidget';
   static const _androidWidgetName = 'QuitMateWidgetProvider';
+
+  /// LLM-generated personalized widget insight (cached, refreshed daily)
+  static Future<String> generateWidgetInsight({
+    String? userContext,
+    LlmService? llmService,
+  }) async {
+    // If LLM available and enabled, generate personalized insight
+    if (llmService != null && llmService.isConfigured && userContext != null) {
+      try {
+        final prompt = '''你是一位关心用户的戒断助手。请基于用户数据生成一句简短的桌面组件关怀语。
+
+要求：
+1. 不超过 30 个字
+2. 必须引用用户的具体数据（天数、渴望次数、心情等）
+3. 不要说"加油"之类的空话
+4. 可以是一个问题、一个提醒、或者一个事实
+5. 语气像关心你的朋友，不是老师也不是教练
+6. 不要使用 emoji
+
+$userContext
+
+直接输出一句话，不要引号，不要其他格式。''';
+
+        final response = await llmService.chat([
+          {'role': 'user', 'content': prompt},
+        ]);
+        // Clean and truncate if needed
+        return response.trim().replaceAll(RegExp(r'^["\']|["\']$'), '').substring(0, 40);
+      } catch (_) {
+        // Fall back to static tip
+      }
+    }
+    return WidgetTips.getTipOfTheDay();
+  }
 
   /// 更新 Widget 数据到 HomeWidget
   ///

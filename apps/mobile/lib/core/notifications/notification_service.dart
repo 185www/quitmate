@@ -4,6 +4,13 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:flutter/material.dart';
 
+// NotificationContentGenerator can provide LLM-powered dynamic content for
+// scheduleDailyReminder() and scheduleUrgeReminder() title/body params.
+// Import and call NotificationContentGenerator.generateMorningReminder() or
+// generateUrgeWarning() to produce personalized notification text, then pass
+// the result to the scheduling methods below without changing their signatures.
+// See: notification_content_generator.dart
+
 class NotificationService {
   static final NotificationService instance = NotificationService._();
   NotificationService._();

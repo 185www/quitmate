@@ -211,6 +211,18 @@ class LlmPromptBuilder {
     return buffer.toString();
   }
 
+  /// Builds a compact user context for widget insight generation.
+  /// Optimized for minimal token usage while maintaining personalization.
+  String buildWidgetInsightContext({
+    required int daysSinceQuit,
+    required int streakDays,
+    required int yesterdayMood,
+    required int yesterdayCravingCount,
+    required String riskLevel,
+  }) {
+    return '戒断天数：$daysSinceQuit天，连续打卡：$streakDays天，昨天心情：$yesterdayMood/5，昨天渴望次数：$yesterdayCravingCount次，今日风险等级：$riskLevel';
+  }
+
   /// Calls the LLM to enrich local craving-pattern insights and returns
   /// additional [AnalysisInsight] objects.
   ///
