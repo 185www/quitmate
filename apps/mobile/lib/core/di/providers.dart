@@ -18,6 +18,7 @@ import '../../core/notifications/notification_service.dart';
 import '../../core/security/encryption_service.dart';
 import '../../data/source/content_loader.dart';
 import '../../core/router/app_router.dart';
+import '../../core/health/health_data_service.dart';
 
 final appDatabaseProvider = Provider((ref) => AppDatabase());
 final encryptionServiceProvider = Provider((ref) => EncryptionService());
@@ -54,6 +55,11 @@ final gameUseCaseProvider =
 final notificationServiceProvider =
     Provider((ref) => NotificationService.instance);
 final appThemeProvider = Provider((ref) => AppTheme());
+
+final healthServiceProvider = Provider((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return SelfReportHealthService(db);
+});
 
 final appRouterProvider = Provider((ref) {
   return AppRouter(

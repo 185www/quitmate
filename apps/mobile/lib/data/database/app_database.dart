@@ -16,7 +16,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 6,
+      version: 7,
       onCreate: (db, version) async => _createTables(db),
       onUpgrade: (db, oldV, newV) async {
         if (oldV < 2) {
@@ -43,6 +43,9 @@ class AppDatabase {
         }
         if (oldV < 6) {
           await _createGameProfileTable(db);
+        }
+        if (oldV < 7) {
+          await _createHealthDataTable(db);
         }
       },
     );
@@ -122,8 +125,29 @@ class AppDatabase {
     ''');
 
     await _createGameProfileTable(db);
+    await _createHealthDataTable(db);
 
     await _seedBadges(db);
+  }
+
+  Future<void> _createHealthDataTable(Database db) async {
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS health_data (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL REFERENCES user_profile(id),
+        timestamp TEXT NOT NULL,
+        heart_rate REAL,
+        sleep_hours REAL,
+        stress_level INTEGER,
+        steps_count INTEGER,
+        source TEXT DEFAULT 'self_report'
+      )
+    ''');
+    // Index for fast latest-snapshot queries
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_health_data_user_ts
+      ON health_data(user_id, timestamp DESC)
+    ''');
   }
 
   Future<void> _createGameProfileTable(Database db) async {

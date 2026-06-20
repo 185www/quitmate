@@ -18,6 +18,9 @@ import 'widgets/daily_task_list.dart';
 import 'widgets/companion_preview_card.dart';
 import 'widgets/sos_button_section.dart';
 import 'widgets/milestone_timeline.dart';
+import 'widgets/virtual_plant_card.dart';
+import 'widgets/money_savings_animator.dart';
+import 'widgets/health_insight_card.dart';
 
 /// Modern minimalist dashboard – hero timer, stat cards, check-in,
 /// AI insight card, daily tasks, milestone timeline, and SOS button.
@@ -167,10 +170,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               const SizedBox(height: 6),
               const AiInsightCard(),
               const SizedBox(height: 6),
+              const HealthInsightCard(),
+              const SizedBox(height: 6),
               DailyTaskList(
                 tasks: _dailyTasks,
                 completedTaskIds: _completedTaskIds,
                 onComplete: _completeDailyTask,
+              ),
+              const SizedBox(height: 6),
+              _GamificationSection(
+                userFuture: _userFuture!,
+                gameProfileFuture: _gameProfileFuture!,
               ),
               const SizedBox(height: 6),
               CompanionPreviewCard(userFuture: _userFuture!),
@@ -285,6 +295,72 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+}
+
+// ──────────────────────────────────────────────────────────────
+// GAMIFICATION SECTION (virtual plant + money savings)
+// ──────────────────────────────────────────────────────────────
+
+class _GamificationSection extends StatelessWidget {
+  final Future<User?> userFuture;
+  final Future<GameProfile?> gameProfileFuture;
+
+  const _GamificationSection({
+    required this.userFuture,
+    required this.gameProfileFuture,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<GameProfile?>(
+      future: gameProfileFuture,
+      builder: (context, gameSnap) {
+        final gp = gameSnap.data;
+        return FutureBuilder<User?>(
+          future: userFuture,
+          builder: (context, userSnap) {
+            final user = userSnap.data;
+
+            // Calculate money saved
+            final dailyCost = user?.dailyCostAmount ?? 0;
+            final quitDate = user?.quitDate;
+            int daysQuit = 0;
+            if (quitDate != null) {
+              daysQuit = DateTime.now().difference(quitDate).inDays;
+            }
+            final totalSaved = dailyCost * daysQuit;
+
+            return Column(
+              children: [
+                VirtualPlantCard(
+                  streakDays: gp?.streakDays ?? 0,
+                  level: gp?.level ?? 1,
+                  levelProgress: gp?.levelProgress ?? 0,
+                  isWithering: false,
+                  onWater: () {
+                    // Water action triggers check-in flow
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('浇水成功！记得完成今日打卡哦'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 6),
+                if (daysQuit > 0)
+                  MoneySavingsAnimator(
+                    totalSavedYuan: totalSaved,
+                    dailySavedYuan: dailyCost,
+                    daysQuit: daysQuit,
+                  ),
+              ],
+            );
+          },
         );
       },
     );

@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import '../../../core/di/providers.dart';
 import '../../../domain/entity/user.dart';
+import 'widgets/body_age_comparison.dart';
+import 'widgets/money_timeline_visualization.dart';
+import 'widgets/social_comparison_card.dart';
 
 /// Reality Check screen: shows users their habits in concrete numbers
 /// without judgment. Goal is self-awareness, not assessment scoring.
@@ -19,6 +22,7 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
   final _amountController = TextEditingController(text: '10');
   final _costController = TextEditingController(text: '15');
   final _yearsController = TextEditingController(text: '5');
+  final _ageController = TextEditingController(text: '30');
   int _currentStep = 0;
   bool _saving = false;
 
@@ -44,6 +48,7 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
         break;
     }
     _yearsController.text = '5';
+    _ageController.text = '30';
   }
 
   @override
@@ -51,12 +56,14 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
     _amountController.dispose();
     _costController.dispose();
     _yearsController.dispose();
+    _ageController.dispose();
     super.dispose();
   }
 
   int get _dailyAmount => (int.tryParse(_amountController.text) ?? 10);
   int get _dailyCost => (int.tryParse(_costController.text) ?? 15);
   int get _years => (int.tryParse(_yearsController.text) ?? 5);
+  int get _age => (int.tryParse(_ageController.text) ?? 30);
 
   // Calculated data
   int get _yearlyCost => _dailyCost * 365;
@@ -267,6 +274,14 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
           icon: Icons.calendar_today,
           hint: '比如 $_years 年',
         ),
+        const SizedBox(height: 20),
+        // Age
+        _InputField(
+          label: '你今年大概多少岁？',
+          controller: _ageController,
+          icon: Icons.person_rounded,
+          hint: '比如 $_age 岁',
+        ),
       ],
     );
   }
@@ -359,6 +374,29 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
             footer: '如果每天少$_unitLabel，这些就不会进入你的身体',
           ),
           const SizedBox(height: 24),
+
+          // Body Age Comparison (immersive)
+          BodyAgeComparison(
+            actualAge: _age,
+            yearsOfUse: _years,
+            targetTypeLabel: _targetType == TargetType.alcohol ? '饮酒' : '吸烟',
+          ),
+          const SizedBox(height: 16),
+
+          // Money Timeline (immersive)
+          MoneyTimelineVisualization(
+            dailyCost: _dailyCost,
+            yearsOfUse: _years,
+            unitLabel: _unitLabel,
+          ),
+          const SizedBox(height: 16),
+
+          // Social Comparison (immersive)
+          SocialComparisonCard(
+            userAge: _age,
+            targetTypeLabel: _targetType == TargetType.alcohol ? '饮酒' : '吸烟',
+          ),
+          const SizedBox(height: 16),
 
           // Health impact — not preachy, just factual
           Container(
