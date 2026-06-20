@@ -5,6 +5,7 @@ import '../../presentation/action/action_screen.dart';
 import '../../presentation/maintenance/maintenance_screen.dart';
 import '../../presentation/profile/profile_screen.dart';
 import '../../presentation/onboarding/welcome_screen.dart';
+import '../../presentation/onboarding/discovery_screen.dart';
 import '../../presentation/onboarding/reality_check_screen.dart';
 import '../../presentation/onboarding/assessment/assessment_screen.dart';
 import '../../presentation/onboarding/education/education_screen.dart';
@@ -50,6 +51,7 @@ class AppRouter {
         '/onboarding/assessment',
         '/onboarding/education',
         '/onboarding/motivation',
+        '/onboarding/discovery',
         '/preparation/quit-date'
       ];
       if (onBoardingRoutes.any((r) => state.matchedLocation.startsWith(r)))
@@ -64,6 +66,10 @@ class AppRouter {
       GoRoute(
           path: '/onboarding/reality-check',
           builder: (_, __) => const RealityCheckScreen()),
+
+      GoRoute(
+          path: '/onboarding/discovery',
+          builder: (_, __) => const DiscoveryScreen()),
 
       // Main shell with bottom nav
       ShellRoute(
