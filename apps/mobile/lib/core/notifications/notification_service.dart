@@ -27,18 +27,18 @@ class NotificationService {
     await _plugin.initialize(initSettings,
         onDidReceiveNotificationResponse: _onNotificationTapped);
 
-    // --- 国产ROM兼容：Android 13+ 运行时通知权限 ---
+    // Create notification channels (does not require permission)
     if (Platform.isAndroid) {
-      await _requestNotificationPermission();
       await _createNotificationChannels();
     }
 
     _initialized = true;
   }
 
-  /// Android 13+ 运行时请求 POST_NOTIFICATIONS 权限
-  /// 国内MIUI/ColorOS/HarmonyOS均需要
-  Future<bool> _requestNotificationPermission() async {
+  /// Request POST_NOTIFICATIONS runtime permission (Android 13+).
+  /// Should be called after the user has been shown a value explanation.
+  /// Returns true if permission was granted.
+  Future<bool> requestPermission() async {
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     if (android == null) return true;
