@@ -22,6 +22,11 @@ import '../../core/health/health_data_service.dart';
 import '../../core/privacy/pipl_consent_service.dart';
 import '../../core/relapse/relapse_tolerance_service.dart';
 import '../../core/llm/llm_policy.dart';
+import '../../core/sync/sync_service.dart';
+import '../../core/sync/data_encryption.dart';
+import '../../core/export/fhir_exporter.dart';
+import '../../core/export/medical_interface.dart';
+import '../../core/content/ota_content_manager.dart';
 
 final appDatabaseProvider = Provider((ref) => AppDatabase());
 final encryptionServiceProvider = Provider((ref) => EncryptionService());
@@ -75,6 +80,30 @@ final relapseToleranceServiceProvider =
 final llmPolicyProvider = Provider((ref) {
   final db = ref.watch(appDatabaseProvider);
   return LlmPolicy(db);
+});
+
+// ──────────────────────────────────────────────────────────
+// Phase 3 — Ecosystem Extension Providers
+// ──────────────────────────────────────────────────────────
+
+final syncServiceProvider = Provider<SyncService>((ref) {
+  return LocalOnlySyncService();
+});
+
+final zeroKnowledgeEncryptorProvider = Provider((ref) {
+  return ZeroKnowledgeEncryptor(ref.watch(encryptionServiceProvider));
+});
+
+final fhirExporterProvider = Provider((ref) {
+  return FhirExporter();
+});
+
+final medicalInterfaceProvider = Provider<MedicalInterface>((ref) {
+  return LocalMedicalInterface(ref.watch(fhirExporterProvider));
+});
+
+final otaContentManagerProvider = Provider((ref) {
+  return OtaContentManager(ref.watch(appDatabaseProvider));
 });
 
 final appRouterProvider = Provider((ref) {
