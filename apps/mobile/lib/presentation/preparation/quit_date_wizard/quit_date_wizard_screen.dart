@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/notifications/notification_service.dart';
 import '../../../core/widgets/widget_service.dart';
 import '../../../domain/entity/user.dart';
+import '../../onboarding/widgets/notification_permission_dialog.dart';
 
 class QuitDateWizardScreen extends ConsumerStatefulWidget {
   const QuitDateWizardScreen({super.key});
@@ -100,13 +102,7 @@ class _QuitDateWizardScreenState extends ConsumerState<QuitDateWizardScreen> {
       if (mounted) {
         final user = await ref.read(userUseCaseProvider).getCurrentUser();
         await WidgetService.updateWidget(user);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('戒断日已设置！新的旅程即将开始'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        context.go('/');
+        _showNotificationPermissionDialog();
       }
     } catch (e) {
       if (mounted) {
@@ -120,6 +116,37 @@ class _QuitDateWizardScreenState extends ConsumerState<QuitDateWizardScreen> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+
+  /// Show notification permission dialog after quit date is confirmed.
+  void _showNotificationPermissionDialog() {
+    // Only show dialog if permission hasn't been granted yet
+    if (NotificationService.instance.hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('戒断日已设置！新的旅程即将开始'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      context.go('/');
+      return;
+    }
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => NotificationPermissionDialog(
+        onGrant: () async {
+          Navigator.of(dialogContext).pop();
+          await NotificationService.instance.requestPermission();
+          if (mounted) context.go('/');
+        },
+        onSkip: () {
+          Navigator.of(dialogContext).pop();
+          if (mounted) context.go('/');
+        },
+      ),
+    );
   }
 
   @override
