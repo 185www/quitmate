@@ -6,7 +6,6 @@
 /// - 大列表懒加载配置
 /// - 图片缓存策略
 /// - 电池消耗优化（后台任务最小化）
-library;
 
 import 'dart:io';
 
@@ -172,4 +171,3 @@ class BatteryOptimization {
     return interval;
   }
 }
-
