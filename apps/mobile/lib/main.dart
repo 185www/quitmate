@@ -15,6 +15,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await AppErrorHandler.initialize();
+  // NotificationService.initialize() 只初始化插件和创建通道，不请求权限。
+  // 权限请求应在用户完成 onboarding 后通过引导式弹窗触发（见 MotivationScreen）。
   await NotificationService.instance.initialize();
 
   runApp(

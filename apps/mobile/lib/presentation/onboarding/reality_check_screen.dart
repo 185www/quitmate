@@ -20,11 +20,13 @@ class RealityCheckScreen extends ConsumerStatefulWidget {
 class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
   TargetType _targetType = TargetType.smoking;
   final _amountController = TextEditingController(text: '10');
-  final _costController = TextEditingController(text: '15');
-  final _yearsController = TextEditingController(text: '5');
-  final _ageController = TextEditingController(text: '30');
   int _currentStep = 0;
   bool _saving = false;
+
+  // Auto-estimated fields (pre-filled with smart defaults)
+  int _dailyCost = 15;
+  int _years = 5;
+  int _age = 30;
 
   @override
   void initState() {
@@ -36,34 +38,29 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
     switch (_targetType) {
       case TargetType.smoking:
         _amountController.text = '10';
-        _costController.text = '15';
+        _dailyCost = 15;
         break;
       case TargetType.alcohol:
         _amountController.text = '3';
-        _costController.text = '30';
+        _dailyCost = 30;
         break;
       case TargetType.both:
         _amountController.text = '10';
-        _costController.text = '25';
+        _dailyCost = 25;
         break;
     }
-    _yearsController.text = '5';
-    _ageController.text = '30';
+    _years = 5;
+    _age = 30;
   }
 
   @override
   void dispose() {
     _amountController.dispose();
-    _costController.dispose();
-    _yearsController.dispose();
-    _ageController.dispose();
     super.dispose();
   }
 
   int get _dailyAmount => (int.tryParse(_amountController.text) ?? 10);
-  int get _dailyCost => (int.tryParse(_costController.text) ?? 15);
-  int get _years => (int.tryParse(_yearsController.text) ?? 5);
-  int get _age => (int.tryParse(_ageController.text) ?? 30);
+  // _dailyCost, _years, _age are auto-estimated fields (not user input)
 
   // Calculated data
   int get _yearlyCost => _dailyCost * 365;
@@ -135,6 +132,102 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
       if (mounted) setState(() => _saving = false);
     }
   }
+
+  /// Show a quick slider dialog to adjust an estimate value.
+  Future<void> _showEstimateAdjuster({
+    required String title,
+    required int currentValue,
+    required int min,
+    required int max,
+    required String unit,
+    required ValueChanged<int> onSaved,
+  }) async {
+    if (!mounted) return;
+    var tempValue = currentValue;
+    final controller = TextEditingController(text: '$currentValue');
+    final result = await showDialog<int>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text(title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Slider(
+                value: tempValue.toDouble(),
+                min: min.toDouble(),
+                max: max.toDouble(),
+                divisions: (max - min) > 20 ? (max - min) ~/ 5 : (max - min),
+                label: '$tempValue$unit',
+                onChanged: (v) {
+                  setDialogState(() {
+                    tempValue = v.round();
+                    controller.text = '$tempValue';
+                  });
+                },
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                decoration: InputDecoration(
+                  suffixText: unit,
+                  border: const OutlineInputBorder(),
+                ),
+                onChanged: (v) {
+                  tempValue = int.tryParse(v) ?? min;
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('取消'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, tempValue),
+              child: const Text('确定'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (result != null && result != currentValue) {
+      onSaved(result);
+      if (mounted) setState(() {});
+    }
+  }
+
+  void _showCostAdjuster() => _showEstimateAdjuster(
+    title: '调整每日花费',
+    currentValue: _dailyCost,
+    min: 1,
+    max: 200,
+    unit: '元',
+    onSaved: (v) => _dailyCost = v,
+  );
+
+  void _showYearsAdjuster() => _showEstimateAdjuster(
+    title: '调整使用年数',
+    currentValue: _years,
+    min: 1,
+    max: 50,
+    unit: '年',
+    onSaved: (v) => _years = v,
+  );
+
+  void _showAgeAdjuster() => _showEstimateAdjuster(
+    title: '调整年龄',
+    currentValue: _age,
+    min: 14,
+    max: 80,
+    unit: '岁',
+    onSaved: (v) => _age = v,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -247,40 +340,66 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
             style: theme.textTheme.titleLarge
                 ?.copyWith(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
-        Text('不用很精确，大概就行',
+        Text('只需一个数字，其他我们帮你估算',
             style: theme.textTheme.bodyMedium
                 ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
         const SizedBox(height: 24),
-        // Daily amount
+        // Daily amount — the ONLY required field
         _InputField(
           label: '每天大概多少$_unitLabel？',
           controller: _amountController,
           icon: Icons.today,
           hint: _targetType == TargetType.alcohol ? '比如 3' : '比如 10',
         ),
-        const SizedBox(height: 20),
-        // Daily cost
-        _InputField(
-          label: '每天花多少钱？',
-          controller: _costController,
-          icon: Icons.attach_money,
-          hint: '比如 $_dailyCost 元',
-        ),
-        const SizedBox(height: 20),
-        // Years
-        _InputField(
-          label: '这样多久了？',
-          controller: _yearsController,
-          icon: Icons.calendar_today,
-          hint: '比如 $_years 年',
-        ),
-        const SizedBox(height: 20),
-        // Age
-        _InputField(
-          label: '你今年大概多少岁？',
-          controller: _ageController,
-          icon: Icons.person_rounded,
-          hint: '比如 $_age 岁',
+        const SizedBox(height: 24),
+        // Auto-estimated summary card
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surfaceContainerHighest,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.auto_awesome, size: 18, color: theme.colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Text('智能估算', style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  )),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _EstimateRow(
+                icon: Icons.attach_money,
+                label: '每日花费',
+                value: '¥$_dailyCost',
+                onTap: _showCostAdjuster,
+              ),
+              const SizedBox(height: 8),
+              _EstimateRow(
+                icon: Icons.calendar_today,
+                label: '使用年数',
+                value: '$_years 年',
+                onTap: _showYearsAdjuster,
+              ),
+              const SizedBox(height: 8),
+              _EstimateRow(
+                icon: Icons.person_rounded,
+                label: '你的年龄',
+                value: '$_age 岁',
+                onTap: _showAgeAdjuster,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '点击数字可以调整估算值',
+                style: TextStyle(fontSize: 11, color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -737,6 +856,49 @@ class _ResultCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Estimate Row & Adjuster ─────────────────────────────────────
+
+class _EstimateRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final VoidCallback onTap;
+
+  const _EstimateRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Row(
+        children: [
+          Icon(icon, size: 16, color: theme.colorScheme.onSurfaceVariant),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(label, style: theme.textTheme.bodySmall),
+          ),
+          Text(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(Icons.edit, size: 14, color: theme.colorScheme.onSurfaceVariant),
+        ],
       ),
     );
   }

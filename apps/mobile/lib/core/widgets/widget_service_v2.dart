@@ -160,6 +160,9 @@ $userContext
   /// - 渴望记录后
   /// - App 启动时
   /// - 每日零点自动刷新
+  ///
+  /// [llmService] is optional; when provided and configured, generates a
+  /// personalized insight via LLM. Falls back to static tip on failure.
   static Future<void> updateWidgetData({
     required User? user,
     required GameProfile? gameProfile,
@@ -169,7 +172,18 @@ $userContext
     int dailyTasksTotal = 0,
     int? riskScore,
     String? riskLabel,
+    LlmService? llmService,
   }) async {
+    // Generate personalized insight via LLM if available
+    final personalizedInsight = await _generateInsightOrFallback(
+      user: user,
+      gameProfile: gameProfile,
+      todayLog: todayLog,
+      riskScore: riskScore,
+      riskLabel: riskLabel,
+      llmService: llmService,
+    );
+
     final data = WidgetData(
       userName: '',
       daysSinceQuit: user?.daysSinceQuit ?? 0,
@@ -183,6 +197,7 @@ $userContext
       dailyTasksCompleted: dailyTasksCompleted,
       dailyTasksTotal: dailyTasksTotal,
       tipOfTheDay: WidgetTips.getTipOfTheDay(),
+      personalizedInsight: personalizedInsight,
     );
 
     // 将数据保存到 HomeWidget
@@ -198,6 +213,32 @@ $userContext
     } catch (_) {
       // Widget 刷新失败不阻断主流程
     }
+  }
+
+  /// Try LLM personalized insight, fall back to static tip on failure.
+  static Future<String> _generateInsightOrFallback({
+    User? user,
+    GameProfile? gameProfile,
+    DailyLogEntry? todayLog,
+    int? riskScore,
+    String? riskLabel,
+    LlmService? llmService,
+  }) async {
+    if (llmService != null && llmService.isConfigured && user != null) {
+      try {
+        final context = '戒断天数：${user.daysSinceQuit}天，'
+            '连续打卡：${gameProfile?.streakDays ?? 0}天，'
+            '今日心情：${todayLog?.mood ?? '-'}/5，'
+            '今日风险：${riskLabel ?? '低'}';
+        return await generateWidgetInsight(
+          userContext: context,
+          llmService: llmService,
+        );
+      } catch (_) {
+        // Fall back to static tip
+      }
+    }
+    return '';
   }
 
   /// 仅刷新每日提示（零点定时任务调用）

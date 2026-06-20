@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/widgets/onboarding_stepper.dart';
+import '../../../core/notifications/notification_service.dart';
 
 class MotivationScreen extends ConsumerStatefulWidget {
   const MotivationScreen({super.key});
@@ -112,7 +113,8 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('动机设置已保存')),
         );
-        context.go('/preparation/quit-date');
+        // 引导式通知权限请求 — 在用户完成 onboarding 后触发
+        _requestNotificationPermissionThenNavigate();
       }
     } catch (e) {
       if (mounted) {
@@ -123,6 +125,56 @@ class _MotivationScreenState extends ConsumerState<MotivationScreen> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+
+  /// 引导用户授权通知权限，然后跳转到选择日期页面。
+  /// 先展示说明弹窗解释为什么需要通知，用户确认后触发系统权限请求。
+  Future<void> _requestNotificationPermissionThenNavigate() async {
+    final notificationService = NotificationService.instance;
+    // 如果已经有权限，直接跳转
+    if (notificationService.hasPermission) {
+      if (mounted) context.go('/preparation/quit-date');
+      return;
+    }
+    // 展示引导弹窗
+    if (!mounted) return;
+    final granted = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('开启提醒通知'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.notifications_active, size: 40, color: Color(0xFF4ECDC4)),
+            SizedBox(height: 12),
+            Text('在戒断过程中，及时提醒非常重要：'),
+            SizedBox(height: 8),
+            Text('• 每日打卡提醒，帮你养成记录习惯', style: TextStyle(fontSize: 14)),
+            Text('• 渴望高峰期预警，提前做好准备', style: TextStyle(fontSize: 14)),
+            Text('• 里程碑庆祝，记录你的每一个成就', style: TextStyle(fontSize: 14)),
+            SizedBox(height: 8),
+            Text('你可以随时在设置中关闭', style: TextStyle(fontSize: 12, color: Colors.grey)),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('以后再说'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('开启通知'),
+          ),
+        ],
+      ),
+    );
+    if (granted == true) {
+      await notificationService.requestPermission();
+    }
+    // 无论是否授权，都继续跳转
+    if (mounted) context.go('/preparation/quit-date');
   }
 
   @override

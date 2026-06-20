@@ -157,11 +157,35 @@ class LlmPromptBuilder {
   }
 
   /// Builds the weekly data section of the prompt.
+  ///
+  /// When [useCompressed] is true (default), uses aggregated summary to
+  /// reduce token cost (~300 tokens vs ~1200 tokens for raw data).
+  /// Set [useCompressed] to false only when the LLM needs full craving
+  /// detail for deep pattern analysis.
   String buildWeekDataText(
     List<DailyLogEntry> weekLogs,
     List<CravingEntry> weekCravings,
-    Map<String, dynamic> stats,
-  ) {
+    Map<String, dynamic> stats, {
+    bool useCompressed = true,
+  }) {
+    // Prefer compressed summary to save tokens
+    if (useCompressed) {
+      return buildCompressedWeekSummary(
+        totalCravings: stats['totalCravings'] as int? ?? 0,
+        avgIntensity: (stats['avgIntensity'] as num?)?.toDouble() ?? 0,
+        avgMood: (stats['avgMood'] as num?)?.toDouble() ?? 0,
+        resistedCount: stats['resistedCount'] as int? ?? 0,
+        resistRate: (stats['resistRate'] as num?)?.toDouble() ?? 0,
+        relapseDays: stats['relapseDays'] as int? ?? 0,
+        loggedDays: stats['loggedDays'] as int? ?? 0,
+        peakDay: stats['peakDay'] as String?,
+        peakHour: stats['peakHour'] as int?,
+        topTriggerSummary: _summarizeTopTriggers(weekCravings),
+        timePatternSummary: _summarizeTimePattern(weekCravings),
+      );
+    }
+
+    // Raw data path (for deep analysis only)
     final buffer = StringBuffer();
 
     buffer.writeln('## 本周统计');
@@ -209,6 +233,37 @@ class LlmPromptBuilder {
     }
 
     return buffer.toString();
+  }
+
+  /// Summarize top triggers from craving records for compressed prompt.
+  String _summarizeTopTriggers(List<CravingEntry> cravings) {
+    if (cravings.isEmpty) return '';
+    final triggerCounts = <String, int>{};
+    for (final c in cravings) {
+      final t = c.trigger;
+      if (t != null && t.isNotEmpty) {
+        triggerCounts[t] = (triggerCounts[t] ?? 0) + 1;
+      }
+    }
+    if (triggerCounts.isEmpty) return '未记录触发因素';
+    final sorted = triggerCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final top = sorted.take(3).map((e) => '${e.key}(${e.value}次)').join('、');
+    return '主要触发因素：$top';
+  }
+
+  /// Summarize time patterns from craving records for compressed prompt.
+  String _summarizeTimePattern(List<CravingEntry> cravings) {
+    if (cravings.isEmpty) return '';
+    final hourCounts = <int, int>{};
+    for (final c in cravings) {
+      hourCounts[c.timestamp.hour] = (hourCounts[c.timestamp.hour] ?? 0) + 1;
+    }
+    if (hourCounts.isEmpty) return '';
+    final sorted = hourCounts.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+    final peak = sorted.first;
+    return '渴望高峰时段：${peak.key}点前后（${peak.value}次）';
   }
 
   /// Builds a compact user context for widget insight generation.
