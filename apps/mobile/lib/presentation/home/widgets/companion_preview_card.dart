@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../domain/entity/user.dart';
-import '../../domain/entity/companion.dart';
+import '../../../domain/entity/user.dart';
+import '../../../domain/entity/companion.dart';
 
 /// Companion preview card showing a daily challenge message from
 /// [QuitCompanion].

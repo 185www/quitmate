@@ -13,8 +13,6 @@ import 'package:home_widget/home_widget.dart';
 import '../../domain/entity/user.dart';
 import '../../domain/entity/game_profile.dart';
 import '../../domain/entity/daily_log.dart';
-import '../coach/craving_predictor.dart';
-import '../coach/relapse_risk_engine.dart';
 
 /// 小组件数据模型
 class WidgetData {
@@ -134,7 +132,7 @@ class WidgetServiceV2 {
     String? riskLabel,
   }) async {
     final data = WidgetData(
-      userName: user?.nickname ?? '',
+      userName: '',
       daysSinceQuit: user?.daysSinceQuit ?? 0,
       streakDays: gameProfile?.streakDays ?? 0,
       level: gameProfile?.level ?? 1,

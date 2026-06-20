@@ -598,6 +598,11 @@ class _RelapseToleranceCardState extends State<RelapseToleranceCard>
     );
   }
 
+  List<String> _recoveryTipsFor(RelapseEvent event) {
+    final service = RelapseToleranceService();
+    return service.getRecoveryTips(event.trigger);
+  }
+
   // ──────────────────────────────────────────────────────────
   // Record dialog
   // ──────────────────────────────────────────────────────────
@@ -642,12 +647,6 @@ class _RecordRelapseSheet extends StatefulWidget {
 
   @override
   State<_RecordRelapseSheet> createState() => _RecordRelapseSheetState();
-
-
-  List<String> _recoveryTipsFor(RelapseEvent event) {
-    final service = RelapseToleranceService();
-    return service.getRecoveryTips(event.trigger);
-  }
 }
 
 class _RecordRelapseSheetState extends State<_RecordRelapseSheet> {
@@ -886,3 +885,4 @@ class _RecordRelapseSheetState extends State<_RecordRelapseSheet> {
     widget.onRecord(event);
   }
 }
+

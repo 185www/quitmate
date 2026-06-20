@@ -221,10 +221,10 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
 
   // ---- 渴望记录 ----
 
-  void _logCravingSession(UrgeSessionRecord session) {
+  void _logCravingSession(UrgeSessionRecord session) async {
     try {
       final cravingRepo = ref.read(cravingRepositoryProvider);
-      final user = ref.read(userUseCaseProvider).getCurrentUser();
+      final user = await ref.read(userUseCaseProvider).getCurrentUser();
       if (user != null) {
         cravingRepo.logCraving(
           user.id,
@@ -310,22 +310,23 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-      const Padding(
-        padding: EdgeInsets.only(bottom: 16),
-        child: Text(
-          '选择一个工具来帮助你度过这次渴望',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          textAlign: TextAlign.center,
+        const Padding(
+          padding: EdgeInsets.only(bottom: 16),
+          child: Text(
+            '选择一个工具来帮助你度过这次渴望',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            textAlign: TextAlign.center,
+          ),
         ),
-      ),
-      // 强度选择
-      _buildIntensityPicker(),
-      const SizedBox(height: 16),
-      ...tools.map((tool) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: _buildToolCard(tool),
-          )),
-    ];
+        // 强度选择
+        _buildIntensityPicker(),
+        const SizedBox(height: 16),
+        ...tools.map((tool) => Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildToolCard(tool),
+            )),
+      ],
+    );
   }
 
   Widget _buildToolCard(_ToolOption tool) {

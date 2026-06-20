@@ -172,3 +172,4 @@ class BatteryOptimization {
     return interval;
   }
 }
+

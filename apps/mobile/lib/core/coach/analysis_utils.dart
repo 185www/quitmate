@@ -8,16 +8,16 @@ import '../../domain/entity/analysis.dart';
 class AnalysisUtils {
   AnalysisUtils._();
 
+  /// Returns the 1-based day-of-year for [date].
+  static int dayOfYear(DateTime date) {
+    return date.difference(DateTime(date.year, 1, 1)).inDays + 1;
+  }
+
   /// Returns the ISO week number of the current date.
   static int currentWeekNumber() {
     final now = DateTime.now();
     final dayOfYear = dayOfYear(now);
     return ((dayOfYear - now.weekday + 10) ~/ 7);
-  }
-
-  /// Returns the 1-based day-of-year for [date].
-  static int dayOfYear(DateTime date) {
-    return date.difference(DateTime(date.year, 1, 1)).inDays + 1;
   }
 
   /// Parses a raw string that may be wrapped in markdown code blocks

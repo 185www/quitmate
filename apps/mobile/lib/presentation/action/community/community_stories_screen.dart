@@ -391,6 +391,7 @@ class _CommunityStoriesScreenState extends State<CommunityStoriesScreen> {
   }
 
   Widget _buildStoryList(ColorScheme colorScheme, TextTheme textTheme) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
     final filtered = _filteredStories;
     if (filtered.isEmpty) {
       return Center(
@@ -437,6 +438,7 @@ class _CommunityStoriesScreenState extends State<CommunityStoriesScreen> {
   }
 
   Widget _buildBookmarkList(ColorScheme colorScheme, TextTheme textTheme) {
+    final appColors = Theme.of(context).extension<AppColors>()!;
     final bookmarked =
         _stories.where((s) => _bookmarkedIds.contains(s.id)).toList();
 
@@ -515,7 +517,7 @@ class _StoryCard extends StatelessWidget {
         kStoryCategories.firstWhere((c) => c.id == story.category,
             orElse: () => const StoryCategory(
                 id: 'other', label: '其他', icon: Icons.article));
-    final categoryColor = _categoryColor(story.category, colorScheme);
+    final categoryColor = _categoryColor(story.category, colorScheme, appColors);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
@@ -719,7 +721,7 @@ class _StoryCard extends StatelessWidget {
     );
   }
 
-  Color _categoryColor(String category, ColorScheme colorScheme) {
+  Color _categoryColor(String category, ColorScheme colorScheme, AppColors appColors) {
     switch (category) {
       case 'success_story':
         return appColors.successColor;
@@ -761,7 +763,7 @@ class _FullStorySheet extends StatelessWidget {
         kStoryCategories.firstWhere((c) => c.id == story.category,
             orElse: () => const StoryCategory(
                 id: 'other', label: '其他', icon: Icons.article));
-    final categoryColor = _categoryColor(story.category, colorScheme);
+    final categoryColor = _categoryColor(story.category, colorScheme, appColors);
 
     return Container(
       height: MediaQuery.of(context).size.height * 0.85,
@@ -972,7 +974,7 @@ class _FullStorySheet extends StatelessWidget {
     );
   }
 
-  Color _categoryColor(String category, ColorScheme colorScheme) {
+  Color _categoryColor(String category, ColorScheme colorScheme, AppColors appColors) {
     switch (category) {
       case 'success_story':
         return appColors.successColor;

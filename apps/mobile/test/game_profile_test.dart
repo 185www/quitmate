@@ -9,6 +9,10 @@ void main() {
     int totalXp = 0,
     int streakDays = 0,
     int longestStreak = 0,
+    int checkinTotal = 0,
+    int cravingsResisted = 0,
+    int exercisesCompleted = 0,
+    int sosUsedCount = 0,
     DateTime? lastCheckinDate,
   }) {
     final now = DateTime.now();
@@ -20,6 +24,10 @@ void main() {
       totalXp: totalXp,
       streakDays: streakDays,
       longestStreak: longestStreak,
+      checkinTotal: checkinTotal,
+      cravingsResisted: cravingsResisted,
+      exercisesCompleted: exercisesCompleted,
+      sosUsedCount: sosUsedCount,
       lastCheckinDate: lastCheckinDate,
       createdAt: now,
       updatedAt: now,

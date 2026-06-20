@@ -192,7 +192,7 @@ class RelapseRiskEngine {
       totalScore += factors[i].score * weights[i];
     }
 
-    final overallScore = totalScore.round().clamp(0.0, 100.0);
+    final overallScore = totalScore.round().clamp(0, 100);
     final level = _classifyLevel(overallScore);
     final summary = _buildSummary(level, overallScore, factors);
     final suggestions = _buildSuggestions(level, factors);
@@ -778,3 +778,4 @@ class RelapseRiskEngine {
     }
   }
 }
+
