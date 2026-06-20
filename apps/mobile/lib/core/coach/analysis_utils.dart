@@ -16,8 +16,8 @@ class AnalysisUtils {
   /// Returns the ISO week number of the current date.
   static int currentWeekNumber() {
     final now = DateTime.now();
-    final dayOfYear = dayOfYear(now);
-    return ((dayOfYear - now.weekday + 10) ~/ 7);
+    final doy = dayOfYear(now);
+    return ((doy - now.weekday + 10) ~/ 7);
   }
 
   /// Parses a raw string that may be wrapped in markdown code blocks
