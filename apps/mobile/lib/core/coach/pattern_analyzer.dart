@@ -105,7 +105,7 @@ class PatternAnalyzer {
       final span = highRiskHours.last - highRiskHours.first;
       if (span <= 4) {
         return '你的渴望高度集中在${TimePattern.formatHour(highRiskHours.first)}'
-            '到${TimePattern.formatHour(highRiskHours.last)}之间，'
+            '到${TimePattern.formatHour(highRiskHours.last)}之间，属于高风险时段，'
             '峰值出现在$peakTimeStr（平均强度 ${peakIntensity.toStringAsFixed(1)}）。'
             '建议在这个时段提前做好应对准备。';
       }
@@ -217,7 +217,7 @@ class PatternAnalyzer {
     if (absCorr < 0.2) return '心情与渴望之间没有明显的线性关联。';
     if (absCorr < 0.4) return '心情与渴望之间存在轻微的关联。';
 
-    if (correlation < -0.4) {
+    if (correlation <= -0.4) {
       if (correlation < -0.7) {
         return '数据显示，当你的心情低落时，渴望会明显增强。'
             '情绪管理可能是你戒断成功的关键因素之一。';
@@ -226,7 +226,7 @@ class PatternAnalyzer {
           '渴望往往更强。注意调节情绪可以帮助减少渴望。';
     }
 
-    if (correlation > 0.4) {
+    if (correlation >= 0.4) {
       if (correlation > 0.7) {
         return '有趣的是，你的数据呈现出心情好的时候渴望也更强的模式。'
             '这可能和"庆祝心态"有关——开心时容易放松警惕。';

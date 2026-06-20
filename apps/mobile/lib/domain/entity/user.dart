@@ -78,9 +78,16 @@ class User {
   }
 
   /// Years of life regained per day (statistical)
-  double get dailyLifeRegainedMinutes =>
-      (targetType == TargetType.alcohol ? 11 : 0) +
-      (targetType == TargetType.smoking ? 11 : 0);
+  double get dailyLifeRegainedMinutes {
+    switch (targetType) {
+      case TargetType.smoking:
+        return 11;
+      case TargetType.alcohol:
+        return 11;
+      case TargetType.both:
+        return 22;
+    }
+  }
 
   User copyWith(
       {int? id,
