@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/constants/breath_timing.dart';
 
 /// 呼吸阶段枚举
 enum _BreathPhase { inhale, hold, exhale }
@@ -36,11 +37,10 @@ class _ImmersiveBreathingGuideState extends State<ImmersiveBreathingGuide>
       _prepareDuration + _breathingDuration + _completeDuration;
 
   // 4-7-8 呼吸相位时长（秒）
-  static const int _inhaleDuration = 4;
-  static const int _holdDuration = 7;
-  static const int _exhaleDuration = 8;
-  static const int _cycleDuration =
-      _inhaleDuration + _holdDuration + _exhaleDuration; // 19s
+  static const int _inhaleDuration = BreathTiming.inhaleSeconds;
+  static const int _holdDuration = BreathTiming.holdSeconds;
+  static const int _exhaleDuration = BreathTiming.exhaleSeconds;
+  static const int _cycleDuration = BreathTiming.cycleSeconds;
 
   // ── 状态 ──
   _SessionPhase _phase = _SessionPhase.prepare;

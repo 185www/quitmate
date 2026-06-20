@@ -1,10 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/di/providers.dart';
+import '../../../core/di/providers.dart';
+import '../../../core/constants/breath_timing.dart';
 
 /// Full-screen SOS breathing sheet with teal-to-dark gradient,
 /// pulsing white breathing circle, and calming phase guidance.
+///
+/// Uses the medically-backed 4-7-8 breathing technique:
+/// - Inhale: 4 seconds
+/// - Hold: 7 seconds
+/// - Exhale: 8 seconds
+/// - Cycle: 19 seconds
 class SosBreathingSheet extends ConsumerStatefulWidget {
   const SosBreathingSheet({super.key});
 
@@ -14,13 +21,20 @@ class SosBreathingSheet extends ConsumerStatefulWidget {
 
 class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
     with SingleTickerProviderStateMixin {
-  late AnimationController _breathController;
-  int _secondsRemaining = 180;
+  // ── Breathing state ──
+  int _secondsRemaining = BreathTiming.sosSessionDuration;
   Timer? _timer;
   bool _breathing = true;
   bool _complete = false;
   bool _isSubmitting = false;
 
+  /// Seconds elapsed since breathing started (after the session timer started)
+  int _breathElapsed = 0;
+
+  // ── Animation for subtle circle pulse overlay ──
+  late AnimationController _pulseController;
+
+  // ── Phase messages ──
   final _phaseMessages = [
     '承认渴望的存在，不评判自己',
     '你不需要和渴望对抗，只需等待',
@@ -30,38 +44,54 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
     '你值得更好的生活',
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _breathController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    )..repeat(reverse: true);
-    _startTimer();
+  // ── Breathing phase calculation (4-7-8) ──
+  _BreathPhase get _currentBreathPhase {
+    final cyclePos = _breathElapsed % BreathTiming.cycleSeconds;
+    if (cyclePos < BreathTiming.inhaleSeconds) return _BreathPhase.inhale;
+    if (cyclePos < BreathTiming.inhaleSeconds + BreathTiming.holdSeconds) {
+      return _BreathPhase.hold;
+    }
+    return _BreathPhase.exhale;
   }
 
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (!mounted) return;
-      setState(() {
-        if (_secondsRemaining > 0) {
-          _secondsRemaining--;
-        } else {
-          _timer?.cancel();
-          _breathing = false;
-          _complete = true;
-        }
-      });
-    });
+  /// Progress within the current breath phase (0.0 to 1.0)
+  double get _breathPhaseProgress {
+    final cyclePos = _breathElapsed % BreathTiming.cycleSeconds;
+    switch (_currentBreathPhase) {
+      case _BreathPhase.inhale:
+        return cyclePos / BreathTiming.inhaleSeconds;
+      case _BreathPhase.hold:
+        return (cyclePos - BreathTiming.inhaleSeconds) / BreathTiming.holdSeconds;
+      case _BreathPhase.exhale:
+        return (cyclePos - BreathTiming.inhaleSeconds - BreathTiming.holdSeconds) /
+            BreathTiming.exhaleSeconds;
+    }
   }
 
-  @override
-  void dispose() {
-    _timer?.cancel();
-    _breathController.dispose();
-    super.dispose();
+  /// Circle scale factor (0.6 min, 1.0 max)
+  double get _breathCircleScale {
+    switch (_currentBreathPhase) {
+      case _BreathPhase.inhale:
+        return 0.6 + 0.4 * _breathPhaseProgress;
+      case _BreathPhase.hold:
+        return 1.0;
+      case _BreathPhase.exhale:
+        return 1.0 - 0.4 * _breathPhaseProgress;
+    }
   }
 
+  String get _breathPhaseLabel {
+    switch (_currentBreathPhase) {
+      case _BreathPhase.inhale:
+        return '吸气';
+      case _BreathPhase.hold:
+        return '屏息';
+      case _BreathPhase.exhale:
+        return '呼气';
+    }
+  }
+
+  // ── Session phase (3 phases over 180s) ──
   int get _currentPhase {
     if (_secondsRemaining > 120) return 1;
     if (_secondsRemaining > 60) return 2;
@@ -94,6 +124,39 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+    _startTimer();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
+      setState(() {
+        if (_secondsRemaining > 0) {
+          _secondsRemaining--;
+          _breathElapsed++;
+        } else {
+          _timer?.cancel();
+          _breathing = false;
+          _complete = true;
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pulseController.dispose();
+    super.dispose();
+  }
+
   Future<void> _onComplete() async {
     if (_isSubmitting) return;
     setState(() => _isSubmitting = true);
@@ -108,7 +171,7 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
       final badgeRepo = ref.read(badgeRepositoryProvider);
       await badgeRepo.earnBadge('sos_used');
     } catch (_) {
-      // Silently handle — user still completed the SOS session
+      // Silently handle
     }
     if (mounted) Navigator.pop(context);
   }
@@ -126,15 +189,15 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            Color(0xFF1A5C52), // Deep teal
-            Color(0xFF0D2F2A), // Near-black teal
+            Color(0xFF1A5C52),
+            Color(0xFF0D2F2A),
           ],
         ),
       ),
       child: SafeArea(
         child: Column(
           children: [
-            // ── Top bar ──
+            // Top bar
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
@@ -162,9 +225,10 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
 
             const Spacer(flex: 2),
 
-            // ── Phase indicator pill ──
+            // Phase indicator pill
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(24),
@@ -194,15 +258,15 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
 
             const SizedBox(height: 48),
 
-            // ── Breathing circle ──
+            // Breathing circle with 4-7-8 rhythm
             if (_breathing)
               AnimatedBuilder(
-                animation: _breathController,
+                animation: _pulseController,
                 builder: (context, child) {
-                  final scale = 1 + _breathController.value * 0.3;
-                  final size = 160.0 * scale;
-                  final breathValue = _breathController.value;
-                  final glowOpacity = 0.08 + breathValue * 0.12;
+                  final scale = _breathCircleScale;
+                  final pulse = _pulseController.value;
+                  final size = 160.0 * scale * (0.95 + pulse * 0.05);
+                  final glowOpacity = 0.08 + (scale - 0.6) * 0.15;
 
                   return Container(
                     width: size,
@@ -211,30 +275,39 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
                       shape: BoxShape.circle,
                       color: Colors.white.withOpacity(0.06),
                       border: Border.all(
-                        color:
-                            Colors.white.withOpacity(0.2 + breathValue * 0.25),
+                        color: Colors.white
+                            .withOpacity(0.2 + (scale - 0.6) * 0.3),
                         width: 2.5,
                       ),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.white.withOpacity(glowOpacity),
-                          blurRadius: 30 * breathValue,
-                          spreadRadius: 6 * breathValue,
+                          blurRadius: 30 * scale,
+                          spreadRadius: 6 * scale,
                         ),
                       ],
                     ),
                     child: Center(
-                      child: Text(
-                        breathValue < 0.4
-                            ? '吸气'
-                            : breathValue < 0.6
-                                ? '屏息'
-                                : '呼气',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
-                          fontSize: 22,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _breathPhaseLabel,
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 22,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _getPhaseCountdown(),
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.5),
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   );
@@ -248,9 +321,7 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
                   shape: BoxShape.circle,
                   color: Colors.white.withOpacity(0.08),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.35),
-                    width: 2.5,
-                  ),
+                      color: Colors.white.withOpacity(0.35), width: 2.5),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.white.withOpacity(0.1),
@@ -260,14 +331,14 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
                   ],
                 ),
                 child: const Center(
-                  child: Icon(Icons.check_rounded,
-                      size: 64, color: Colors.white70),
+                  child:
+                      Icon(Icons.check_rounded, size: 64, color: Colors.white70),
                 ),
               ),
 
             const Spacer(flex: 2),
 
-            // ── Timer / complete text ──
+            // Timer or complete text
             Text(
               _complete
                   ? '你撑过去了!'
@@ -275,15 +346,14 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
               style: TextStyle(
                 fontSize: _complete ? 28 : 48,
                 fontWeight: FontWeight.w700,
-                color:
-                    _complete ? Colors.white : Colors.white.withOpacity(0.95),
+                color: _complete ? Colors.white : Colors.white.withOpacity(0.95),
                 letterSpacing: _complete ? 0 : 2,
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // ── Motivational message ──
+            // Motivational message
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 48),
               child: AnimatedSwitcher(
@@ -306,7 +376,7 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
 
             const Spacer(flex: 2),
 
-            // ── Complete button ──
+            // Complete button
             if (_complete)
               Padding(
                 padding: const EdgeInsets.all(32),
@@ -326,7 +396,9 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Color(0xFF1A5C52)),
+                              strokeWidth: 2,
+                              color: Color(0xFF1A5C52),
+                            ),
                           )
                         : const Icon(Icons.celebration_rounded),
                     label: Text(
@@ -343,4 +415,29 @@ class _SosBreathingSheetState extends ConsumerState<SosBreathingSheet>
       ),
     );
   }
+
+  /// Returns the countdown text for the current breath phase (e.g., "3s")
+  String _getPhaseCountdown() {
+    final cyclePos = _breathElapsed % BreathTiming.cycleSeconds;
+    int remaining;
+    switch (_currentBreathPhase) {
+      case _BreathPhase.inhale:
+        remaining = BreathTiming.inhaleSeconds - cyclePos;
+        break;
+      case _BreathPhase.hold:
+        remaining =
+            BreathTiming.inhaleSeconds + BreathTiming.holdSeconds - cyclePos;
+        break;
+      case _BreathPhase.exhale:
+        remaining = BreathTiming.inhaleSeconds +
+            BreathTiming.holdSeconds +
+            BreathTiming.exhaleSeconds -
+            cyclePos;
+        break;
+    }
+    return '${remaining}s';
+  }
 }
+
+/// Breathing phase enum for the 4-7-8 technique
+enum _BreathPhase { inhale, hold, exhale }
