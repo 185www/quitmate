@@ -41,8 +41,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Future<GameProfile?>? _gameProfileFuture;
 
   // XP floating animation state
-  String? _floatingXpText;
-  bool _showXpAnimation = false;
+  // String? _floatingXpText; // unused
+  // bool _showXpAnimation = false; // unused
 
   // Daily task state
   List<DailyTask> _dailyTasks = [];
@@ -99,13 +99,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   void _showXpGain(String text) {
     setState(() {
-      _floatingXpText = text;
-      _showXpAnimation = true;
+      // _floatingXpText = text;
+      // _showXpAnimation = true;
     });
     Future.delayed(const Duration(milliseconds: 1500), () {
       if (mounted) {
         setState(() {
-          _showXpAnimation = false;
+          // _showXpAnimation = false;
         });
       }
     });

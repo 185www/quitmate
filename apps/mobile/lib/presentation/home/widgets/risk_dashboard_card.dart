@@ -7,6 +7,7 @@
 ///
 /// Theme-compliant, dark-mode support, all text in Chinese.
 
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_theme.dart';
@@ -806,8 +807,8 @@ class _RiskGaugePainter extends CustomPainter {
     final radius = (size.width - strokeWidth * 2) / 2;
 
     // Arc from 135° to 405° (270° sweep).
-    const startAngle = 3 * pi / 4;
-    const sweepAngle = 3 * pi / 2;
+    final startAngle = 3 * math.pi / 4;
+    final sweepAngle = 3 * math.pi / 2;
 
     // Track (background).
     final trackPaint = Paint()

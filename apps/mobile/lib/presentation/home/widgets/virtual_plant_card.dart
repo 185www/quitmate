@@ -142,7 +142,7 @@ class _PlantPainter extends CustomPainter {
 
   void _drawSoil(Canvas canvas, double cx, double soilY, Size size) {
     final potWidth = size.width * 0.5;
-    canvas.drawEllipse(
+    canvas.drawOval(
       Rect.fromCenter(
         center: Offset(cx, soilY + 2),
         width: potWidth * 0.86,

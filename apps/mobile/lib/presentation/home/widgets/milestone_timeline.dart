@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/entity/user.dart';
+import '../../../domain/entity/user.dart';
 
 /// Horizontal milestone timeline showing the next 3 health milestones
 /// the user is working towards.

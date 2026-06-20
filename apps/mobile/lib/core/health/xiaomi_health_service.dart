@@ -12,6 +12,7 @@
 /// 当前为接口定义 + 方法存根，待集成小米 SDK 后补充实现。
 library;
 
+import 'dart:async';
 import '../health/health_data_service.dart';
 
 /// 小米健康数据类型
@@ -51,17 +52,30 @@ class XiaomiHealthService implements HealthDataService {
     return false;
   }
 
+  // ── HealthDataService interface ────────────────────────────────────────
+
   @override
-  Future<HealthSnapshot?> getLatestSnapshot(String userId) async {
+  Stream<HealthSnapshot?> get healthStream => const Stream.empty();
+
+  @override
+  Future<HealthSnapshot?> getLatestSnapshot() async {
     // TODO: 通过小米健康 SDK 获取最新健康数据
     return null;
   }
 
   @override
-  Stream<HealthSnapshot> watchSnapshots(String userId) {
-    // TODO: 注册小米健康数据变化监听
-    return Stream.empty();
+  Future<void> recordSelfReport(HealthSnapshot snapshot) async {
+    // 小米平台集成暂不支持自报数据通过此通道写入
+    // 自报数据应使用 SelfReportHealthService
   }
+
+  @override
+  bool get hasPlatformIntegration => false;
+
+  @override
+  Future<bool> initializePlatform() async => false;
+
+  // ── Xiaomi-specific methods ───────────────────────────────────────────
 
   /// 获取指定日期范围的步数汇总
   Future<int> getStepsRange({
@@ -85,7 +99,4 @@ class XiaomiHealthService implements HealthDataService {
     // TODO: 调用小米健康睡眠数据 API
     return null;
   }
-
-  @override
-  void dispose() {}
 }

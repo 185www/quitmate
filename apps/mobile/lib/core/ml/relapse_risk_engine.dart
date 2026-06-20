@@ -192,7 +192,7 @@ class RelapseRiskEngine {
       totalScore += factors[i].score * weights[i];
     }
 
-    final overallScore = totalScore.round().clamp(0, 100);
+    final overallScore = totalScore.round().clamp(0.0, 100.0);
     final level = _classifyLevel(overallScore);
     final summary = _buildSummary(level, overallScore, factors);
     final suggestions = _buildSuggestions(level, factors);
@@ -246,16 +246,16 @@ class RelapseRiskEngine {
         final daysSince = today.difference(lastDay).inDays;
 
         if (daysSince >= 2) {
-          score = (score + 30).clamp(0, 100);
+          score = (score + 30).clamp(0.0, 100.0);
         } else if (daysSince == 1) {
-          score = (score + 15).clamp(0, 100);
+          score = (score + 15).clamp(0.0, 100.0);
         }
       }
     }
 
     // Bonus protection if current streak is the longest ever.
     if (streak > 0 && streak >= longest && longest > 0) {
-      score = (score - 5).clamp(0, 100);
+      score = (score - 5).clamp(0.0, 100.0);
     }
 
     // Historical relapse rate — if user has relapsed frequently, higher risk.
@@ -263,9 +263,9 @@ class RelapseRiskEngine {
       final recentWeek = logs.length >= 7 ? logs.sublist(logs.length - 7) : logs;
       final relapseCount = recentWeek.where((l) => l.relapsed).length;
       if (relapseCount >= 3) {
-        score = (score + 20).clamp(0, 100);
+        score = (score + 20).clamp(0.0, 100.0);
       } else if (relapseCount >= 1) {
-        score = (score + 8).clamp(0, 100);
+        score = (score + 8).clamp(0.0, 100.0);
       }
     }
 
@@ -326,7 +326,7 @@ class RelapseRiskEngine {
           weekRecent.where((c) => !c.timestamp.isAfter(oneDayAgo)).length;
 
       if (precedingCount > 0 && lastDayCount > precedingCount * 1.5) {
-        score = (score + 15).clamp(0, 100);
+        score = (score + 15).clamp(0.0, 100.0);
       }
     }
 
@@ -337,7 +337,7 @@ class RelapseRiskEngine {
       score += unresolvedRate * 20;
     }
 
-    score = score.clamp(0, 100);
+    score = score.clamp(0.0, 100.0);
 
     final description = score < 25
         ? '近期渴望频率低，控制良好'
@@ -413,7 +413,7 @@ class RelapseRiskEngine {
       }
     }
 
-    score = score.clamp(0, 100);
+    score = score.clamp(0.0, 100.0);
 
     final description = score < 25
         ? '心情稳定，情绪管理良好'
@@ -463,7 +463,7 @@ class RelapseRiskEngine {
     final engagementBonus = min(profile.cravingsResisted * 0.3, 15);
     protection += engagementBonus;
 
-    final score = (100 - protection).clamp(0, 100);
+    final score = (100 - protection).clamp(0.0, 100.0);
 
     final description = score < 25
         ? '已完成 $exercisesTotal 个练习，防护充足'
@@ -541,7 +541,7 @@ class RelapseRiskEngine {
     }
 
     // Normalize: 1 craving × intensity 5 ≈ baseline, scale to 0-100.
-    final score = (maxRisk / 20.0 * 100).clamp(0, 100);
+    final score = (maxRisk / 20.0 * 100).clamp(0.0, 100.0);
 
     final description = score < 25
         ? '近期触发因素影响较小'
@@ -591,9 +591,9 @@ class RelapseRiskEngine {
     // Addiction severity modifier (Fagerström / AUDIT).
     final severityScore = user.fagerstromScore ?? user.auditScore ?? 0;
     if (severityScore >= 8) {
-      score = (score + 10).clamp(0, 100);
+      score = (score + 10).clamp(0.0, 100.0);
     } else if (severityScore >= 5) {
-      score = (score + 5).clamp(0, 100);
+      score = (score + 5).clamp(0.0, 100.0);
     }
 
     final description = score >= 60
@@ -663,7 +663,7 @@ class RelapseRiskEngine {
         socialCravings.where((c) => !c.resolved).length / socialCravings.length;
 
     var score = (avgIntensity / 10.0) * 50 + unresolvedSocial * 40 + socialCravings.length * 5;
-    score = score.clamp(0, 100);
+    score = score.clamp(0.0, 100.0);
 
     final description = score < 25
         ? '社交情境中的渴望控制良好'

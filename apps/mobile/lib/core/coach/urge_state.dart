@@ -89,25 +89,6 @@ class UrgeStateMachine {
   bool get isToolActive => _state != UrgeToolState.idle &&
       _state != UrgeToolState.completed;
 
-  /// 尝试转换到目标状态
-  ///
-  /// 返回 true 表示转换成功，false 表示非法转换
-  bool transitionTo(UgeToolState target) {
-    // ... wait, let me fix the type name
-    return false;
-  }
-}
-
-/// 修正版状态机
-class UrgeStateMachine2 {
-  UrgeToolState _state = UrgeToolState.idle;
-  UrgeSessionRecord? _currentSession;
-
-  UrgeToolState get state => _state;
-  UrgeSessionRecord? get currentSession => _currentSession;
-  bool get isToolActive =>
-      _state != UrgeToolState.idle && _state != UrgeToolState.completed;
-
   /// 定义合法的状态转换
   static const _validTransitions = <UrgeToolState, Set<UrgeToolState>>{
     UrgeToolState.idle: {

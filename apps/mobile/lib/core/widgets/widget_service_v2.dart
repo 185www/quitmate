@@ -10,11 +10,11 @@ library;
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
-import '../domain/entity/user.dart';
-import '../domain/entity/game_profile.dart';
-import '../domain/entity/daily_log.dart';
-import 'coach/craving_predictor.dart';
-import 'coach/relapse_risk_engine.dart';
+import '../../domain/entity/user.dart';
+import '../../domain/entity/game_profile.dart';
+import '../../domain/entity/daily_log.dart';
+import '../coach/craving_predictor.dart';
+import '../coach/relapse_risk_engine.dart';
 
 /// 小组件数据模型
 class WidgetData {

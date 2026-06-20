@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/entity/daily_task.dart';
+import '../../../domain/entity/daily_task.dart';
 
 /// Daily task checklist with completion counter and XP summary.
 ///

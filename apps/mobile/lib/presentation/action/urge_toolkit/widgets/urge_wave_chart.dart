@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show listEquals;
 import '../../../../core/theme/app_theme.dart';
 
 /// 冲浪会话记录数据点
@@ -324,8 +325,7 @@ class _UrgeWaveChartPainter extends CustomPainter {
 
     // ── Y轴标签 ──
     final labelPaint = Paint()
-      ..color = onSurfaceColor.withOpacity(isDark ? 0.4 : 0.35)
-      ..textSize = 9;
+      ..color = onSurfaceColor.withOpacity(isDark ? 0.4 : 0.35);
 
     for (int intensity = 0; intensity <= 10; intensity += 2) {
       final y = chartBottom - (intensity / 10.0) * chartHeight;

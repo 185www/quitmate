@@ -165,7 +165,7 @@ class RelapseToleranceService {
     required RelapseEvent newEvent,
   }) {
     final windowRelapses = _relapsesInWindow(recentRelapses);
-    final count = windowRelapses.length + 1; // +1 for the new event
+    final count = windowRelapses + 1; // +1 for the new event
 
     if (count == 1) {
       // 第一次复发：颠簸标记，保留连续天数
@@ -238,7 +238,7 @@ class RelapseToleranceService {
     }
 
     // 本周已用宽容次数
-    final currentForgivenessCount = _relapsesInWindow(allRelapses).length;
+    final currentForgivenessCount = _relapsesInWindow(allRelapses);
 
     // 生成鼓励语
     final encouragement = _generateEncouragement(

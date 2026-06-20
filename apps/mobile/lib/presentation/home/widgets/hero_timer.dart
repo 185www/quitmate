@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../domain/entity/user.dart';
+import '../../../domain/entity/user.dart';
 
 /// Hero timer section showing the quit-day counter, motivational message,
 /// and a rotating daily quote.

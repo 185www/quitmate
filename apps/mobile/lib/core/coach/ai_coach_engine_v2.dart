@@ -661,7 +661,7 @@ class AiCoachEngineV2 {
     if (context != null && context.hasContext) {
       final discussed = context.discussedTopics;
       // 提供尚未讨论过的话题作为选项
-      final un-discussed = ConversationTopics.all
+      final undiscussed = ConversationTopics.all
           .where((t) => !discussed.contains(t))
           .take(2)
           .toList();
@@ -676,10 +676,11 @@ class AiCoachEngineV2 {
     }
 
     // 默认回复
-    return _randomFrom([
+    final defaults = [
       ['说说我的进展', '有什么建议？', '我有点焦虑', '坚持不住了'],
       ['最近有点难熬', '睡眠不好怎么办？', '社交压力大', '帮我分析原因'],
-    ]);
+    ];
+    return defaults[Random().nextInt(defaults.length)];
   }
 
   String _topicToQuickReply(String topic) {

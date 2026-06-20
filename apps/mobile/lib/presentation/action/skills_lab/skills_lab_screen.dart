@@ -122,9 +122,9 @@ class _SkillsLabScreenState extends ConsumerState<SkillsLabScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loadingPreferences) {
-      return const Scaffold(
-        appBar: AppBar(title: Text('干预技能库')),
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        appBar: AppBar(title: const Text('干预技能库')),
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 

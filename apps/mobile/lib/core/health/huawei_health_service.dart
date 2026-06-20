@@ -12,6 +12,7 @@
 /// 当前为接口定义 + 方法存根，待集成 HMS SDK 后补充实现。
 library;
 
+import 'dart:async';
 import '../health/health_data_service.dart';
 
 /// 华为健康 Kit 数据类型映射
@@ -57,8 +58,13 @@ class HuaweiHealthService implements HealthDataService {
     return false;
   }
 
+  // ── HealthDataService interface ────────────────────────────────────────
+
   @override
-  Future<HealthSnapshot?> getLatestSnapshot(String userId) async {
+  Stream<HealthSnapshot?> get healthStream => const Stream.empty();
+
+  @override
+  Future<HealthSnapshot?> getLatestSnapshot() async {
     // TODO: 通过 HMS Health Kit API 获取最新健康数据
     // 1. 查询今日步数
     // 2. 查询最近心率
@@ -67,10 +73,18 @@ class HuaweiHealthService implements HealthDataService {
   }
 
   @override
-  Stream<HealthSnapshot> watchSnapshots(String userId) {
-    // TODO: 注册 HMS Health Kit 数据变化监听
-    return Stream.empty();
+  Future<void> recordSelfReport(HealthSnapshot snapshot) async {
+    // 华为平台集成暂不支持自报数据通过此通道写入
+    // 自报数据应使用 SelfReportHealthService
   }
+
+  @override
+  bool get hasPlatformIntegration => false;
+
+  @override
+  Future<bool> initializePlatform() async => false;
+
+  // ── Huawei-specific methods ───────────────────────────────────────────
 
   /// 获取指定日期范围的步数汇总
   Future<int> getStepsRange({
@@ -95,9 +109,6 @@ class HuaweiHealthService implements HealthDataService {
     // 包含：入睡时间、醒来时间、深睡时长、浅睡时长、REM 时长
     return null;
   }
-
-  @override
-  void dispose() {}
 }
 
 /// 心率数据点

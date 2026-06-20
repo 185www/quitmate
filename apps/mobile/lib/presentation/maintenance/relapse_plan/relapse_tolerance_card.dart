@@ -439,7 +439,7 @@ class _RelapseToleranceCardState extends State<RelapseToleranceCard>
           ),
         ),
         SizedBox(height: spacing.xs),
-        ...events.take(5).asMap().entries.map((entry) {
+        ...events.take(5).toList().asMap().entries.map((entry) {
           final idx = entry.key;
           final event = entry.value;
           final tips = _recoveryTipsFor(event);
@@ -642,6 +642,12 @@ class _RecordRelapseSheet extends StatefulWidget {
 
   @override
   State<_RecordRelapseSheet> createState() => _RecordRelapseSheetState();
+
+
+  List<String> _recoveryTipsFor(RelapseEvent event) {
+    final service = RelapseToleranceService();
+    return service.getRecoveryTips(event.trigger);
+  }
 }
 
 class _RecordRelapseSheetState extends State<_RecordRelapseSheet> {

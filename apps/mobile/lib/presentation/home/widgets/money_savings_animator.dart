@@ -210,7 +210,7 @@ class _CoinStackPainter extends CustomPainter {
       fontWeight: FontWeight.bold,
     );
     final tp = TextPainter(
-      text: const TextSpan(text: '¥', style: billStyle),
+      text: TextSpan(text: '¥', style: billStyle),
       textDirection: TextDirection.ltr,
     );
     tp.layout();

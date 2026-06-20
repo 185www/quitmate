@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/health/health_data_service.dart';
 import '../../../core/health/stress_intervention_engine.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/di/providers.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HealthInsightCard

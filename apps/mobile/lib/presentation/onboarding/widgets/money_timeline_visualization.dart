@@ -413,7 +413,7 @@ class _TimelineEntryWidget extends StatelessWidget {
                                 ),
                             child: Row(
                                   children: [
-                                    Text(m.emoji, fontSize: 16),
+                                    Text(m.emoji, style: const TextStyle(fontSize: 16)),
                                     const SizedBox(width: 8),
                                     Expanded(
                                       child: Text(

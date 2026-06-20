@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../../../core/theme/app_theme.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../../../data/source/community_content_loader.dart';
@@ -217,6 +218,7 @@ class _CommunityStoriesScreenState extends State<CommunityStoriesScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+        final appColors = Theme.of(context).extension<AppColors>()!;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -507,6 +509,7 @@ class _StoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+        final appColors = Theme.of(context).extension<AppColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final categoryLabel =
         kStoryCategories.firstWhere((c) => c.id == story.category,
@@ -566,7 +569,7 @@ class _StoryCard extends StatelessWidget {
                     if (story.featured) ...[
                       const SizedBox(width: 6),
                       Icon(Icons.star_rounded,
-                          size: 14, color: colorScheme.achievementColor),
+                          size: 14, color: appColors.achievementColor),
                     ],
                     const Spacer(),
                     Text(
@@ -719,11 +722,11 @@ class _StoryCard extends StatelessWidget {
   Color _categoryColor(String category, ColorScheme colorScheme) {
     switch (category) {
       case 'success_story':
-        return colorScheme.successColor;
+        return appColors.successColor;
       case 'experience_sharing':
-        return colorScheme.coachColor;
+        return appColors.coachColor;
       case 'motivational_quote':
-        return colorScheme.companionColor;
+        return appColors.companionColor;
       case 'expert_advice':
         return colorScheme.tertiary;
       default:
@@ -750,6 +753,7 @@ class _FullStorySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+        final appColors = Theme.of(context).extension<AppColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final bottomInset = MediaQuery.of(context).padding.bottom;
 
@@ -809,7 +813,7 @@ class _FullStorySheet extends StatelessWidget {
                 if (story.featured) ...[
                   const SizedBox(width: 6),
                   Icon(Icons.star_rounded,
-                      size: 15, color: colorScheme.achievementColor),
+                      size: 15, color: appColors.achievementColor),
                 ],
                 const Spacer(),
                 IconButton(
@@ -837,7 +841,7 @@ class _FullStorySheet extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Divider(
                 height: 1,
-                color: colorScheme.dividerColor),
+                color: appColors.dividerColor),
           ),
 
           // ── Scrollable content ──
@@ -946,7 +950,7 @@ class _FullStorySheet extends StatelessWidget {
               color: colorScheme.surface,
               border: Border(
                 top: BorderSide(
-                    color: colorScheme.dividerColor, width: 1),
+                    color: appColors.dividerColor, width: 1),
               ),
             ),
             child: Row(
@@ -971,11 +975,11 @@ class _FullStorySheet extends StatelessWidget {
   Color _categoryColor(String category, ColorScheme colorScheme) {
     switch (category) {
       case 'success_story':
-        return colorScheme.successColor;
+        return appColors.successColor;
       case 'experience_sharing':
-        return colorScheme.coachColor;
+        return appColors.coachColor;
       case 'motivational_quote':
-        return colorScheme.companionColor;
+        return appColors.companionColor;
       case 'expert_advice':
         return colorScheme.tertiary;
       default:
@@ -1013,6 +1017,7 @@ class _SubmitStorySheetState extends State<_SubmitStorySheet> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+        final appColors = Theme.of(context).extension<AppColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final bottomInset = MediaQuery.of(context).padding.bottom;
 

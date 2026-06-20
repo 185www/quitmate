@@ -23,7 +23,7 @@ class UrgeToolkitScreen extends ConsumerStatefulWidget {
 class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
     with SingleTickerProviderStateMixin {
   // ---- 状态机 ----
-  final UrgeStateMachine2 _sm = UrgeStateMachine2();
+  final UrgeStateMachine _sm = UrgeStateMachine();
 
   // ---- 延迟计时器状态 ----
   int _delaySeconds = 300;
@@ -46,6 +46,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   late AnimationController _waveAnimController;
 
   String? _lastLoggedAlternative;
+  int _selectedIntensity = 5;
 
   static const _sosPhases = [
     {'label': '吸气', 'seconds': 4, 'emoji': '🌬'},
@@ -223,12 +224,16 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   void _logCravingSession(UrgeSessionRecord session) {
     try {
       final cravingRepo = ref.read(cravingRepositoryProvider);
-      cravingRepo.insertCraving(
-        intensity: session.intensity.toDouble(),
-        trigger: session.trigger ?? 'urge_toolkit',
-        copingUsed: session.toolUsed.name,
-        resolved: session.completed,
-      );
+      final user = ref.read(userUseCaseProvider).getCurrentUser();
+      if (user != null) {
+        cravingRepo.logCraving(
+          user.id,
+          session.intensity,
+          trigger: session.trigger ?? 'urge_toolkit',
+          copingUsed: session.toolUsed.name,
+          resolved: session.completed,
+        );
+      }
     } catch (_) {
       // 日志记录失败不阻断用户体验
     }
@@ -302,7 +307,9 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
       ),
     ];
 
-    return ListView padding: const EdgeInsets.all(16) children: [
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
       const Padding(
         padding: EdgeInsets.only(bottom: 16),
         child: Text(
@@ -331,7 +338,7 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
         title: Text(tool.title),
         subtitle: Text(tool.subtitle, style: const TextStyle(fontSize: 12)),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => _startTool(tool.state),
+        onTap: () => _startTool(tool.state, intensity: _selectedIntensity),
       ),
     );
   }
@@ -347,17 +354,13 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
                 style: TextStyle(fontWeight: FontWeight.w500)),
             const SizedBox(height: 8),
             Slider(
-              value: _sm.currentSession?.intensity.toDouble() ?? 5,
+              value: _selectedIntensity.toDouble(),
               min: 1,
               max: 10,
               divisions: 9,
-              label: '${_sm.currentSession?.intensity ?? 5}',
+              label: '$_selectedIntensity',
               onChanged: (v) => setState(() {
-                _sm.currentSession = UrgeSessionRecord(
-                  startTime: DateTime.now(),
-                  intensity: v.toInt(),
-                  toolUsed: UrgeToolState.idle,
-                );
+                _selectedIntensity = v.toInt();
               }),
             ),
           ],

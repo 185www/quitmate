@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../domain/entity/daily_log.dart';
+import '../../../domain/entity/daily_log.dart';
 
 /// Daily check-in card with mood emoji selectors and urge-level pills.
 ///

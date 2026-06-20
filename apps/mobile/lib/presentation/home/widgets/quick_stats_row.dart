@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../domain/entity/user.dart';
-import '../../domain/entity/game_profile.dart';
+import '../../../domain/entity/user.dart';
+import '../../../domain/entity/game_profile.dart';
 
 /// Three compact stat cards showing savings, life regained, and streak.
 ///

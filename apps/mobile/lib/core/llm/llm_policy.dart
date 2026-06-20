@@ -10,7 +10,7 @@
 /// 安全防护：如果 LLM 输出内容与安全规则矛盾（如"偶尔抽一支没关系"），添加免责声明
 library;
 
-import '../database/app_database.dart';
+import '../../data/database/app_database.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Exceptions
@@ -172,32 +172,24 @@ class LlmPolicy {
     String result = input;
 
     // 手机号码：1开头11位数字
-    result = RegExp(r'1[3-9]\d{9}').replaceFirstMapped(result, (m) {
-      return '[已隐藏]';
-    });
+    result = result.replaceFirstMapped(RegExp(r'1[3-9]\d{9}'), (m) => '[已隐藏]');
 
     // 身份证号：18位或15位
-    result = RegExp(r'\b[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]\b')
-        .replaceFirstMapped(result, (m) => '[已隐藏]');
+    result = result.replaceFirstMapped(RegExp(r'\b[1-9]\d{5}(?:19|20)\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}[\dXx]\b'), (m) => '[已隐藏]');
 
-    result = RegExp(r'\b[1-9]\d{5}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}\b')
-        .replaceFirstMapped(result, (m) => '[已隐藏]');
+    result = result.replaceFirstMapped(RegExp(r'\b[1-9]\d{5}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])\d{3}\b'), (m) => '[已隐藏]');
 
     // 邮箱
-    result = RegExp(r'[\w.+-]+@[\w-]+\.[\w.]+')
-        .replaceFirstMapped(result, (m) => '[已隐藏]');
+    result = result.replaceFirstMapped(RegExp(r'[\w.+-]+@[\w-]+\.[\w.]+'), (m) => '[已隐藏]');
 
     // 银行卡号：16-19位连续数字（排除手机号已匹配的）
-    result = RegExp(r'\b[3-6]\d{15,18}\b')
-        .replaceFirstMapped(result, (m) => '[已隐藏]');
+    result = result.replaceFirstMapped(RegExp(r'\b[3-6]\d{15,18}\b'), (m) => '[已隐藏]');
 
     // IP 地址
-    result = RegExp(r'\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b')
-        .replaceFirstMapped(result, (m) => '[已隐藏]');
+    result = result.replaceFirstMapped(RegExp(r'\b(?:(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\.){3}(?:25[0-5]|2[0-4]\d|[01]?\d\d?)\b'), (m) => '[已隐藏]');
 
     // 中国地址格式：XX省XX市...  或 XX市XX区...
-    result = RegExp(r'[\u4e00-\u9fa5]{1,4}(?:省|自治区|市|区|县|镇|乡|村|路|街|道|号|栋|室|楼)\S*')
-        .replaceFirstMapped(result, (m) => '[已隐藏]');
+    result = result.replaceFirstMapped(RegExp(r'[\u4e00-\u9fa5]{1,4}(?:省|自治区|市|区|县|镇|乡|村|路|街|道|号|栋|室|楼)\S*'), (m) => '[已隐藏]');
 
     return result;
   }
