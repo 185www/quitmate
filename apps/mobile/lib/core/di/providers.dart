@@ -27,6 +27,11 @@ import '../../core/sync/data_encryption.dart';
 import '../../core/export/fhir_exporter.dart';
 import '../../core/export/medical_interface.dart';
 import '../../core/content/ota_content_manager.dart';
+import '../../core/enterprise/eap_service.dart';
+import '../../core/enterprise/enterprise_challenge.dart';
+import '../../core/subscription/subscription_service.dart';
+import '../../core/api/open_api_service.dart';
+import '../../core/wearable/wearable_service.dart';
 
 final appDatabaseProvider = Provider((ref) => AppDatabase());
 final encryptionServiceProvider = Provider((ref) => EncryptionService());
@@ -104,6 +109,36 @@ final medicalInterfaceProvider = Provider<MedicalInterface>((ref) {
 
 final otaContentManagerProvider = Provider((ref) {
   return OtaContentManager(ref.watch(appDatabaseProvider));
+});
+
+// ──────────────────────────────────────────────────────────
+// Phase 4 — 商业化探索 Providers
+// ──────────────────────────────────────────────────────────
+
+/// 企业EAP服务（本地占位实现）
+final eapServiceProvider = Provider<EapService>((ref) {
+  return LocalEapService();
+});
+
+/// 企业挑战管理器
+final enterpriseChallengeManagerProvider = Provider((ref) {
+  return EnterpriseChallengeManager();
+});
+
+/// 订阅服务（默认免费版）
+final subscriptionServiceProvider = Provider((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return SubscriptionService(db);
+});
+
+/// 开放平台API服务（本地占位实现）
+final openApiServiceProvider = Provider<OpenApiService>((ref) {
+  return LocalOpenApiService();
+});
+
+/// 可穿戴设备服务（本地占位实现）
+final wearableServiceProvider = Provider<WearableService>((ref) {
+  return LocalWearableService();
 });
 
 final appRouterProvider = Provider((ref) {
