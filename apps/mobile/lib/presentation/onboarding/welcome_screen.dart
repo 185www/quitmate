@@ -88,7 +88,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 const SizedBox(height: 24),
                 // Skip to assessment
                 TextButton(
-                  onPressed: () => context.push('/onboarding/assessment'),
+                  onPressed: () => context.push('/onboarding/reality-check'),
                   child: Text(
                     '直接开始评估 →',
                     style: TextStyle(

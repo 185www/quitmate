@@ -48,7 +48,6 @@ class AppRouter {
       final onBoardingRoutes = [
         '/welcome',
         '/onboarding/reality-check',
-        '/onboarding/assessment',
         '/onboarding/education',
         '/onboarding/motivation',
         '/onboarding/discovery',
