@@ -223,6 +223,33 @@ class LlmPromptBuilder {
     return '戒断天数：$daysSinceQuit天，连续打卡：$streakDays天，昨天心情：$yesterdayMood/5，昨天渴望次数：$yesterdayCravingCount次，今日风险等级：$riskLevel';
   }
 
+  /// Compressed week data summary for cost-effective LLM calls.
+  /// Replaces raw data with aggregated insights from PatternAnalyzer.
+  String buildCompressedWeekSummary({
+    required int totalCravings,
+    required double avgIntensity,
+    required double avgMood,
+    required int resistedCount,
+    required double resistRate,
+    required int relapseDays,
+    required int loggedDays,
+    String? peakDay,
+    int? peakHour,
+    required String topTriggerSummary,
+    required String timePatternSummary,
+  }) {
+    final buffer = StringBuffer();
+    buffer.writeln('## 本周摘要');
+    buffer.writeln('- 渴望 $totalCravings 次（抵抗率 ${resistRate.toStringAsFixed(0)}%）');
+    buffer.writeln('- 平均强度 ${avgIntensity.toStringAsFixed(1)}/10，平均心情 ${avgMood.toStringAsFixed(1)}/5');
+    buffer.writeln('- 复发 $relapseDays 天 / 打卡 $loggedDays 天');
+    if (peakDay != null) buffer.writeln('- 渴望最高日：$peakDay');
+    if (peakHour != null) buffer.writeln('- 高峰时段：${peakHour}点');
+    if (topTriggerSummary.isNotEmpty) buffer.writeln('- $topTriggerSummary');
+    if (timePatternSummary.isNotEmpty) buffer.writeln('- $timePatternSummary');
+    return buffer.toString();
+  }
+
   /// Calls the LLM to enrich local craving-pattern insights and returns
   /// additional [AnalysisInsight] objects.
   ///
