@@ -165,7 +165,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       backgroundColor: colorScheme.surface,
       body: RefreshIndicator(
         onRefresh: () async {
-          await _loadData();
+          _loadData();
           // Also refresh the AI insight card
           ref.invalidate(dailyInsightProvider);
         },

@@ -37,7 +37,7 @@ class _AiInsightCardState extends ConsumerState<AiInsightCard> {
     final colorScheme = Theme.of(context).colorScheme;
 
     // Determine gradient colors based on insight type
-    final gradientColors = insightAsync.whenOrNull<DailyInsight, List<Color>>(
+    final gradientColors = insightAsync.whenOrNull<List<Color>>(
       data: (insight) => _gradientForType(insight?.type, colorScheme),
     ) ?? [
       colorScheme.primary.withAlpha(200),
@@ -111,7 +111,7 @@ class _AiInsightCardState extends ConsumerState<AiInsightCard> {
                             ),
                           ),
                           const SizedBox(height: 2),
-                          insightAsync.whenOrNull<DailyInsight, Widget>(
+                          insightAsync.whenOrNull<Widget>(
                             data: (insight) => Text(
                               insight?.headline ?? '分析中…',
                               style: TextStyle(

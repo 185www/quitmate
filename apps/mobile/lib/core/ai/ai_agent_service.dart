@@ -10,16 +10,16 @@
 /// Results are cached in memory with date-based invalidation.
 library;
 
-import 'package:quitmate/domain/entity/user.dart';
-import 'package:quitmate/domain/entity/game_profile.dart';
-import 'package:quitmate/domain/entity/daily_log.dart';
-import 'package:quitmate/domain/entity/analysis.dart';
-import 'package:quitmate/core/coach/llm_service.dart';
-import 'package:quitmate/core/coach/daily_insight_generator.dart';
-import 'package:quitmate/core/coach/pattern_analyzer.dart';
-import 'package:quitmate/core/coach/llm_prompt_builder.dart';
-import 'package:quitmate/core/coach/analysis_utils.dart';
-import 'package:quitmate/core/llm/llm_policy.dart';
+import 'package:QuitMate/domain/entity/user.dart';
+import 'package:QuitMate/domain/entity/game_profile.dart';
+import 'package:QuitMate/domain/entity/daily_log.dart';
+import 'package:QuitMate/domain/entity/analysis.dart';
+import 'package:QuitMate/core/coach/llm_service.dart';
+import 'package:QuitMate/core/coach/daily_insight_generator.dart';
+import 'package:QuitMate/core/coach/pattern_analyzer.dart';
+import 'package:QuitMate/core/coach/llm_prompt_builder.dart';
+import 'package:QuitMate/core/coach/analysis_utils.dart';
+import 'package:QuitMate/core/llm/llm_policy.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AiAgentService
