@@ -32,6 +32,14 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
   void initState() {
     super.initState();
     _updateDefaults();
+    _loadExistingAge();
+  }
+
+  Future<void> _loadExistingAge() async {
+    final user = await ref.read(userUseCaseProvider).getCurrentUser();
+    if (user != null && user.age != null && mounted) {
+      setState(() => _age = user.age!);
+    }
   }
 
   void _updateDefaults() {
@@ -50,7 +58,6 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
         break;
     }
     _years = 5;
-    _age = 30;
   }
 
   @override
@@ -117,6 +124,7 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
             targetType: _targetType,
             dailyConsumption: _dailyAmount.toDouble(),
             yearsOfUse: _years,
+            age: _age,
             dailyCostAmount: _dailyCost.toDouble(),
           );
       if (mounted) {
@@ -600,6 +608,7 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
                         targetType: _targetType,
                         dailyConsumption: _dailyAmount.toDouble(),
                         yearsOfUse: _years,
+                        age: _age,
                         dailyCostAmount: _dailyCost.toDouble(),
                       );
                   if (mounted) context.go('/');
