@@ -14,6 +14,7 @@ class UserUseCase {
     int? auditScore,
     double? dailyConsumption,
     int? yearsOfUse,
+    int? age,
     double? dailyCostAmount,
   }) =>
       _repository.createUser(
@@ -23,6 +24,7 @@ class UserUseCase {
         auditScore: auditScore,
         dailyConsumption: dailyConsumption,
         yearsOfUse: yearsOfUse,
+        age: age,
         dailyCostAmount: dailyCostAmount,
       );
 
@@ -88,6 +90,7 @@ class UserUseCase {
     int? auditScore,
     double? dailyConsumption,
     int? yearsOfUse,
+    int? age,
     double? dailyCostAmount,
     required TargetType targetType,
   }) async {
@@ -103,6 +106,7 @@ class UserUseCase {
           auditScore: auditScore,
           dailyConsumption: dailyConsumption,
           yearsOfUse: yearsOfUse,
+          age: age,
           dailyCostAmount: dailyCostAmount,
         );
       }
@@ -113,6 +117,7 @@ class UserUseCase {
         auditScore: auditScore,
         dailyConsumption: dailyConsumption,
         yearsOfUse: yearsOfUse,
+        age: age,
         dailyCostAmount: dailyCostAmount,
       );
       return newId;
@@ -123,6 +128,7 @@ class UserUseCase {
       auditScore: auditScore,
       dailyConsumption: dailyConsumption,
       yearsOfUse: yearsOfUse,
+      age: age,
       dailyCostAmount: dailyCostAmount,
     );
   }
