@@ -78,8 +78,8 @@
             android:textColor="#B0BEC5" />
     </LinearLayout>
 
-    <!-- Compact SOS button -->
-    <Button
+    <!-- Compact SOS button (use TextView to avoid baseline/gravity conflict with compileSdk 36) -->
+    <TextView
         android:id="@+id/widget_sos"
         android:layout_width="match_parent"
         android:layout_height="24dp"
@@ -88,8 +88,6 @@
         android:text="SOS 渴望来了"
         android:textColor="#FFFFFF"
         android:textSize="12sp"
-        android:textAllCaps="false"
-        android:minHeight="0dp"
-        android:minWidth="0dp" />
+        android:gravity="center" />
 
 </LinearLayout>

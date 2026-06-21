@@ -491,7 +491,7 @@ class _FutureSavingsSection extends StatelessWidget {
                     size: 18, color: colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  '如果今天开始戒${unitLabel}…',
+                  '如果今天开始戒$unitLabel…',
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: colorScheme.primary,
@@ -566,7 +566,6 @@ class _RisingCoinsPainter extends CustomPainter {
       // Each coin rises from bottom with slight horizontal offset.
       final baseX = size.width * (0.15 + 0.7 * (i / (coinCount - 1)));
       final xOffset = math.sin(i * 1.5 + progress * 4) * 6;
-      final yProgress = (1 - coinProgress);
       final yOffset = size.height * (0.8 - 0.7 * coinProgress);
 
       final coinRadius = 10.0 + (i % 3) * 2;

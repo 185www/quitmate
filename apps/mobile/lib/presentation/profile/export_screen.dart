@@ -60,7 +60,7 @@ class ExportScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Card(
-              color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(

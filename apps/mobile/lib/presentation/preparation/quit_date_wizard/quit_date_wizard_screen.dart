@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/notifications/notification_service.dart';
-import '../../../core/widgets/widget_service.dart';
 import '../../../core/widgets/widget_service_v2.dart';
 import '../../../core/coach/ai_agent_service.dart';
 import '../../../domain/entity/user.dart';

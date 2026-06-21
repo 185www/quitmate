@@ -36,7 +36,7 @@ void main() {
       expect(result.peakHour, equals(14));
       expect(result.peakIntensity, equals(7.0));
       expect(result.hourlyDistribution, isNotNull);
-      expect(result.hourlyDistribution![14], equals(1));
+      expect(result.hourlyDistribution[14], equals(1));
     });
 
     test('多个渴望在同一小时 → 集中模式', () {
@@ -60,7 +60,7 @@ void main() {
       final result = analyzer.analyzeTimePatterns(cravings);
       expect(result.peakHour, equals(15));
       expect(result.peakIntensity, closeTo(7.0, 0.1));
-      expect(result.hourlyDistribution![15], equals(3));
+      expect(result.hourlyDistribution[15], equals(3));
     });
 
     test('分散的渴望 → 分散模式摘要', () {
@@ -131,9 +131,9 @@ void main() {
         ),
       ];
       final result = analyzer.analyzeTimePatterns(cravings);
-      expect(result.hourlyDistribution![8], equals(2));
-      expect(result.hourlyDistribution![20], equals(1));
-      expect(result.hourlyDistribution!.length, equals(2));
+      expect(result.hourlyDistribution[8], equals(2));
+      expect(result.hourlyDistribution[20], equals(1));
+      expect(result.hourlyDistribution.length, equals(2));
     });
   });
 
@@ -739,7 +739,6 @@ void main() {
     });
 
     test('高峰时段返回更高值', () {
-      final now = DateTime.now();
       // 所有渴望在下午3点
       final cravings = [
         CravingEntry(
@@ -782,7 +781,6 @@ void main() {
     });
 
     test('高峰时段概率大于非高峰时段', () {
-      final now = DateTime.now();
       final cravings = [
         CravingEntry(
           userId: 1,

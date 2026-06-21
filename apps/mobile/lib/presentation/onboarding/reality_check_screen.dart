@@ -89,8 +89,6 @@ class _RealityCheckScreenState extends ConsumerState<RealityCheckScreen> {
     }
   }
 
-  String get _moneyUnit => _targetType == TargetType.alcohol ? '一瓶酒钱' : '一包烟钱';
-
   String get _healthImpact {
     final years = _years;
     if (years < 2) return '身体的伤害还处于早期阶段，但已经在累积';

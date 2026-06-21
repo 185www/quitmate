@@ -175,9 +175,9 @@ class _BrainPage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _BrainLabel('🧘 PFC\n自控', Colors.blue.shade100),
-                  _BrainLabel('🧪 NAc\n奖赏', Colors.orange.shade100),
-                  _BrainLabel('😌 杏仁核\n情绪', Colors.red.shade100),
+                  _brainLabel('🧘 PFC\n自控', Colors.blue.shade100),
+                  _brainLabel('🧪 NAc\n奖赏', Colors.orange.shade100),
+                  _brainLabel('😌 杏仁核\n情绪', Colors.red.shade100),
                 ],
               ),
             ),
@@ -189,7 +189,7 @@ class _BrainPage extends StatelessWidget {
     );
   }
 
-  Widget _BrainLabel(String text, Color color) {
+  Widget _brainLabel(String text, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration:

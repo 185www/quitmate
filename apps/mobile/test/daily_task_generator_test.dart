@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import '../lib/domain/entity/user.dart';
-import '../lib/domain/entity/daily_task.dart';
 import '../lib/core/daily_task/daily_task_generator.dart';
 
 void main() {

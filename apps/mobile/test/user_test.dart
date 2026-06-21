@@ -516,7 +516,6 @@ void main() {
     });
 
     test('修改stage后其他字段保持不变', () {
-      final now = DateTime.now();
       final user = createUser(stage: UserStage.preContemplation);
       final copy = user.copyWith(stage: UserStage.maintenance);
       expect(copy.stage, equals(UserStage.maintenance));

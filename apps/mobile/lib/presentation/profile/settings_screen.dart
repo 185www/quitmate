@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/di/providers.dart';
-import '../../core/coach/llm_service.dart';
 import '../../core/coach/ai_agent_service.dart';
 import '../../core/notifications/notification_content_generator.dart';
 
@@ -246,39 +245,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             subtitle: const Text('删除所有本地数据'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showClearDataDialog(context),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showEditDialog(
-      String title, String hint, String current, void Function(String) onSave,
-      {bool isSecret = false}) {
-    final controller = TextEditingController(text: current);
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: TextField(
-          controller: controller,
-          obscureText: isSecret,
-          decoration: InputDecoration(
-            hintText: hint,
-            border: const OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('取消'),
-          ),
-          FilledButton(
-            onPressed: () {
-              onSave(controller.text.trim());
-              Navigator.pop(ctx);
-            },
-            child: const Text('保存'),
           ),
         ],
       ),
