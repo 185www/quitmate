@@ -1,0 +1,92 @@
+[
+  {
+    "url": "https://github.com/sshashka",
+    "name": "sshashka - GitHub",
+    "snippet": "sshashka has 23 repositories available. Follow their code on GitHub.",
+    "host_name": "github.com",
+    "rank": 0,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://gist.github.com/ChristopherA/f31dbd8101c898e50a99d6049d424d0d",
+    "name": "Debian 9 Initial Install · GitHub",
+    "snippet": "Debian 9 Initial Install. GitHub Gist: instantly share code, notes, and snippets.",
+    "host_name": "gist.github.com",
+    "rank": 1,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/mate-desktop/mate-panel/issues/214",
+    "name": "container_child_background_set: Process /usr/bin/mate-panel was",
+    "snippet": "The alternative is to wait for end of background redraw ... I do not know how to quit mate-panel gently, so I tried many logouts, without a problem. However ...",
+    "host_name": "github.com",
+    "rank": 2,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/mate-desktop/mate-session-manager/issues/189",
+    "name": "shutdown triggers immediate logout (no chance to input  - GitHub",
+    "snippet": "Then click on restart or shutdown in the quit MATE dialog, you'll get logged out before the polkit authentication agent had the change to ...",
+    "host_name": "github.com",
+    "rank": 3,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/tailwindlabs/tailwindcss/discussions/11199",
+    "name": "Failed to load PostCSS config #11199 - GitHub",
+    "snippet": "This could be a bug(s) in Laravel Sail, Livewire or Tailwind CSS. What version of Tailwind CSS are you using? v3.3.2. What build tool (or framework if it ...",
+    "host_name": "github.com",
+    "rank": 4,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://github.com/ionic-team/capacitor/issues/6853",
+    "name": "bug: Execution failed for task ':capacitor-android  - GitHub",
+    "snippet": "On building the android platform the following error below occurs. Syncing of gradle files, clearing cache, cleaning etc. does not resolve.",
+    "host_name": "github.com",
+    "rank": 5,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://www.facebook.com/quitmateaus",
+    "name": "Quitmate (@quitmateaus) - Facebook",
+    "snippet": "The Quitmate program has been designed to help you quit smoking, with a group of doctors and support staff available every step of the way. It's time to quit, ...",
+    "host_name": "www.facebook.com",
+    "rank": 6,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://apps.apple.com/au/app/quitmate-quit-cigarettes/id6752107264",
+    "name": "QuitMate - Quit Cigarettes - App Store - Apple",
+    "snippet": "Meet QuitMate – your personal cigarette tracker designed to help you break free from nicotine addiction once and for all. Whether you're just starting your ...",
+    "host_name": "apps.apple.com",
+    "rank": 7,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://play.google.com/store/apps/details?id=com.quitmate.quit_mate&hl=en_US",
+    "name": "QuitMate Recovery Companion - Apps on Google Play",
+    "snippet": "QuitMate Recovery Companion is your ultimate partner on the journey to breaking free from addictions and bad habits. Take it one clean day ...",
+    "host_name": "play.google.com",
+    "rank": 8,
+    "date": "",
+    "favicon": ""
+  },
+  {
+    "url": "https://quitmate.me",
+    "name": "QuitMate - Your AI Quit Coach That Speaks Your Language",
+    "snippet": "A scientifically-designed 6-day program to help you quit smoking — powered by intelligent conversations, behavioral psychology, and real-time support in 74 ...",
+    "host_name": "quitmate.me",
+    "rank": 9,
+    "date": "",
+    "favicon": ""
+  }
+]
