@@ -11,6 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../ai/ai_agent_service.dart';
 import '../di/providers.dart';
 import '../../domain/entity/analysis.dart';
+import '../../domain/entity/user.dart';
+import '../../domain/entity/game_profile.dart';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -73,25 +75,28 @@ class DailyInsightNotifier extends AsyncNotifier<DailyInsight?> {
 
     // Gather data
     final user = await userUseCase.getCurrentUser();
-    if (user == null) return null;
+    if (user == null) {
+      // No user yet — return a welcoming insight instead of null
+      return DailyInsight(
+        headline: '开始记录你的旅程',
+        body: '完成引导设置后，AI 洞察将根据你的数据提供个性化分析。'
+            '每天打卡并记录渴望，分析会越来越精准。',
+        actionText: '完成设置',
+        actionRoute: '/onboarding',
+        type: InsightType.neutral,
+        relapseRiskScore: 50,
+      );
+    }
 
-    final gameProfile = await gameUseCase.getGameProfile(user.id);
-    if (gameProfile == null) return null;
+    // Use getOrCreateProfile — it auto-creates if missing (never returns null)
+    final gameProfile = await gameUseCase.getOrCreateProfile(user.id);
 
-    final todayLog = await logUseCase.getTodayLog();
-    final recentLogs = await logUseCase.getRecentLogs(limit: 7);
-
-    // Get craving entries via raw logs → CravingEntry conversion
-    final rawCravings = await cravingUseCase.getAllRawLogs();
-    final recentCravings = AiAgentService.parseCravingEntries(rawCravings);
-
-    // Generate insight (cached per day inside the agent)
-    return agent.generateDailyInsight(
+    return _generateWithProfile(
       user: user,
       gameProfile: gameProfile,
-      todayLog: todayLog,
-      recentLogs: recentLogs,
-      recentCravings: recentCravings,
+      logUseCase: logUseCase,
+      cravingUseCase: cravingUseCase,
+      agent: agent,
     );
   }
 
@@ -108,23 +113,49 @@ class DailyInsightNotifier extends AsyncNotifier<DailyInsight?> {
       final cravingUseCase = ref.read(cravingUseCaseProvider);
 
       final user = await userUseCase.getCurrentUser();
-      if (user == null) return null;
+      if (user == null) {
+        return DailyInsight(
+          headline: '开始记录你的旅程',
+          body: '完成引导设置后，AI 洞察将根据你的数据提供个性化分析。',
+          actionText: '完成设置',
+          actionRoute: '/onboarding',
+          type: InsightType.neutral,
+          relapseRiskScore: 50,
+        );
+      }
 
-      final gameProfile = await gameUseCase.getGameProfile(user.id);
-      if (gameProfile == null) return null;
+      final gameProfile = await gameUseCase.getOrCreateProfile(user.id);
 
-      final todayLog = await logUseCase.getTodayLog();
-      final recentLogs = await logUseCase.getRecentLogs(limit: 7);
-      final rawCravings = await cravingUseCase.getAllRawLogs();
-      final recentCravings = AiAgentService.parseCravingEntries(rawCravings);
-
-      return agent.generateDailyInsight(
+      return _generateWithProfile(
         user: user,
         gameProfile: gameProfile,
-        todayLog: todayLog,
-        recentLogs: recentLogs,
-        recentCravings: recentCravings,
+        logUseCase: logUseCase,
+        cravingUseCase: cravingUseCase,
+        agent: agent,
       );
     });
+  }
+
+  /// Shared helper: gather logs/cravings and generate insight via agent.
+  Future<DailyInsight> _generateWithProfile({
+    required User user,
+    required GameProfile gameProfile,
+    required dynamic logUseCase,
+    required dynamic cravingUseCase,
+    required AiAgentService agent,
+  }) async {
+    final todayLog = await logUseCase.getTodayLog();
+    final recentLogs = await logUseCase.getRecentLogs(limit: 7);
+
+    final rawCravings = await cravingUseCase.getAllRawLogs();
+    final recentCravings = AiAgentService.parseCravingEntries(rawCravings);
+
+    return agent.generateDailyInsight(
+      user: user,
+      gameProfile: gameProfile,
+      todayLog: todayLog,
+      recentLogs: recentLogs,
+      recentCravings: recentCravings,
+    );
   }
 }
