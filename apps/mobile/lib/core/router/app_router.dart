@@ -13,6 +13,7 @@ import '../../presentation/onboarding/motivation/motivation_screen.dart';
 import '../../presentation/preparation/quit_date_wizard/quit_date_wizard_screen.dart';
 import '../../presentation/action/urge_toolkit/urge_toolkit_screen.dart';
 import '../../presentation/action/daily_log/daily_log_screen.dart';
+import '../../presentation/action/awareness_diary/awareness_diary_screen.dart';
 import '../../presentation/action/skills_lab/skills_lab_screen.dart';
 import '../../presentation/action/coach/chat_screen.dart';
 import '../../presentation/action/challenge/challenge_screen.dart';

@@ -65,11 +65,8 @@ class _AwarenessDiaryScreenState extends ConsumerState<AwarenessDiaryScreen> {
       await ref.read(logUseCaseProvider).logToday(
             mood: 3, // neutral default
             urgeLevel: null,
-            relapsed: true, // awareness diary doesn't judge
+            relapsed: false,
             notes: text,
-            isAwarenessLog: true,
-            awarenessType: _awarenessType ?? 'free',
-            rawInput: text,
           );
 
       if (mounted) {
@@ -141,9 +138,15 @@ class _AwarenessDiaryScreenState extends ConsumerState<AwarenessDiaryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('觉察日记'),
-        subtitle: Text(
-          '记录你的真实感受，没有对错',
-          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(20),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Text(
+              '记录你的真实感受，没有对错',
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -153,7 +156,7 @@ class _AwarenessDiaryScreenState extends ConsumerState<AwarenessDiaryScreen> {
           children: [
             // ── Explanation card ──
             Card(
-              color: primary.withValues(alpha: 0.08),
+              color: primary.withOpacity(0.08),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
               ),

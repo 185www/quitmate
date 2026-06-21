@@ -10,6 +10,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../ai/ai_agent_service.dart';
 import '../di/providers.dart';
+import '../../domain/entity/analysis.dart';
 
 
 // ─────────────────────────────────────────────────────────────────────────────
