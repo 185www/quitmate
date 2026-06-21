@@ -1,37 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="40dp"
+    android:layout_height="match_parent"
     android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:padding="8dp"
-    android:background="@android:color/white">
+    android:padding="12dp"
+    android:background="@drawable/widget_dark_card_bg">
 
+    <!-- Risk emoji + label -->
     <TextView
         android:id="@+id/risk_label_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="风险"
+        android:text="⚠️ 风险等级"
         android:textSize="12sp"
+        android:textColor="#90A4AE"
         android:textStyle="bold"
-        android:paddingEnd="8dp" />
+        android:paddingEnd="10dp" />
 
+    <!-- Risk score number (color-coded by Java provider) -->
     <TextView
         android:id="@+id/risk_score_text"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:text="0"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#4CAF50" />
 
-    <ProgressBar
-        android:id="@+id/craving_bar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="80dp"
-        android:layout_height="8dp"
-        android:layout_marginStart="8dp"
-        android:max="100"
-        android:progress="0" />
+    <!-- Spacer -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Craving intensity indicator -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ProgressBar
+            android:id="@+id/craving_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="60dp"
+            android:layout_height="8dp"
+            android:max="100"
+            android:progress="0"
+            android:progressDrawable="@drawable/widget_craving_bar" />
+
+    </LinearLayout>
 
 </LinearLayout>
