@@ -1,11 +1,12 @@
 package org.quitmate.app;
 
+import android.appwidget.AppWidgetProvider;
 import android.appwidget.AppWidgetManager;
-import android.context.Context;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.widget.RemoteViews;
 
-public class RiskAlertWidgetProvider extends QuitMateWidgetProvider {
+public class RiskAlertWidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         for (int appWidgetId : appWidgetIds) {
@@ -14,7 +15,7 @@ public class RiskAlertWidgetProvider extends QuitMateWidgetProvider {
             SharedPreferences prefs = context.getSharedPreferences("QuitMateWidgetData", Context.MODE_PRIVATE);
             
             int riskScore = prefs.getInt("riskScore", 0);
-            String riskLabel = prefs.getString("riskLabel", "完全");
+            String riskLabel = prefs.getString("riskLabel", "\u5B8C\u5168");
             int cravingIntensity = prefs.getInt("cravingIntensity", 0);
             
             views.setTextViewText(R.id.risk_score_text, String.valueOf(riskScore));
@@ -23,8 +24,8 @@ public class RiskAlertWidgetProvider extends QuitMateWidgetProvider {
             
             // Color based on risk level
             int riskColor;
-            if (riskScore >= 70) riskColor = 0xFFF4444;
-            else if (riskScore >= 40) riskColor = 0xFFF8800;
+            if (riskScore >= 70) riskColor = 0xFFF44444;
+            else if (riskScore >= 40) riskColor = 0xFFFF8800;
             else riskColor = 0xFF44AA44;
             views.setTextColor(R.id.risk_score_text, riskColor);
             views.setTextColor(R.id.risk_label_text, riskColor);
