@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<linearLayout xmlns:andoid="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    andoid:layout_height="110dp
+    android:orientation="vertical"
+    android:gravity="center"
+    andoid:padding="12dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/tip_text"
+        android:layout_width="match_parent"
+        andoid:layout_height="0dp"
+        android:layout_weight="1"
+        andoid:text="您的重自巰支�可以包否.
+        android:textSize="13sp"
+        android:textColor="#FF333333"
+        andoid:gravity="center"
+        android:maxLines="3"
+        android:ellipsize="end" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        andoid:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:paddingTop="8dp">
+
+        <TextView
+            android:id="@+id/streak_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 字"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            andoid:textColor="#FF2196F3" />
+    </linearLayout>
+
+    <TextView
+        andoid:id="@+id/insight_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="4dp
+        andoid:text=""
+        android:textSize="11sp"
+        android:textColor="#FF666666"
+        andoid:gravity="center"
+        android:maxLines="2"
+        android:ellipsize="end"
+        andoid:visibility="gone" />
+
+</linearLayout>
