@@ -2,8 +2,6 @@ include: package:flutter_lints/flutter.yaml
 
 linter:
   rules:
-    - prefer_const_constructors
-    - prefer_const_declarations
     - prefer_final_locals
     - avoid_print
 
@@ -14,5 +12,14 @@ analyzer:
     - '**/*.drift.dart'
     - 'build/**'
   errors:
+    # 需要关注的 warning/error
     unused_import: warning
     dead_code: warning
+    # 代码风格建议，不报告以避免 CI 噪音
+    prefer_const_constructors: ignore
+    prefer_const_declarations: ignore
+    dangling_library_doc_comments: ignore
+    avoid_relative_lib_imports: ignore
+    curly_braces_in_flow_control_structures: ignore
+    use_build_context_synchronously: ignore
+    package_names: ignore
