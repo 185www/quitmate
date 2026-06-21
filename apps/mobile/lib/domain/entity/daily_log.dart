@@ -10,6 +10,16 @@ class DailyLogEntry {
   final int? consumption;
   final String? notes;
 
+  /// v6.1: 觉察日记标记。当为 true 时，此记录来自觉察日记而非传统打卡。
+  /// 觉察日记不要求用户"没有使用"，允许诚实记录。
+  final bool isAwarenessLog;
+
+  /// v6.1: 觉察日记类型——consumption(记录使用)|emotion(记录情绪)|trigger(记录触发)|free(自由记录)
+  final String? awarenessType;
+
+  /// v6.1: 觉察日记的原始用户输入文本（核心内容）
+  final String? rawInput;
+
   const DailyLogEntry({
     this.id,
     required this.userId,
@@ -21,6 +31,9 @@ class DailyLogEntry {
     this.relapsed = false,
     this.consumption,
     this.notes,
+    this.isAwarenessLog = false,
+    this.awarenessType,
+    this.rawInput,
   });
 
   DailyLogEntry copyWith({
@@ -34,6 +47,9 @@ class DailyLogEntry {
     bool? relapsed,
     int? consumption,
     String? notes,
+    bool? isAwarenessLog,
+    String? awarenessType,
+    String? rawInput,
   }) {
     return DailyLogEntry(
       id: id ?? this.id,
@@ -46,6 +62,9 @@ class DailyLogEntry {
       relapsed: relapsed ?? this.relapsed,
       consumption: consumption ?? this.consumption,
       notes: notes ?? this.notes,
+      isAwarenessLog: isAwarenessLog ?? this.isAwarenessLog,
+      awarenessType: awarenessType ?? this.awarenessType,
+      rawInput: rawInput ?? this.rawInput,
     );
   }
 }
