@@ -199,7 +199,7 @@ class AiAnalyst {
     ));
 
     // ---- Phase 2: LLM Enhancement (optional) ----
-    if (_llmService != null && _llmService!.isConfigured) {
+    if (_llmService != null && _llmService.isConfigured) {
       try {
         final userContext = _promptBuilder.buildUserContext(user, gameProfile);
         final localAnalysisText = _promptBuilder.buildLocalAnalysisText(
@@ -207,7 +207,7 @@ class AiAnalyst {
           recentLogs: logs,
         );
         final llmInsights = await _promptBuilder.enhanceWithLlm(
-          llmService: _llmService!,
+          llmService: _llmService,
           userContext: userContext,
           localAnalysisText: localAnalysisText,
           localInsights: insights,

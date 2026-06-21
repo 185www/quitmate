@@ -10,10 +10,7 @@ library;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../ai/ai_agent_service.dart';
 import '../di/providers.dart';
-import '../../domain/entity/analysis.dart';
-import '../../domain/entity/user.dart';
-import '../../domain/entity/game_profile.dart';
-import '../../domain/entity/daily_log.dart';
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // aiAgentProvider — singleton, lazily initialized

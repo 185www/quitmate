@@ -38,7 +38,7 @@ class DailyInsightGenerator {
   }) async {
     // Try LLM first for the richest insight
     if (_llmService != null &&
-        _llmService!.isConfigured &&
+        _llmService.isConfigured &&
         recentCravings.length >= 2) {
       try {
         return await _generateLlmDailyInsight(

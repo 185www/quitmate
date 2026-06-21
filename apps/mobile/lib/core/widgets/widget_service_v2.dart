@@ -8,7 +8,6 @@
 library;
 
 import 'dart:convert';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 import '../../domain/entity/user.dart';
 import '../../domain/entity/game_profile.dart';
@@ -115,7 +114,6 @@ class WidgetTips {
 /// 3. 显示每日任务完成进度
 /// 4. 每日自动刷新一条提示语
 class WidgetServiceV2 {
-  static const _widgetName = 'QuitMateWidget';
   static const _androidWidgetName = 'QuitMateWidgetProvider';
 
   /// LLM-generated personalized widget insight (cached, refreshed daily)

@@ -124,7 +124,6 @@ class AiCoachEngine {
       String userInput, User? user, GameProfile? gameProfile) {
     final input = userInput.toLowerCase();
     final days = user?.daysSinceQuit ?? 0;
-    final stage = user?.stage ?? UserStage.preContemplation;
 
     // 1. 抗拒检测（最高优先级）
     if (_containsAny(input, [

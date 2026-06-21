@@ -185,14 +185,13 @@ NotificationPlatformService createNotificationPlatformService(
     return AndroidNotificationPlatformService(plugin);
   }
   // Fallback for other platforms (macOS, etc.)
-  return _FallbackNotificationPlatformService(plugin);
+  return _FallbackNotificationPlatformService();
 }
 
 /// No-op fallback for desktop / web platforms.
 class _FallbackNotificationPlatformService
     implements NotificationPlatformService {
-  final FlutterLocalNotificationsPlugin _plugin;
-  _FallbackNotificationPlatformService(this._plugin);
+  _FallbackNotificationPlatformService();
 
   @override
   Future<void> initialize() async {

@@ -163,7 +163,6 @@ class _RiskDashboardCardState extends State<RiskDashboardCard>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final appColors = Theme.of(context).extension<AppColors>();
     final spacing = Theme.of(context).extension<AppSpacing>();
     final r = spacing?.cardRadius ?? 16;
     final p = spacing?.cardPadding ?? 20;

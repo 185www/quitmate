@@ -110,7 +110,6 @@ class UserUseCase {
           dailyCostAmount: dailyCostAmount,
         );
       }
-      final now = DateTime.now();
       final newId = await _repository.createUser(
         targetType: targetType,
         fagerstromScore: fagerstromScore,

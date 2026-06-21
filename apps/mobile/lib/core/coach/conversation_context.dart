@@ -4,8 +4,6 @@
 /// 使 AI Coach 能够生成连贯的跟进问题和个性化回应。
 library;
 
-import '../../domain/entity/daily_log.dart';
-
 /// 单条对话记录
 class ConversationTurn {
   final String id;

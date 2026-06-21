@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math';
 
 import '../../domain/entity/user.dart';
@@ -15,7 +14,6 @@ import '../sync/data_encryption.dart';
 ///
 /// 适用于中国医疗机构的数据对接需求。
 class FhirExporter {
-  static const String _fhirVersion = '4.0.1';
   static const String _quitMateSystem =
       'https://quitmate.app/fhir';
 

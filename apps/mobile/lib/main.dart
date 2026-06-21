@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'core/di/providers.dart';
 import 'core/error/app_error_handler.dart';
 import 'core/notifications/notification_service.dart';
-import 'core/widgets/widget_service.dart';
 import 'core/widgets/widget_service_v2.dart';
 import 'core/coach/ai_agent_service.dart';
 import 'presentation/privacy/pipl_consent_screen.dart';

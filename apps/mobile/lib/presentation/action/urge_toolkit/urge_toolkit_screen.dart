@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'scene_dialog.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/coach/urge_state.dart';
 
@@ -34,8 +33,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   int _sosPhaseSeconds = 0;
   Timer? _sosTimer;
   bool _sosComplete = false;
-  bool _sosActive = false;
-
   // ---- 接地技术状态 ----
   int _groundingStep = 0;
   int _groundingSubStep = 0;
@@ -45,7 +42,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   late AnimationController _breathAnimController;
   late AnimationController _waveAnimController;
 
-  String? _lastLoggedAlternative;
   int _selectedIntensity = 5;
 
   static const _sosPhases = [
@@ -153,7 +149,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
   // ---- SOS 呼吸练习 ----
 
   void _startBreathing() {
-    _sosActive = true;
     _sosPhase = 0;
     _sosPhaseSeconds = _sosPhases[0]['seconds'] as int;
     _sosComplete = false;
@@ -176,7 +171,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
           if (_sosPhase >= _sosPhases.length) {
             _sosTimer?.cancel();
             _sosComplete = true;
-            _sosActive = false;
             _breathAnimController.stop();
             _completeTool();
             return;
@@ -542,7 +536,6 @@ class _UrgeToolkitScreenState extends ConsumerState<UrgeToolkitScreen>
       return _buildCompletedUI();
     }
 
-    final label = _groundingLabels[_groundingStep];
     final count = _groundingStepCounts[_groundingStep];
     final progress = _groundingSubStep / count;
 

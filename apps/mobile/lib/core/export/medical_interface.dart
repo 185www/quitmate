@@ -71,9 +71,7 @@ abstract class MedicalInterface {
 /// 此实现不连接任何远程服务，所有数据来源于本地。
 /// 适用于完全离线使用的场景。
 class LocalMedicalInterface implements MedicalInterface {
-  final FhirExporter _fhirExporter;
-
-  LocalMedicalInterface(this._fhirExporter);
+  LocalMedicalInterface();
 
   @override
   Future<AnonymizedReport> generateMacroReport() async {

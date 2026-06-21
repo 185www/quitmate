@@ -218,7 +218,6 @@ class _CommunityStoriesScreenState extends State<CommunityStoriesScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-        final appColors = Theme.of(context).extension<AppColors>()!;
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -391,7 +390,6 @@ class _CommunityStoriesScreenState extends State<CommunityStoriesScreen> {
   }
 
   Widget _buildStoryList(ColorScheme colorScheme, TextTheme textTheme) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
     final filtered = _filteredStories;
     if (filtered.isEmpty) {
       return Center(
@@ -438,7 +436,6 @@ class _CommunityStoriesScreenState extends State<CommunityStoriesScreen> {
   }
 
   Widget _buildBookmarkList(ColorScheme colorScheme, TextTheme textTheme) {
-    final appColors = Theme.of(context).extension<AppColors>()!;
     final bookmarked =
         _stories.where((s) => _bookmarkedIds.contains(s.id)).toList();
 
@@ -1019,7 +1016,6 @@ class _SubmitStorySheetState extends State<_SubmitStorySheet> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-        final appColors = Theme.of(context).extension<AppColors>()!;
     final textTheme = Theme.of(context).textTheme;
     final bottomInset = MediaQuery.of(context).padding.bottom;
 

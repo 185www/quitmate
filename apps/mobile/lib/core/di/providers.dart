@@ -115,7 +115,7 @@ final fhirExporterProvider = Provider((ref) {
 });
 
 final medicalInterfaceProvider = Provider<MedicalInterface>((ref) {
-  return LocalMedicalInterface(ref.watch(fhirExporterProvider));
+  return LocalMedicalInterface();
 });
 
 final otaContentManagerProvider = Provider((ref) {

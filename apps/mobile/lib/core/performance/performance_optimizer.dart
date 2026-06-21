@@ -1,7 +1,6 @@
 /// Android 性能优化模块
 ///
 /// 集中管理启动速度、内存和电池优化策略。
-import 'dart:io';
 
 /// 性能配置常量
 class PerformanceConfig {

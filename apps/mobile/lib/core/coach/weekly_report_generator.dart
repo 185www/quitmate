@@ -69,7 +69,7 @@ class WeeklyReportGenerator {
     List<AnalysisInsight> llmHighlights = [];
 
     if (_llmService != null &&
-        _llmService!.isConfigured &&
+        _llmService.isConfigured &&
         weekLogs.length >= 3) {
       try {
         final llmResult = await _generateLlmWeeklyReport(

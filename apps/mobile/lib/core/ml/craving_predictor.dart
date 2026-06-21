@@ -150,9 +150,6 @@ class CravingPredictor {
   /// Minimum hours of consecutive risk to form a window.
   static const int _minimumWindowHours = 1;
 
-  /// Number of recent days to consider for "recent craving" factor.
-  static const int _recentDaysWindow = 3;
-
   // ── Public API ──────────────────────────────────────────────────────────
 
   /// Run the full prediction pipeline on the given craving history.

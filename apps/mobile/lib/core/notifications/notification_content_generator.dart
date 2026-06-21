@@ -1,5 +1,4 @@
 import '../coach/llm_service.dart';
-import '../coach/llm_prompt_builder.dart';
 
 /// Generates personalized notification content using LLM.
 /// Falls back to static templates when LLM is unavailable.

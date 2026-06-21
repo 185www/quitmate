@@ -90,7 +90,7 @@ class _CheckinCardState extends State<CheckinCard> {
                   Row(
                     children: [
                       Text('心情 ', style: Theme.of(context).textTheme.bodySmall),
-                      Text(_moodEmoji(log!.mood),
+                      Text(_moodEmoji(log.mood),
                           style: const TextStyle(fontSize: 22)),
                       const SizedBox(width: 20),
                       Text('渴望 ', style: Theme.of(context).textTheme.bodySmall),

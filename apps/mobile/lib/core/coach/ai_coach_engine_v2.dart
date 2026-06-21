@@ -60,7 +60,6 @@ class AiCoachEngineV2 {
   }) {
     // 1. 检测当前输入的主题和情绪
     final currentTopic = _detectTopic(userInput);
-    final currentEmotion = _detectEmotion(userInput);
 
     // 2. 检测话题切换
     final topicSwitched = context != null &&
@@ -69,7 +68,7 @@ class AiCoachEngineV2 {
 
     // 3. 构建回应文本（考虑上下文）
     String text;
-    if (topicSwitched && context != null) {
+    if (topicSwitched) {
       // 话题切换时，先承认之前的讨论，再回应新话题
       text = _buildTopicSwitchResponse(
         previousTopic: context.lastTopic!,
@@ -638,8 +637,6 @@ class AiCoachEngineV2 {
     ConversationContext? context,
     String? currentTopic,
   }) {
-    final input = userInput.toLowerCase();
-
     // 基于当前话题的标准回复
     if (currentTopic == ConversationTopics.craving) {
       return ['SOS按钮在哪？', '冲浪法怎么做？', '我之前抵抗过', '说点别的'];

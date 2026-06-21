@@ -10,7 +10,6 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:sqflite/sqflite.dart';
 
 import '../../data/database/app_database.dart';
 

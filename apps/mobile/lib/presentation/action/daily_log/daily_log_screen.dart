@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
-import '../../../core/widgets/widget_service.dart';
 import '../../../core/widgets/widget_service_v2.dart';
 import '../../../core/coach/ai_agent_service.dart';
 import '../../../domain/entity/daily_log.dart';
@@ -132,19 +131,15 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
   Widget _buildAlreadyLogged(ThemeData theme) {
     final log = _existingLog!;
 
-    IconData moodIcon;
     Color moodColor;
     switch (log.mood) {
       case 1:
-        moodIcon = Icons.sentiment_very_dissatisfied;
         moodColor = Colors.blue;
         break;
       case 5:
-        moodIcon = Icons.sentiment_very_satisfied;
         moodColor = Colors.amber;
         break;
       default:
-        moodIcon = Icons.sentiment_neutral;
         moodColor = Colors.grey;
         break;
     }

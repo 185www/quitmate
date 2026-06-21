@@ -136,7 +136,7 @@ class DailyOverviewCard extends StatelessWidget {
                   ),
                 ),
                 // Relapse warning badge
-                if (hasLog && log!.relapsed)
+                if (hasLog && log.relapsed)
                   Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 3),
@@ -212,7 +212,7 @@ class DailyOverviewCard extends StatelessWidget {
               Row(
                 children: List.generate(5, (index) {
                   final moodValue = index + 1;
-                  final isActive = log!.mood == moodValue;
+                  final isActive = log.mood == moodValue;
                   return Expanded(
                     child: GestureDetector(
                       child: Container(
@@ -252,7 +252,7 @@ class DailyOverviewCard extends StatelessWidget {
               // Mood label
               Center(
                 child: Text(
-                  moodEmoji(log!.mood),
+                  moodEmoji(log.mood),
                   style: TextStyle(
                     fontSize: 12,
                     color: colorScheme.onSurfaceVariant,
@@ -277,21 +277,21 @@ class DailyOverviewCard extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(4),
                       child: LinearProgressIndicator(
-                        value: ((log!.urgeLevel ?? 0) / 10)
+                        value: ((log.urgeLevel ?? 0) / 10)
                             .clamp(0.0, 1.0),
                         minHeight: 8,
                         backgroundColor:
                             colorScheme.surfaceContainerHighest,
                         valueColor: AlwaysStoppedAnimation(
                           _urgeColor(
-                              context, log!.urgeLevel ?? 0),
+                              context, log.urgeLevel ?? 0),
                         ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    '${log!.urgeLevel ?? 0}/10',
+                    '${log.urgeLevel ?? 0}/10',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,

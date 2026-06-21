@@ -324,9 +324,6 @@ class _UrgeWaveChartPainter extends CustomPainter {
     }
 
     // ── Y轴标签 ──
-    final labelPaint = Paint()
-      ..color = onSurfaceColor.withOpacity(isDark ? 0.4 : 0.35);
-
     for (int intensity = 0; intensity <= 10; intensity += 2) {
       final y = chartBottom - (intensity / 10.0) * chartHeight;
       final textSpan = TextSpan(
