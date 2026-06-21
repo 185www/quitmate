@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:text="&#60A8;&#7684;&#33258;&#24049;&#25903;&#20184;&#21487;&#20197;&#21253;&#21547;"
+        android:text="您的自主支付可以包含。"
         android:textSize="13sp"
         android:textColor="#FF333333"
         android:gravity="center"
@@ -30,7 +30,7 @@
             android:id="@+id/streak_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0 &#22825;"
+            android:text="0 天"
             android:textSize="16sp"
             android:textStyle="bold"
             android:textColor="#FF2196F3" />
