@@ -29,24 +29,31 @@ android {
 
     def keystorePropertiesFile = rootProject.file("key.properties")
     def keystoreProperties = new Properties()
-    if (keystorePropertiesFile.exists()) {
+    def hasKeystore = keystorePropertiesFile.exists()
+    if (hasKeystore) {
         keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
     }
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
-            release {
+        release {
+            if (hasKeystore) {
                 keyAlias keystoreProperties['keyAlias']
                 keyPassword keystoreProperties['keyPassword']
                 storeFile file(keystoreProperties['storeFile'])
                 storePassword keystoreProperties['storePassword']
+            } else {
+                // Fallback for CI builds without keystore
+                keyAlias "androiddebugkey"
+                keyPassword "android"
+                storeFile file("${System.getProperty('java.home')}/lib/security/cacerts")
+                storePassword "changeit"
             }
         }
     }
 
     buildTypes {
         release {
-            if (keystorePropertiesFile.exists()) {
+            if (hasKeystore) {
                 signingConfig = signingConfigs.release
             }
             shrinkResources false
