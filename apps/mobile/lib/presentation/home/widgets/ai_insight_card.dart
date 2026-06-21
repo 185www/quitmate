@@ -149,7 +149,7 @@ class _AiInsightCardState extends ConsumerState<AiInsightCard> {
 
                 // ── Body ──
                 const SizedBox(height: 8),
-                insightAsync.when<DailyInsight?>(
+                insightAsync.when<Widget>(
                   data: (insight) {
                     if (insight == null) {
                       return const Text(
