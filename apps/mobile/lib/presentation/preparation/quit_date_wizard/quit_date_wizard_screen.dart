@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/notifications/notification_service.dart';
 import '../../../core/widgets/widget_service.dart';
+import '../../../core/widgets/widget_service_v2.dart';
+import '../../../core/coach/ai_agent_service.dart';
 import '../../../domain/entity/user.dart';
 import '../../onboarding/widgets/notification_permission_dialog.dart';
 
@@ -101,7 +103,16 @@ class _QuitDateWizardScreenState extends ConsumerState<QuitDateWizardScreen> {
       }
       if (mounted) {
         final user = await ref.read(userUseCaseProvider).getCurrentUser();
-        await WidgetService.updateWidget(user);
+        // Use WidgetServiceV2 for enriched widget data
+        final gameProfile = user != null
+            ? await ref.read(gameUseCaseProvider).getGameProfile(user.id)
+            : null;
+        await WidgetServiceV2.updateWidgetData(
+          user: user,
+          gameProfile: gameProfile,
+          todayLog: null,
+          llmService: AiAgentService.instance.llmService,
+        );
         _showNotificationPermissionDialog();
       }
     } catch (e) {

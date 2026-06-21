@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/di/providers.dart';
+import '../../core/coach/llm_service.dart';
+import '../../core/coach/ai_agent_service.dart';
+import '../../core/notifications/notification_content_generator.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -66,13 +69,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       prefs['ai_model'] = _aiModel;
       await ref.read(userUseCaseProvider).savePreferences(prefs);
 
+      // Re-initialize AiAgentService with new LLM settings
+      await AiAgentService.instance.updateLlmService(
+        apiKey: _apiKey,
+        baseUrl: _apiBaseUrl,
+        model: _aiModel,
+        enabled: _useLlm,
+      );
+
       final notif = ref.read(notificationServiceProvider);
       if (_dailyReminder) {
+        // Generate personalized notification content via LLM or fallback
+        final user = await ref.read(userUseCaseProvider).getCurrentUser();
+        final llm = AiAgentService.instance.llmService;
+        final daysSinceQuit = user?.daysSinceQuit ?? 0;
+        final userContext = user != null
+            ? '戒断天数：$daysSinceQuit天，目标：${user.targetType.name}'
+            : null;
+        final body = await NotificationContentGenerator.generateMorningReminder(
+          daysSinceQuit: daysSinceQuit,
+          llmService: llm,
+          userContext: userContext,
+        );
         await notif.scheduleDailyReminder(
           hour: _reminderTime.hour,
           minute: _reminderTime.minute,
           title: 'QuitMate提醒',
-          body: '记得记录今天的进展！',
+          body: body,
         );
       } else {
         await notif.cancelAll();

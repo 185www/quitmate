@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/di/providers.dart';
 import '../../core/di/ai_providers.dart';
 import '../../core/widgets/widget_service.dart';
+import '../../core/widgets/widget_service_v2.dart';
+import '../../core/coach/ai_agent_service.dart';
 import '../../domain/entity/user.dart';
 import '../../domain/entity/daily_log.dart';
 import '../../domain/entity/game_profile.dart';
@@ -94,7 +96,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             '+${XpRewards.dailyCheckin + updated.streakDays * XpRewards.streakBonus} XP');
       }
     }
-    await WidgetService.updateWidget(user);
+    // Use WidgetServiceV2 for enriched widget data
+    final gameProfile = user != null
+        ? await ref.read(gameUseCaseProvider).getGameProfile(user.id)
+        : null;
+    final todayLog = await lc.getTodayLog();
+    await WidgetServiceV2.updateWidgetData(
+      user: user,
+      gameProfile: gameProfile,
+      todayLog: todayLog,
+      cravingIntensity: urge,
+      dailyTasksCompleted: _completedTaskIds.length,
+      dailyTasksTotal: _dailyTasks.length,
+      llmService: AiAgentService.instance.llmService,
+    );
     _loadData();
   }
 

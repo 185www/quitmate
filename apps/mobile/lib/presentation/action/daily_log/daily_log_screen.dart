@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/widgets/widget_service.dart';
+import '../../../core/widgets/widget_service_v2.dart';
+import '../../../core/coach/ai_agent_service.dart';
 import '../../../domain/entity/daily_log.dart';
 
 class DailyLogScreen extends ConsumerStatefulWidget {
@@ -77,7 +79,18 @@ class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
                 _notesController.text.isNotEmpty ? _notesController.text : null,
           );
       final user = await ref.read(userUseCaseProvider).getCurrentUser();
-      await WidgetService.updateWidget(user);
+      // Use WidgetServiceV2 for enriched widget data
+      final gameProfile = user != null
+          ? await ref.read(gameUseCaseProvider).getGameProfile(user.id)
+          : null;
+      final todayLog = await ref.read(logUseCaseProvider).getTodayLog();
+      await WidgetServiceV2.updateWidgetData(
+        user: user,
+        gameProfile: gameProfile,
+        todayLog: todayLog,
+        cravingIntensity: _urgeLevel ?? 0,
+        llmService: AiAgentService.instance.llmService,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(

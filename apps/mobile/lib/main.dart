@@ -7,6 +7,8 @@ import 'core/di/providers.dart';
 import 'core/error/app_error_handler.dart';
 import 'core/notifications/notification_service.dart';
 import 'core/widgets/widget_service.dart';
+import 'core/widgets/widget_service_v2.dart';
+import 'core/coach/ai_agent_service.dart';
 import 'presentation/privacy/pipl_consent_screen.dart';
 
 const _widgetChannel = MethodChannel('quitmate/widget');
@@ -65,8 +67,22 @@ class _QuitMateAppState extends ConsumerState<QuitMateApp> {
       if (route != null && route.isNotEmpty && mounted) {
         context.go(route);
       }
+      // Initialize AiAgentService from user preferences
+      final prefs = await ref.read(userUseCaseProvider).getPreferences();
+      await AiAgentService.instance.initialize(preferences: prefs);
+
+      // Use WidgetServiceV2 for enriched widget data
       final user = await ref.read(userUseCaseProvider).getCurrentUser();
-      await WidgetService.updateWidget(user);
+      final gameProfile = user != null
+          ? await ref.read(gameUseCaseProvider).getGameProfile(user.id)
+          : null;
+      final todayLog = await ref.read(logUseCaseProvider).getTodayLog();
+      await WidgetServiceV2.updateWidgetData(
+        user: user,
+        gameProfile: gameProfile,
+        todayLog: todayLog,
+        llmService: AiAgentService.instance.llmService,
+      );
     } catch (e) {
       debugPrint('Main: 处理小组件路由失败: $e');
     }
