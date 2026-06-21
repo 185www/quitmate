@@ -27,8 +27,8 @@ class LlmUsageTracker {
     final dailyOutput = _totalOutputTokens / daysActive;
 
     // GPT-4o Mini: input $0.15/1M, output $0.60/1M
-    final monthlyInputCost = (dailyInput * 30) * 0.15 / 1_000_000;
-    final monthlyOutputCost = (dailyOutput * 30) * 0.60 / 1_000_000;
+    final monthlyInputCost = (dailyInput * 30) * 0.15 / 1000000;
+    final monthlyOutputCost = (dailyOutput * 30) * 0.60 / 1000000;
     return monthlyInputCost + monthlyOutputCost;
   }
 
