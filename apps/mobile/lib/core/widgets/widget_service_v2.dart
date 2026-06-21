@@ -144,7 +144,7 @@ $userContext
           {'role': 'user', 'content': prompt},
         ]);
         // Clean and truncate if needed
-        return response.trim().replaceAll(RegExp(r'^["\']|["\']$'), '').substring(0, 40);
+        return response.trim().replaceAll(RegExp(r"""^["\']|["\']$"""), '').substring(0, 40);
       } catch (_) {
         // Fall back to static tip
       }
