@@ -50,6 +50,30 @@
                 android:resource="@xml/quitmate_widget_info" />
         </receiver>
 
+        <!-- Risk Alert Widget -->
+        <receiver
+            android:name=".RiskAlertWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/risk_alert_widget_info" />
+        </receiver>
+
+        <!-- Motivation Widget -->
+        <receiver
+            android:name=".MotivationWidgetProvider"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/motivation_widget_info" />
+        </receiver>
+
         <!-- Boot Receiver: 开机后重新注册通知提醒（国产ROM保活） -->
         <receiver
             android:name=".BootCompletedReceiver"
