@@ -16,7 +16,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 8,
+      version: 9,
       onCreate: (db, version) async => _createTables(db),
       onUpgrade: (db, oldV, newV) async {
         if (oldV < 2) {
@@ -50,6 +50,11 @@ class AppDatabase {
         if (oldV < 8) {
           await _createAppConfigTable(db);
         }
+        if (oldV < 9) {
+          try {
+            await db.execute('ALTER TABLE user_profile ADD COLUMN age INTEGER');
+          } catch (_) {}
+        }
       },
     );
   }
@@ -65,6 +70,7 @@ class AppDatabase {
         audit_score INTEGER,
         daily_consumption REAL,
         years_of_use INTEGER,
+        age INTEGER,
         daily_cost_amount REAL,
         preferences_encrypted TEXT,
         created_at TEXT NOT NULL,
