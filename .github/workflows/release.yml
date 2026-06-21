@@ -28,6 +28,19 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Decode Keystore
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > apps/mobile/android/app/quitmate-release.jks
+
+      - name: Create key.properties
+        run: |
+          cat > apps/mobile/android/key.properties << EOF
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          storeFile=quitmate-release.jks
+          EOF
+
       - name: Get dependencies
         run: flutter pub get
         working-directory: apps/mobile
