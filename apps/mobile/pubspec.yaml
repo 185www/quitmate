@@ -1,6 +1,6 @@
 name: QuitMate
 description: 戒烟戒酒综合干预应用 - 纯离线版
-version: 1.11.0+11
+version: 1.12.0+12
 publish_to: 'none'
 
 environment:
