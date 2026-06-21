@@ -23,6 +23,7 @@ class UserRepository {
           ? (profile['daily_consumption'] as num).toDouble()
           : null,
       yearsOfUse: profile['years_of_use'] as int?,
+      age: profile['age'] as int?,
       dailyCostAmount: profile['daily_cost_amount'] != null
           ? (profile['daily_cost_amount'] as num).toDouble()
           : null,
@@ -38,6 +39,7 @@ class UserRepository {
       int? auditScore,
       double? dailyConsumption,
       int? yearsOfUse,
+      int? age,
       double? dailyCostAmount}) async {
     final now = DateTime.now();
     final id = await _database.createUserProfile({
@@ -48,6 +50,7 @@ class UserRepository {
       'audit_score': auditScore,
       'daily_consumption': dailyConsumption,
       'years_of_use': yearsOfUse,
+      'age': age,
       'daily_cost_amount': dailyCostAmount,
       'created_at': now.toIso8601String(),
       'updated_at': now.toIso8601String(),
@@ -61,6 +64,7 @@ class UserRepository {
         auditScore: auditScore,
         dailyConsumption: dailyConsumption,
         yearsOfUse: yearsOfUse,
+        age: age,
         dailyCostAmount: dailyCostAmount,
         createdAt: now,
         updatedAt: now);
@@ -75,6 +79,7 @@ class UserRepository {
       int? auditScore,
       double? dailyConsumption,
       int? yearsOfUse,
+      int? age,
       double? dailyCostAmount}) async {
     final values = <String, dynamic>{
       'updated_at': DateTime.now().toIso8601String()
@@ -87,6 +92,7 @@ class UserRepository {
     if (dailyConsumption != null)
       values['daily_consumption'] = dailyConsumption;
     if (yearsOfUse != null) values['years_of_use'] = yearsOfUse;
+    if (age != null) values['age'] = age;
     if (dailyCostAmount != null) values['daily_cost_amount'] = dailyCostAmount;
     await _database.updateUserProfile(id, values);
     final user = await getCurrentUser();
