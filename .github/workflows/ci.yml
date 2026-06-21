@@ -30,7 +30,13 @@ jobs:
         working-directory: apps/mobile
 
       - name: Run Flutter analyze
-        run: flutter analyze
+        run: |
+          flutter analyze 2>&1 | tee /tmp/analyze.txt
+          # Only fail on error or warning level issues (ignore info-level style hints)
+          if grep -qE '^\s*(error|warning) ' /tmp/analyze.txt; then
+            echo "::error::Found error or warning level issues in flutter analyze"
+            exit 1
+          fi
         working-directory: apps/mobile
 
       - name: Check for formatting issues
