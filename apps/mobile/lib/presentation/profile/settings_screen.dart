@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/di/providers.dart';
-import '../../core/coach/llm_service.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -18,14 +17,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _loading = true;
   bool _saving = false;
 
-  // LLM settings
+  // LLM settings (summary only; full config moved to LlmSettingsScreen)
   String _apiKey = '';
   String _apiBaseUrl = 'https://api.openai.com/v1';
   String _aiModel = 'gpt-4o-mini';
   bool _useLlm = false;
-  bool _testingLlm = false;
-  bool _llmTested = false;
-  bool _llmConnected = false;
 
   @override
   void initState() {
@@ -204,61 +200,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const Divider(),
           _SectionHeader(title: 'AI教练设置'),
-          SwitchListTile(
-            title: const Text('启用LLM增强'),
-            subtitle: Text(_useLlm ? '使用API获取更智能的回复' : '使用内置规则引擎'),
-            value: _useLlm,
-            onChanged: (v) => setState(() => _useLlm = v),
+          ListTile(
+            leading: const Icon(Icons.psychology),
+            title: const Text('AI 助手设置'),
+            subtitle: Text(
+              _useLlm ? '已启用 · $_aiModel' : '使用内置规则引擎',
+              style: TextStyle(fontSize: 12, color: _useLlm ? null : Colors.grey),
+            ),
+            trailing: const Icon(Icons.chevron_right, size: 18),
+            onTap: () => context.push('/settings/llm'),
           ),
-          if (_useLlm) ...[
-            ListTile(
-              title: const Text('API地址'),
-              subtitle: Text(_apiBaseUrl, style: const TextStyle(fontSize: 12)),
-              trailing: const Icon(Icons.link, size: 18),
-              onTap: () => _showEditDialog('API地址', 'https://api.openai.com/v1',
-                  _apiBaseUrl, (v) => setState(() => _apiBaseUrl = v)),
-            ),
-            ListTile(
-              title: const Text('API Key'),
-              subtitle: Text(
-                _apiKey.isEmpty
-                    ? '未设置'
-                    : '${_apiKey.substring(0, 8.clamp(0, _apiKey.length))}...',
-                style: TextStyle(
-                    fontSize: 12, color: _apiKey.isEmpty ? Colors.grey : null),
-              ),
-              trailing: const Icon(Icons.key, size: 18),
-              onTap: () => _showEditDialog('API Key', 'sk-...', _apiKey,
-                  (v) => setState(() => _apiKey = v),
-                  isSecret: true),
-            ),
-            ListTile(
-              title: const Text('模型'),
-              subtitle: Text(_aiModel, style: const TextStyle(fontSize: 12)),
-              trailing: const Icon(Icons.memory, size: 18),
-              onTap: () => _showModelPicker(),
-            ),
-            ListTile(
-              title: const Text('测试连接'),
-              subtitle: Text(
-                _llmTested ? (_llmConnected ? '✅ 成功' : '❌ 失败') : '点击测试',
-              ),
-              trailing: _testingLlm
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.network_check, size: 18),
-              onTap: _testLlmConnection,
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-              child: Text(
-                '支持OpenAI、DeepSeek、Ollama等兼容API',
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-              ),
-            ),
-          ],
           const Divider(),
           _SectionHeader(title: '数据管理'),
           ListTile(
@@ -309,62 +260,6 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ],
       ),
     );
-  }
-
-  void _showModelPicker() {
-    final models = [
-      'gpt-4o-mini',
-      'gpt-4o',
-      'gpt-3.5-turbo',
-      'deepseek-chat',
-      'claude-3-haiku'
-    ];
-    showDialog(
-      context: context,
-      builder: (ctx) => SimpleDialog(
-        title: const Text('选择模型'),
-        children: models
-            .map((model) => RadioListTile<String>(
-                  title: Text(model, style: const TextStyle(fontSize: 14)),
-                  value: model,
-                  groupValue: _aiModel,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() => _aiModel = value);
-                      Navigator.pop(ctx);
-                    }
-                  },
-                ))
-            .toList(),
-      ),
-    );
-  }
-
-  Future<void> _testLlmConnection() async {
-    setState(() => _testingLlm = true);
-    try {
-      final service = LlmService(
-        apiKey: _apiKey,
-        baseUrl: _apiBaseUrl,
-        model: _aiModel,
-      );
-      final ok = await service.testConnection();
-      if (mounted) {
-        setState(() {
-          _llmTested = true;
-          _llmConnected = ok;
-          _testingLlm = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _llmTested = true;
-          _llmConnected = false;
-          _testingLlm = false;
-        });
-      }
-    }
   }
 
   void _openBatterySettings() {

@@ -25,6 +25,7 @@ import '../../presentation/profile/about_screen.dart';
 import '../../presentation/profile/badges_screen.dart';
 import '../../presentation/profile/analysis_report/analysis_report_screen.dart';
 import '../../presentation/profile/game_profile_screen.dart';
+import '../../presentation/profile/llm_settings_screen.dart';
 import '../../domain/usecase/user_usecase.dart';
 import '../../core/notifications/notification_service.dart';
 
@@ -138,6 +139,9 @@ class AppRouter {
       GoRoute(
           path: '/profile/game-profile',
           builder: (_, __) => const GameProfileScreen()),
+      GoRoute(
+          path: '/settings/llm',
+          builder: (_, __) => const LlmSettingsScreen()),
     ],
   );
 }
