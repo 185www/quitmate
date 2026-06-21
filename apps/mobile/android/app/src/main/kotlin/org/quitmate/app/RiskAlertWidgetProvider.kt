@@ -3,6 +3,7 @@ package org.quitmate.app
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.util.Log
 import android.widget.RemoteViews
 
 class RiskAlertWidgetProvider : AppWidgetProvider() {
@@ -12,11 +13,16 @@ class RiskAlertWidgetProvider : AppWidgetProvider() {
         appWidgetIds: IntArray
     ) {
         for (appWidgetId in appWidgetIds) {
-            updateWidget(context, appWidgetManager, appWidgetId)
+            try {
+                updateWidget(context, appWidgetManager, appWidgetId)
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to update widget $appWidgetId", e)
+            }
         }
     }
 
     companion object {
+        private const val TAG = "RiskAlertWidget"
         const val PREFS_NAME = "RiskAlertWidgetPreferences"
         const val KEY_RISK_SCORE = "risk_score"
         const val KEY_CRAVING = "craving_intensity"
@@ -31,12 +37,11 @@ class RiskAlertWidgetProvider : AppWidgetProvider() {
             views.setTextViewText(R.id.risk_score_text, riskScore.toString())
             views.setProgressBar(R.id.craving_bar, 100, craving, false)
 
-            // Color-code risk score: green (low) -> yellow -> red (high)
             val color = when {
-                riskScore < 30 -> "#4CAF50"  // Green
-                riskScore < 60 -> "#FFC107"  // Yellow
-                riskScore < 80 -> "#FF9800"  // Orange
-                else -> "#F44336"            // Red
+                riskScore < 30 -> "#4CAF50"
+                riskScore < 60 -> "#FFC107"
+                riskScore < 80 -> "#FF9800"
+                else -> "#F44336"
             }
             views.setTextColor(R.id.risk_score_text, android.graphics.Color.parseColor(color))
 
