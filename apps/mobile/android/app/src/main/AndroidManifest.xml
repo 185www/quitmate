@@ -53,7 +53,7 @@
         <!-- Risk Alert Widget -->
         <receiver
             android:name=".RiskAlertWidgetProvider"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -65,7 +65,7 @@
         <!-- Motivation Widget -->
         <receiver
             android:name=".MotivationWidgetProvider"
-            android:exported="false">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
