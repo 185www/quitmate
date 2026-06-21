@@ -2,20 +2,20 @@
 class GameProfile {
   final int id;
   final int userId;
-  int level; // Current level (1-100)
-  int xp; // Current XP in this level
-  int totalXp; // Total lifetime XP
-  int streakDays; // Current consecutive check-in streak
-  int longestStreak; // Longest streak ever achieved
-  int checkinTotal; // Total check-ins ever
-  DateTime? lastCheckinDate;
-  DateTime createdAt;
-  DateTime updatedAt;
+  final int level; // Current level (1-100)
+  final int xp; // Current XP in this level
+  final int totalXp; // Total lifetime XP
+  final int streakDays; // Current consecutive check-in streak
+  final int longestStreak; // Longest streak ever achieved
+  final int checkinTotal; // Total check-ins ever
+  final DateTime? lastCheckinDate;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   // Achievement counts
-  int cravingsResisted; // Total cravings resisted
-  int exercisesCompleted; // Total exercises completed
-  int sosUsedCount; // Total SOS uses
+  final int cravingsResisted; // Total cravings resisted
+  final int exercisesCompleted; // Total exercises completed
+  final int sosUsedCount; // Total SOS uses
 
   GameProfile({
     required this.id,

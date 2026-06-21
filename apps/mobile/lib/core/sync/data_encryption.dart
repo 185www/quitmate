@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
+
 import '../security/encryption_service.dart';
 
 /// 用户数据打包 — 包含所有需要同步的用户数据
@@ -178,18 +180,14 @@ class ZeroKnowledgeEncryptor {
     }
   }
 
-  /// 生成密钥指纹（基于 IV 和密文前缀的简单哈希）
+  /// 生成密钥指纹（基于 IV 和密文前缀的 SHA-256 哈希）
   ///
   /// 注意：此指纹不包含任何密钥信息，仅用于验证数据包完整性。
   String _generateKeyFingerprint(String iv, String cipherData) {
-    final combined = '$iv:${cipherData.substring(0, cipherData.length > 32 ? 32 : cipherData.length)}';
-    // 简单哈希生成（不使用加密密钥）
-    var hash = 0;
-    for (var i = 0; i < combined.length; i++) {
-      hash = ((hash << 5) - hash) + combined.codeUnitAt(i);
-      hash = hash & 0x7FFFFFFF; // 保持正整数
-    }
-    return hash.toRadixString(16).padLeft(8, '0');
+    final combined = '$iv:${cipherData.substring(0, cipherData.length > 64 ? 64 : cipherData.length)}';
+    final bytes = utf8.encode(combined);
+    final digest = sha256.convert(bytes);
+    return digest.toString().substring(0, 16);
   }
 
   /// 验证密钥指纹是否匹配

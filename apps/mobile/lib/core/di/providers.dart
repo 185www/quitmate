@@ -39,44 +39,44 @@ final encryptionServiceProvider = Provider((ref) => EncryptionService());
 final contentLoaderProvider = Provider((ref) => ContentLoader());
 
 final userRepositoryProvider = Provider((ref) => UserRepository(
-    ref.watch(appDatabaseProvider), ref.watch(encryptionServiceProvider)));
+    ref.read(appDatabaseProvider), ref.read(encryptionServiceProvider)));
 final logRepositoryProvider =
-    Provider((ref) => LogRepository(ref.watch(appDatabaseProvider)));
+    Provider((ref) => LogRepository(ref.read(appDatabaseProvider)));
 final badgeRepositoryProvider =
-    Provider((ref) => BadgeRepository(ref.watch(appDatabaseProvider)));
+    Provider((ref) => BadgeRepository(ref.read(appDatabaseProvider)));
 final planRepositoryProvider =
-    Provider((ref) => PlanRepository(ref.watch(appDatabaseProvider)));
+    Provider((ref) => PlanRepository(ref.read(appDatabaseProvider)));
 final cravingRepositoryProvider =
-    Provider((ref) => CravingRepository(ref.watch(appDatabaseProvider)));
+    Provider((ref) => CravingRepository(ref.read(appDatabaseProvider)));
 final gameRepositoryProvider =
-    Provider((ref) => GameRepository(ref.watch(appDatabaseProvider)));
+    Provider((ref) => GameRepository(ref.read(appDatabaseProvider)));
 
 final userUseCaseProvider =
-    Provider((ref) => UserUseCase(ref.watch(userRepositoryProvider)));
+    Provider((ref) => UserUseCase(ref.read(userRepositoryProvider)));
 final logUseCaseProvider = Provider((ref) => LogUseCase(
-    ref.watch(logRepositoryProvider),
-    ref.watch(badgeRepositoryProvider),
-    ref.watch(userRepositoryProvider)));
+    ref.read(logRepositoryProvider),
+    ref.read(badgeRepositoryProvider),
+    ref.read(userRepositoryProvider)));
 final badgeUseCaseProvider =
-    Provider((ref) => BadgeUseCase(ref.watch(badgeRepositoryProvider)));
+    Provider((ref) => BadgeUseCase(ref.read(badgeRepositoryProvider)));
 final planUseCaseProvider =
-    Provider((ref) => PlanUseCase(ref.watch(planRepositoryProvider)));
+    Provider((ref) => PlanUseCase(ref.read(planRepositoryProvider)));
 final cravingUseCaseProvider = Provider((ref) => CravingUseCase(
-    ref.watch(cravingRepositoryProvider), ref.watch(userRepositoryProvider)));
+    ref.read(cravingRepositoryProvider), ref.read(userRepositoryProvider)));
 final gameUseCaseProvider =
-    Provider((ref) => GameUseCase(ref.watch(gameRepositoryProvider)));
+    Provider((ref) => GameUseCase(ref.read(gameRepositoryProvider)));
 
 final notificationServiceProvider =
     Provider((ref) => NotificationService.instance);
 final appThemeProvider = Provider((ref) => AppTheme());
 
 final healthServiceProvider = Provider((ref) {
-  final db = ref.watch(appDatabaseProvider);
+  final db = ref.read(appDatabaseProvider);
   return SelfReportHealthService(db);
 });
 
 final piplConsentServiceProvider = Provider((ref) {
-  final db = ref.watch(appDatabaseProvider);
+  final db = ref.read(appDatabaseProvider);
   return PiplConsentService(db);
 });
 
@@ -84,7 +84,7 @@ final relapseToleranceServiceProvider =
     Provider((ref) => RelapseToleranceService());
 
 final llmPolicyProvider = Provider((ref) {
-  final db = ref.watch(appDatabaseProvider);
+  final db = ref.read(appDatabaseProvider);
   return LlmPolicy(db);
 });
 
@@ -107,7 +107,7 @@ final syncServiceProvider = Provider<SyncService>((ref) {
 });
 
 final zeroKnowledgeEncryptorProvider = Provider((ref) {
-  return ZeroKnowledgeEncryptor(ref.watch(encryptionServiceProvider));
+  return ZeroKnowledgeEncryptor(ref.read(encryptionServiceProvider));
 });
 
 final fhirExporterProvider = Provider((ref) {
@@ -119,7 +119,7 @@ final medicalInterfaceProvider = Provider<MedicalInterface>((ref) {
 });
 
 final otaContentManagerProvider = Provider((ref) {
-  return OtaContentManager(ref.watch(appDatabaseProvider));
+  return OtaContentManager(ref.read(appDatabaseProvider));
 });
 
 // ──────────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ final enterpriseChallengeManagerProvider = Provider((ref) {
 
 /// 订阅服务（默认免费版）
 final subscriptionServiceProvider = Provider((ref) {
-  final db = ref.watch(appDatabaseProvider);
+  final db = ref.read(appDatabaseProvider);
   return SubscriptionService(db);
 });
 
@@ -154,8 +154,8 @@ final wearableServiceProvider = Provider<WearableService>((ref) {
 
 final appRouterProvider = Provider((ref) {
   return AppRouter(
-    userUseCase: ref.watch(userUseCaseProvider),
-    notificationService: ref.watch(notificationServiceProvider),
+    userUseCase: ref.read(userUseCaseProvider),
+    notificationService: ref.read(notificationServiceProvider),
   );
 });
 

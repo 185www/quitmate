@@ -24,6 +24,7 @@ dependencies:
   # 加密存储 (v10修复Android数据丢失问题)
   flutter_secure_storage: ^10.0.0
   encrypt: ^5.0.0
+  crypto: ^3.0.3
 
   # 本地通知 (v18+支持Android 14+ POST_NOTIFICATIONS)
   flutter_local_notifications: ^18.0.0

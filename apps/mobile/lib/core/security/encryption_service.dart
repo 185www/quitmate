@@ -18,6 +18,7 @@ class EncryptionService {
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   encrypt.Key? _cachedKey;
+  Database? _fallbackDb;
 
   /// 是否使用回退方案（HarmonyOS NEXT 或 Keystore 不可用）
   bool _useFallback = false;
@@ -77,9 +78,10 @@ class EncryptionService {
   }
 
   Future<Database> _openFallbackDb() async {
+    if (_fallbackDb != null) return _fallbackDb!;
     final dir = await getApplicationDocumentsDirectory();
     final dbPath = p.join(dir.path, _fallbackDbName);
-    return openDatabase(
+    _fallbackDb = await openDatabase(
       dbPath,
       version: 1,
       onCreate: (db, version) async {
@@ -91,6 +93,7 @@ class EncryptionService {
         ''');
       },
     );
+    return _fallbackDb!;
   }
 
   Future<String> encryptText(String plainText) async {

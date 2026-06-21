@@ -136,6 +136,7 @@ class AppDatabase {
     await _createGameProfileTable(db);
     await _createHealthDataTable(db);
     await _createAppConfigTable(db);
+    await _createIndexes(db);
 
     await _seedBadges(db);
   }
@@ -188,6 +189,24 @@ class AppDatabase {
         exercises_completed INTEGER DEFAULT 0,
         sos_used_count INTEGER DEFAULT 0
       )
+    ''');
+  }
+
+  Future<void> _createIndexes(Database db) async {
+    // Index for daily_log date queries
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_daily_log_user_date
+      ON daily_log(user_id, date DESC)
+    ''');
+    // Index for craving_log timestamp queries
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_craving_log_user_ts
+      ON craving_log(user_id, timestamp DESC)
+    ''');
+    // Index for relapse_plan user queries
+    await db.execute('''
+      CREATE INDEX IF NOT EXISTS idx_relapse_plan_user
+      ON relapse_plan(user_id, priority DESC)
     ''');
   }
 

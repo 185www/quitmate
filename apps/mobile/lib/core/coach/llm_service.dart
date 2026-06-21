@@ -203,13 +203,20 @@ class LlmService {
     );
 
     if (response.statusCode != 200) {
-      final body = jsonDecode(response.body);
-      final errorMsg =
-          body['error']?['message'] ?? '请求失败 (${response.statusCode})';
+      String errorMsg = '请求失败 (${response.statusCode})';
+      try {
+        final body = jsonDecode(response.body);
+        errorMsg = body['error']?['message'] ?? errorMsg;
+      } catch (_) {}
       throw Exception('LLM API错误: $errorMsg');
     }
 
-    final body = jsonDecode(response.body);
+    final Map<String, dynamic> body;
+    try {
+      body = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('LLM API返回数据格式异常: $e');
+    }
     final content =
         body['choices']?[0]?['message']?['content'] as String? ?? '';
 
@@ -262,13 +269,20 @@ class LlmService {
     );
 
     if (response.statusCode != 200) {
-      final body = jsonDecode(response.body);
-      final errorMsg =
-          body['error']?['message'] ?? '请求失败 (${response.statusCode})';
+      String errorMsg = '请求失败 (${response.statusCode})';
+      try {
+        final body = jsonDecode(response.body);
+        errorMsg = body['error']?['message'] ?? errorMsg;
+      } catch (_) {}
       throw Exception('LLM分析API错误: $errorMsg');
     }
 
-    final body = jsonDecode(response.body);
+    final Map<String, dynamic> body;
+    try {
+      body = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('LLM分析API返回数据格式异常: $e');
+    }
     return body['choices']?[0]?['message']?['content'] as String? ?? '[]';
   }
 
@@ -313,13 +327,20 @@ class LlmService {
     );
 
     if (response.statusCode != 200) {
-      final body = jsonDecode(response.body);
-      final errorMsg =
-          body['error']?['message'] ?? '请求失败 (${response.statusCode})';
+      String errorMsg = '请求失败 (${response.statusCode})';
+      try {
+        final body = jsonDecode(response.body);
+        errorMsg = body['error']?['message'] ?? errorMsg;
+      } catch (_) {}
       throw Exception('LLM周报API错误: $errorMsg');
     }
 
-    final body = jsonDecode(response.body);
+    final Map<String, dynamic> body;
+    try {
+      body = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('LLM周报API返回数据格式异常: $e');
+    }
     return body['choices']?[0]?['message']?['content'] as String? ?? '{}';
   }
 
@@ -367,13 +388,20 @@ class LlmService {
     );
 
     if (response.statusCode != 200) {
-      final body = jsonDecode(response.body);
-      final errorMsg =
-          body['error']?['message'] ?? '请求失败 (${response.statusCode})';
+      String errorMsg = '请求失败 (${response.statusCode})';
+      try {
+        final body = jsonDecode(response.body);
+        errorMsg = body['error']?['message'] ?? errorMsg;
+      } catch (_) {}
       throw Exception('LLM洞察API错误: $errorMsg');
     }
 
-    final body = jsonDecode(response.body);
+    final Map<String, dynamic> body;
+    try {
+      body = jsonDecode(response.body) as Map<String, dynamic>;
+    } catch (e) {
+      throw Exception('LLM洞察API返回数据格式异常: $e');
+    }
     return body['choices']?[0]?['message']?['content'] as String? ?? '{}';
   }
 

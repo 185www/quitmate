@@ -17,7 +17,6 @@ import '../../presentation/action/skills_lab/skills_lab_screen.dart';
 import '../../presentation/action/coach/chat_screen.dart';
 import '../../presentation/action/challenge/challenge_screen.dart';
 import '../../presentation/action/companion/companion_screen.dart';
-$new_import
 import '../../presentation/maintenance/relapse_plan/relapse_plan_screen.dart';
 import '../../presentation/maintenance/lifestyle/lifestyle_screen.dart';
 import '../../presentation/profile/settings_screen.dart';
@@ -35,7 +34,7 @@ class AppRouter {
 
   AppRouter(
       {required UserUseCase userUseCase,
-      required NotificationService notificationService})
+      NotificationService? notificationService})
       : _userUseCase = userUseCase;
 
   Future<bool> _isLoggedIn() async {
