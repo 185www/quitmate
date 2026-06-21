@@ -1,36 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<linearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    andoid:layout_width="match_parent"
-    andoid:layout_height="40dp"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
     android:orientation="horizontal"
-    andoid:gravity="center_vertical"
-    android:padding="8dp
+    android:gravity="center_vertical"
+    android:padding="8dp"
     android:background="@android:color/white">
 
     <TextView
         android:id="@+id/risk_label_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="å®º.Âæ‚"        android:textSize="12sp"
-        andoid:textStyle="bold"
+        android:text="&#39118;&#38505;"
+        android:textSize="12sp"
+        android:textStyle="bold"
         android:paddingEnd="8dp" />
 
     <TextView
         android:id="@+id/risk_score_text"
-        android:layout_width="0dp
-        andoid:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        andoid:text="0"
-        andoid:textSize="14sp"
+        android:text="0"
+        android:textSize="14sp"
         android:textStyle="bold" />
 
     <ProgressBar
         android:id="@+id/craving_bar"
         style="?android:attr/progressBarStyleHorizontal"
-        andoid:layout_width="80dp"
+        android:layout_width="80dp"
         android:layout_height="8dp"
-        android:layout_marginStart="8dp
-        andoid:max="100"
+        android:layout_marginStart="8dp"
+        android:max="100"
         android:progress="0" />
 
-</linearLayout>
+</LinearLayout>
