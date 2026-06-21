@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/di/providers.dart';
+import '../../core/di/ai_providers.dart';
 import '../../core/widgets/widget_service.dart';
 import '../../domain/entity/user.dart';
 import '../../domain/entity/daily_log.dart';
@@ -148,7 +149,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: RefreshIndicator(
-        onRefresh: () async => _loadData(),
+        onRefresh: () async {
+          await _loadData();
+          // Also refresh the AI insight card
+          ref.invalidate(dailyInsightProvider);
+        },
         color: colorScheme.primary,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -168,7 +173,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 onSave: _saveCheckin,
               ),
               const SizedBox(height: 6),
-              const AiInsightCard(),
+              const AiInsightCard(), // ConsumerStatefulWidget — self-managed
               const SizedBox(height: 6),
               const HealthInsightCard(),
               const SizedBox(height: 6),

@@ -22,6 +22,7 @@ import '../../core/health/health_data_service.dart';
 import '../../core/privacy/pipl_consent_service.dart';
 import '../../core/relapse/relapse_tolerance_service.dart';
 import '../../core/llm/llm_policy.dart';
+import '../../core/llm/llm_usage_tracker.dart';
 import '../../core/sync/sync_service.dart';
 import '../../core/sync/data_encryption.dart';
 import '../../core/export/fhir_exporter.dart';
@@ -86,6 +87,16 @@ final llmPolicyProvider = Provider((ref) {
   final db = ref.watch(appDatabaseProvider);
   return LlmPolicy(db);
 });
+
+// ──────────────────────────────────────────────────────────
+// AI Agent — LlmServiceProvider & shared LLM infrastructure
+// ──────────────────────────────────────────────────────────
+
+/// Shared LlmUsageTracker singleton for cost monitoring.
+final llmUsageTrackerProvider = Provider((ref) => LlmUsageTracker.instance);
+
+// AI agent and daily insight providers are in ai_providers.dart
+// (imported separately to avoid circular dependencies)
 
 // ──────────────────────────────────────────────────────────
 // Phase 3 — Ecosystem Extension Providers
