@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "org.quitmate.app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = "25.1.8937393"
 
     compileOptions {
@@ -29,22 +29,14 @@ android {
 
     signingConfigs {
         release {
-            if (project.hasProperty("KEYSTORE_FILE")) {
-                storeFile file(project.property("KEYSTORE_FILE"))
-                storePassword project.property("KEYSTORE_PASSWORD")
-                keyAlias project.property("KEY_ALIAS")
-                keyPassword project.property("KEY_PASSWORD")
-            } else {
-                // CI will provide keystore via key.properties
-                def propsFile = rootProject.file("key.properties")
-                if (propsFile.exists()) {
-                    def props = new Properties()
-                    props.load(propsFile.newInputStream())
-                    storeFile file(props.getProperty("storeFile"))
-                    storePassword props.getProperty("storePassword")
-                    keyAlias props.getProperty("keyAlias")
-                    keyPassword props.getProperty("keyPassword")
-                }
+            def propsFile = rootProject.file("key.properties")
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(propsFile.newInputStream())
+                storeFile file(props.getProperty("storeFile"))
+                storePassword props.getProperty("storePassword")
+                keyAlias props.getProperty("keyAlias")
+                keyPassword props.getProperty("keyPassword")
             }
         }
     }
