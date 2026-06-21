@@ -244,7 +244,7 @@ class _LlmSettingsScreenState extends ConsumerState<LlmSettingsScreen> {
 
             if (_llmTested)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, bottom: 8),
+                padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
                 child: Row(
                   children: [
                     Icon(
