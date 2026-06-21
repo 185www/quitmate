@@ -27,7 +27,7 @@ android {
         versionName = flutter.versionName
     }
 
-    def keystorePropertiesFile = rootProject.file("key.properties")
+    def keystorePropertiesFile = rootProject.file("keystore.properties")
     def keystoreProperties = new Properties()
     def hasKeystore = keystorePropertiesFile.exists()
     if (hasKeystore) {
@@ -41,12 +41,6 @@ android {
                 keyPassword keystoreProperties['keyPassword']
                 storeFile file(keystoreProperties['storeFile'])
                 storePassword keystoreProperties['storePassword']
-            } else {
-                // Fallback for CI builds without keystore
-                keyAlias "androiddebugkey"
-                keyPassword "android"
-                storeFile file("${System.getProperty('java.home')}/lib/security/cacerts")
-                storePassword "changeit"
             }
         }
     }

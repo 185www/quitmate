@@ -32,9 +32,9 @@ jobs:
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > apps/mobile/android/app/quitmate-release.jks
 
-      - name: Create key.properties
+      - name: Create keystore.properties
         run: |
-          cat > apps/mobile/android/key.properties << 'EOF'
+          cat > apps/mobile/android/keystore.properties << 'EOF'
           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
           keyPassword=${{ secrets.KEY_PASSWORD }}
           keyAlias=${{ secrets.KEY_ALIAS }}

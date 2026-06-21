@@ -21,6 +21,7 @@ Thumbs.db
 local.properties
 *.keystore
 *.jks
+keystore.properties
 
 # iOS
 Pods/
