@@ -27,24 +27,26 @@ android {
         versionName = flutter.versionName
     }
 
+    def keystorePropertiesFile = rootProject.file("key.properties")
+    def keystoreProperties = new Properties()
+    if (keystorePropertiesFile.exists()) {
+        keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    }
+
     signingConfigs {
-        release {
-            def propsFile = rootProject.file("key.properties")
-            if (propsFile.exists()) {
-                def props = new Properties()
-                props.load(propsFile.newInputStream())
-                storeFile file(props.getProperty("storeFile"))
-                storePassword props.getProperty("storePassword")
-                keyAlias props.getProperty("keyAlias")
-                keyPassword props.getProperty("keyPassword")
+        if (keystorePropertiesFile.exists()) {
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
             }
         }
     }
 
     buildTypes {
         release {
-            def propsFile = rootProject.file("key.properties")
-            if (propsFile.exists()) {
+            if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.release
             }
             shrinkResources false
