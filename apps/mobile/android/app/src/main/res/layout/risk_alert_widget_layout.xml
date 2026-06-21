@@ -11,7 +11,7 @@
         android:id="@+id/risk_label_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="&#39118;&#38505;"
+        android:text="风险"
         android:textSize="12sp"
         android:textStyle="bold"
         android:paddingEnd="8dp" />
