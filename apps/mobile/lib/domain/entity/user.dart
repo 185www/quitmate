@@ -17,6 +17,7 @@ class User {
   final int? auditScore;
   final double? dailyConsumption;
   final int? yearsOfUse;
+  final int? age;
   final double? dailyCostAmount;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -30,6 +31,7 @@ class User {
     this.auditScore,
     this.dailyConsumption,
     this.yearsOfUse,
+    this.age,
     this.dailyCostAmount,
     required this.createdAt,
     required this.updatedAt,
@@ -98,6 +100,7 @@ class User {
       int? auditScore,
       double? dailyConsumption,
       int? yearsOfUse,
+      int? age,
       double? dailyCostAmount,
       DateTime? createdAt,
       DateTime? updatedAt}) {
@@ -110,6 +113,7 @@ class User {
       auditScore: auditScore ?? this.auditScore,
       dailyConsumption: dailyConsumption ?? this.dailyConsumption,
       yearsOfUse: yearsOfUse ?? this.yearsOfUse,
+      age: age ?? this.age,
       dailyCostAmount: dailyCostAmount ?? this.dailyCostAmount,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
