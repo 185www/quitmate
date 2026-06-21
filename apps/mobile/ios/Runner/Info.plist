@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Bundle Identity -->
+	<key>CFBundleDevelopmentRegion</key>
+	<string>zh_CN</string>
+	<key>CFBundleDisplayName</key>
+	<string>QuitMate</string>
+	<key>CFBundleExecutable</key>
+	<string>Runner</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>QuitMate</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>MinimumOSVersion</key>
+	<string>15.0</string>
+
+	<!-- Launch Screen -->
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+
+	<!-- Required Device Capabilities -->
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+
+	<!-- Supported Interface Orientations -->
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+
+	<!-- Status Bar -->
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+
+	<!-- ─── Privacy Descriptions ─── -->
+
+	<!-- Local Notifications: 戒烟戒酒提醒和干预通知 -->
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>用于发送戒烟戒酒提醒和干预通知</string>
+
+	<!-- HealthKit - Share Usage (reading health data) -->
+	<key>NSHealthShareUsageDescription</key>
+	<string>QuitMate 需要读取您的健康数据（如步数、心率），以分析戒烟戒酒对身体的积极影响</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>QuitMate 需要写入健康数据（如每日戒烟记录），以帮助您跟踪戒烟戒酒进度</string>
+
+	<!-- Photo Library: sharing achievement posters -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>用于保存和分享您的戒烟戒酒成就海报到相册</string>
+
+	<!-- ─── Deep Linking (CFBundleURLTypes) ─── -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>org.quitmate.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>quitmate</string>
+			</array>
+		</dict>
+	</array>
+
+	<!-- Background Modes: local notifications need background processing -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+</dict>
+</plist>

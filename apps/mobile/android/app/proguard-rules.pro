@@ -1,0 +1,3 @@
+-dontwarn com.google.android.play.core.splitcompat.SplitCompatApplication
+-keep class com.google.android.play.core.splitcompat.SplitCompatApplication { *; }
+-keep class io.flutter.app.FlutterPlayStoreSplitApplication { *; }

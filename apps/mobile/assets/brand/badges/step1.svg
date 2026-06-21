@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="#4CAF50">
+  <!-- Footprint / Step icon -->
+  <ellipse cx="9" cy="5" rx="2.5" ry="3" />
+  <ellipse cx="15" cy="5" rx="2.5" ry="3" />
+  <ellipse cx="7.5" cy="11" rx="1.2" ry="1.5" />
+  <ellipse cx="10.5" cy="11" rx="1.2" ry="1.5" />
+  <ellipse cx="13.5" cy="11" rx="1.2" ry="1.5" />
+  <ellipse cx="16.5" cy="11" rx="1.2" ry="1.5" />
+  <ellipse cx="12" cy="17" rx="4.5" ry="5" />
+  <ellipse cx="12" cy="22" rx="3" ry="2" opacity="0.7" />
+</svg>

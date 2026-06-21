@@ -1,2 +1,34 @@
-skills/
-node_modules/
+# Flutter/Dart
+.dart_tool/
+.pub/
+.packages
+build/
+*.g.dart
+*.freezed.dart
+*.drift.dart
+pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Android
+local.properties
+*.keystore
+*.jks
+
+# iOS
+Pods/
+.swiftpm/
+
+# Coverage
+coverage/
+
+# Environment
+.env
+.env.local

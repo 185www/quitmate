@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Static Analysis ──────────────────────────────────────────────────
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: apps/mobile
+
+      - name: Run Flutter analyze
+        run: flutter analyze
+        working-directory: apps/mobile
+
+      - name: Check for formatting issues
+        run: dart format --set-exit-if-changed . || true
+        working-directory: apps/mobile
+
+  # ── Unit Tests ───────────────────────────────────────────────────────
+  test:
+    name: Test
+    needs: analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: apps/mobile
+
+      - name: Run unit tests
+        run: flutter test --coverage --reporter=expanded
+        working-directory: apps/mobile
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: apps/mobile/coverage/
+          retention-days: 7
+
+      - name: Check coverage threshold
+        if: always()
+        run: |
+          if [ -f apps/mobile/coverage/lcov.info ]; then
+            TOTAL=$(grep -oP 'SF:\K.*' apps/mobile/coverage/lcov.info | wc -l)
+            FOUND=$(grep -c 'DA:' apps/mobile/coverage/lcov.info || echo "0")
+            echo "Found $FOUND covered lines across $TOTAL files"
+            if [ "$FOUND" -lt 100 ]; then
+              echo "::warning::Coverage appears low ($FOUND lines). Consider adding more tests."
+            fi
+          else
+            echo "::warning::No coverage file generated"
+          fi
+        working-directory: apps/mobile
+
+  # ── Build Android (Debug APK) ────────────────────────────────────────
+  build-android:
+    name: Build Android
+    needs: analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+
+      - name: Get dependencies
+        run: flutter pub get
+        working-directory: apps/mobile
+
+      - name: Build Debug APK
+        run: flutter build apk --debug --target-platform android-arm64
+        working-directory: apps/mobile
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: quitmate-debug-arm64
+          path: apps/mobile/build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
+
+      - name: Report build size
+        run: |
+          echo "## Build Size" >> $GITHUB_STEP_SUMMARY
+          ls -lh apps/mobile/build/app/outputs/flutter-apk/app-debug.apk | awk '{print "- APK: "$5}' >> $GITHUB_STEP_SUMMARY

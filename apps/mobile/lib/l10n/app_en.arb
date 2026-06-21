@@ -1,0 +1,479 @@
+{
+  "@@locale": "en",
+
+  // ══════════════════════════════════════════════
+  // App Identity
+  // ══════════════════════════════════════════════
+  "appName": "QuitMate",
+
+  // ══════════════════════════════════════════════
+  // Navigation
+  // ══════════════════════════════════════════════
+  "navHome": "Home",
+  "navAction": "Action",
+  "navMaintenance": "Maintain",
+  "navProfile": "Me",
+
+  // ══════════════════════════════════════════════
+  // Onboarding - Welcome
+  // ══════════════════════════════════════════════
+  "onboardingWelcomeTitle": "QuitMate",
+  "onboardingWelcomeSubtitle1": "Whether you came here on your own or were brought here",
+  "onboardingWelcomeSubtitle2": "Take a minute to see this first",
+  "onboardingPathSosTitle": "I'm struggling right now",
+  "onboardingPathSosSubtitle": "Cravings hit, help me get through this moment",
+  "onboardingPathDiscoverTitle": "I want to see my situation",
+  "onboardingPathDiscoverSubtitle": "Understand what this habit really means to you",
+  "onboardingSkip": "I'm ready, let's start",
+
+  // ══════════════════════════════════════════════
+  // Onboarding - Reality Check
+  // ══════════════════════════════════════════════
+  "realityCheckTitle": "See Your Situation",
+  "realityCheckStep1Title": "What do you want to explore?",
+  "realityCheckStep1Hint": "Pick what concerns you, or choose both",
+  "realityCheckStep2Title": "Tell us roughly about your situation",
+  "realityCheckStep2Hint": "Doesn't need to be exact, an estimate is fine",
+  "realityCheckDailyAmount": "About how many {unit} per day?",
+  "realityCheckDailyCost": "How much do you spend per day?",
+  "realityCheckDuration": "How long has this been going on?",
+  "realityCheckResultTitle": "These Are Your Numbers",
+  "realityCheckResultHint": "No right or wrong — just facts",
+  "realityCheckMoneySpent": "Money Spent Over The Years",
+  "realityCheckTimeSpent": "Time Spent On {unit}",
+  "realityCheckTotalAmount": "Total Consumption",
+  "realityCheckHealthTip": "Health Note",
+  "realityCheckReflectQuestion": "After seeing these numbers, what are your thoughts?",
+  "realityCheckReflectHint": "Whatever your answer is, we can help you figure out what to do next",
+  "realityCheckContinue": "Continue to learn more",
+  "realityCheckPause": "Stop here, I need to think about it",
+  "realityCheckHealthEarly": "Physical damage is still in its early stages, but it's accumulating",
+  "realityCheckHealthMild": "Organ function has begun to show measurable decline",
+  "realityCheckHealthModerate": "Cardiovascular and respiratory damage has become noticeable",
+  "realityCheckHealthSevere": "Multiple health indicators have significantly deviated from normal",
+  "realityCheckHealthCritical": "The health risks of long-term use have become very real",
+  "realityCheckPerDay": "Per day",
+  "realityCheckPerYear": "Per year",
+
+  // ══════════════════════════════════════════════
+  // Onboarding - Assessment
+  // ══════════════════════════════════════════════
+  "assessmentTitle": "Understand Your Dependency Level",
+  "assessmentReport": "Assessment Report",
+
+  // ══════════════════════════════════════════════
+  // Onboarding - Education
+  // ══════════════════════════════════════════════
+  "educationTitle": "The Science: Why Quit?",
+
+  // ══════════════════════════════════════════════
+  // Onboarding - Motivation
+  // ══════════════════════════════════════════════
+  "motivationTitle": "Find Your Inner Motivation",
+
+  // ══════════════════════════════════════════════
+  // Onboarding - Quit Date Wizard
+  // ══════════════════════════════════════════════
+  "quitDateTitle": "Choose Your Quit Date",
+
+  // ══════════════════════════════════════════════
+  // Dashboard
+  // ══════════════════════════════════════════════
+  "dashboardGreeting": "Hello, {name}!",
+  "dashboardStreakDays": "{days} day streak",
+  "dashboardMoneySaved": "¥{amount} saved",
+  "dashboardHealthRecovery": "Health Recovery",
+  "dashboardNoLogToday": "You haven't checked in today yet",
+  "dashboardCravingSummary": "Craving Summary",
+  "dashboardDailyTasks": "Today's Tasks",
+  "dashboardAiInsight": "AI Insights",
+  "dashboardNextMilestone": "Next Milestone",
+  "dashboardCheckinTitle": "Daily Check-in",
+  "dashboardCheckinDone": "Checked In",
+  "dashboardCheckinButton": "Check In",
+  "dashboardSosButton": "SOS Emergency",
+  "dashboardDaysQuit": "{days} days quit",
+  "dashboardCompanionPreview": "Companion Messages",
+  "dashboardQuote1": "Every time you resist, you're rewiring your brain.",
+  "dashboardQuote2": "It takes an average of 6-30 attempts — you just haven't reached the finish line yet.",
+  "dashboardQuote3": "Cravings are like waves — they come and they go. You don't need to fight them.",
+  "dashboardQuote4": "Your body starts healing within 20 minutes.",
+
+  // ══════════════════════════════════════════════
+  // SOS / Breathing
+  // ══════════════════════════════════════════════
+  "sosTitle": "SOS Emergency",
+  "sosExit": "Exit",
+  "sosBreathingGuide": "Follow the breathing rhythm",
+  "sosInhale": "Inhale",
+  "sosHold": "Hold",
+  "sosExhale": "Exhale",
+  "sosYouGotThis": "You made it through!",
+  "sosYouDidIt": "I did it!",
+  "sosSaving": "Saving...",
+  "sosPhase1Label": "Acknowledge the Craving",
+  "sosPhase2Label": "Breathe & Relax",
+  "sosPhase3Label": "Strengthen Resolve",
+  "sosPhase1Instruction": "Feel it, observe it, don't judge",
+  "sosPhase2Instruction": "Follow the circle's rhythm to breathe",
+  "sosPhase3Instruction": "You've made it this far, hold on a little longer",
+  "sosMessage1": "Acknowledge the craving exists, don't judge yourself",
+  "sosMessage2": "You don't need to fight the craving — just wait",
+  "sosMessage3": "Cravings are like waves — they come and they go",
+  "sosMessage4": "Every time you resist, you grow stronger",
+  "sosMessage5": "Think about why you decided to quit",
+  "sosMessage6": "You deserve a better life",
+  "sosCompletionMsg": "Every resistance is a victory — you're changing yourself",
+
+  // ══════════════════════════════════════════════
+  // Action Screen
+  // ══════════════════════════════════════════════
+  "actionScreenTitle": "Action",
+  "actionScreenHint": "Choose a tool to start your change",
+  "actionCoachTitle": "AI Coach",
+  "actionCoachSubtitle": "Talk about feelings and challenges anytime",
+  "actionUrgeTitle": "Urge Toolkit",
+  "actionUrgeSubtitle": "Surfing, alternatives, SOS help",
+  "actionLogTitle": "Daily Log",
+  "actionLogSubtitle": "Mood, triggers, and coping methods",
+  "actionSkillsTitle": "Skills Lab",
+  "actionSkillsSubtitle": "CBT cognitive behavioral therapy techniques",
+  "actionChallengeTitle": "Challenges",
+  "actionChallengeSubtitle": "Complete challenges, earn XP rewards",
+  "actionCompanionTitle": "Companion",
+  "actionCompanionSubtitle": "Daily greetings and challenges from Xiao Ming",
+
+  // ══════════════════════════════════════════════
+  // Urge Toolkit
+  // ══════════════════════════════════════════════
+  "urgeToolkitTitle": "Urge Coping Toolkit",
+  "urgeSurfing": "Urge Surfing",
+  "urgeSurfingDesc": "Like surfing, wait for the craving's peak to naturally subside",
+  "urgeBreathing": "Breathing Exercise",
+  "urgeDistraction": "Distraction",
+  "urgeLog": "Log This Craving",
+  "urgeIntensity": "Craving Intensity",
+  "urgeTrigger": "Trigger",
+  "urgeCopingUsed": "Coping Method Used",
+  "urgeResolved": "Resisted",
+  "urgeNotResolved": "Not Resisted",
+  "urgeSceneDialogTitle": "Choose Your Scene",
+  "urgeGroundingTitle": "5-4-3-2-1 Grounding Exercise",
+
+  // ══════════════════════════════════════════════
+  // Daily Log
+  // ══════════════════════════════════════════════
+  "dailyLogTitle": "Daily Log",
+  "dailyLogMoodQuestion": "How are you feeling today?",
+  "dailyLogUrgeQuestion": "Did you have the urge to smoke/drink today?",
+  "dailyLogRelapseQuestion": "Did you use today?",
+  "dailyLogNotesQuestion": "Anything to add?",
+  "dailyLogAlreadyLogged": "Already Logged Today",
+  "dailyLogUrgeLabel": "Urge level: {level}",
+  "dailyLogSave": "Saved",
+  "dailyLogSubmit": "Done",
+  "dailyLogBack": "Go Back",
+  "dailyLogConsumptionHint": "cigarettes/drinks",
+  "dailyLogNotesHint": "Optional",
+  "urgeLevelNone": "Barely",
+  "urgeLevelSome": "A little",
+  "urgeLevelStrong": "Very much",
+  "dailyLogNo": "No",
+  "dailyLogYes": "Yes",
+
+  // ══════════════════════════════════════════════
+  // Coach Chat
+  // ══════════════════════════════════════════════
+  "coachTitle": "AI Coach",
+  "coachPlaceholder": "Type what you want to talk about...",
+  "coachSend": "Send",
+  "coachTyping": "Typing...",
+
+  // ══════════════════════════════════════════════
+  // Skills Lab
+  // ══════════════════════════════════════════════
+  "skillsLabTitle": "Skills Lab",
+  "skillsLabCBT": "Cognitive Behavioral Exercises",
+  "skillsLabMindfulness": "Mindfulness Exercises",
+  "skillsLabRelaxation": "Relaxation Techniques",
+  "skillsLabBadgeExplorer": "Congratulations! You earned the Skill Explorer badge!",
+  "skillsLabBadgeMaster": "Congratulations! You earned the Skill Master badge!",
+
+  // ══════════════════════════════════════════════
+  // Challenge
+  // ══════════════════════════════════════════════
+  "challengeTitle": "Weekly Challenges",
+  "challengeComingSoon": "Coming Soon",
+  "challengeCurrent": "Current Challenge",
+  "challengeCurrentSubtitle": "Persistence is victory",
+  "challengeEmpty": "No challenges started yet",
+  "challengeEmptyHint": "Choose one from the challenge library below to begin your journey",
+  "challengeLibrary": "Challenge Library",
+  "challengeLibraryCount": "{count} challenges waiting for you",
+  "challengeCompleted": "Completed Challenges",
+  "challengeTrackingSoon": "Challenge Tracking Coming Soon",
+  "challengeTrackingSoonDesc": "Challenge completion records, XP rewards, and community leaderboards will be available in future updates",
+  "challengeDaysLabel": "{days}-Day Challenge",
+  "challengeOpenSoon": "Opening Soon",
+  "challengeCompletedAt": "Completed on {date}",
+  "challengeSelectHint": "Choose a challenge to start",
+
+  // ══════════════════════════════════════════════
+  // Companion
+  // ══════════════════════════════════════════════
+  "companionTitle": "Quit Buddy",
+  "companionDailyTagline": "With you every day on your quit journey 🌟",
+  "companionAllRead": "All read! Xiao Ming is happy!",
+  "companionAcknowledge": "Got it!",
+  "companionCategoryMorning": "Morning Greeting",
+  "companionCategoryChallenge": "Today's Challenge",
+  "companionCategoryCheckin": "Check-in Reminder",
+  "companionCategoryEncouragement": "Encouragement",
+  "companionCategoryCelebration": "Celebration",
+  "companionCategoryTip": "Tips",
+  "companionTodayHeader": "Today · {weekday} · {month}/{day}",
+
+  // ══════════════════════════════════════════════
+  // Maintenance Screen
+  // ══════════════════════════════════════════════
+  "maintenanceTitle": "Maintain",
+  "maintenanceHint": "Consolidate your progress, prevent relapse",
+  "maintenanceRelapsePlanTitle": "Relapse Prevention Plan",
+  "maintenanceRelapsePlanSubtitle": "Identify high-risk situations, prepare coping strategies, build a safety net",
+  "maintenanceRelapsePlanDesc": "Plan ahead for situations that might trigger a relapse (social pressure, low mood, etc.) and prepare specific coping strategies for each scenario.",
+  "maintenanceLifestyleTitle": "Lifestyle Advice",
+  "maintenanceLifestyleSubtitle": "Exercise, meditation, healthy habits — reshape your life",
+  "maintenanceLifestyleDesc": "Research shows that regular exercise, mindfulness meditation, and healthy eating can significantly reduce relapse risk while improving overall physical and mental well-being.",
+
+  // ══════════════════════════════════════════════
+  // Relapse Plan
+  // ══════════════════════════════════════════════
+  "relapsePlanTitle": "Relapse Prevention Plan",
+  "relapsePlanTemplates": "Template Plans",
+  "relapsePlanCustom": "My Custom Plans",
+  "relapsePlanSituation": "Situation Description",
+  "relapsePlanTrigger": "Trigger",
+  "relapsePlanCoping": "Coping Strategy",
+  "relapsePlanCategory": "Category",
+  "relapsePlanPriority": "Priority: {level}",
+  "relapsePlanAdd": "Add New Plan",
+  "relapsePlanTriggerLabel": "Trigger: ",
+  "relapsePlanCopingLabel": "Coping: ",
+  "relapsePlanCategorySocial": "Social",
+  "relapsePlanCategoryStress": "Stress",
+  "relapsePlanCategoryHabit": "Habit",
+  "relapsePlanCategoryEmotion": "Emotion",
+  "relapsePlanCategorySocialFull": "Social Situations",
+  "relapsePlanCategoryStressFull": "Stress Situations",
+  "relapsePlanCategoryHabitFull": "Habit Situations",
+  "relapsePlanCategoryEmotionFull": "Emotional Situations",
+  "relapsePlanAveTip": "According to Abstinence Violation Effect research, one slip does not equal failure. What matters is analyzing the cause and moving forward.",
+  "relapsePlanDeleteConfirm": "Are you sure you want to delete this plan?",
+
+  // ══════════════════════════════════════════════
+  // Lifestyle
+  // ══════════════════════════════════════════════
+  "lifestyleTitle": "Lifestyle Redesign",
+  "lifestyleExercise": "Regular Exercise",
+  "lifestyleExerciseDesc": "At least 150 minutes of moderate-intensity exercise per week (brisk walking, swimming, cycling) helps alleviate withdrawal symptoms and stress. Exercise releases endorphins and naturally boosts your mood.",
+  "lifestyleSleep": "Get Enough Sleep",
+  "lifestyleSleepDesc": "7-9 hours of quality sleep each night helps with mood regulation and willpower recovery. Establish a regular sleep schedule and avoid electronic devices before bed.",
+  "lifestyleDiet": "Balanced Diet",
+  "lifestyleDietDesc": "Eat more fruits, vegetables, and whole grains. Reduce caffeine and sugar intake. Caffeine may worsen anxiety and cravings — consume in moderation.",
+  "lifestyleMeditation": "Daily Meditation",
+  "lifestyleMeditationDesc": "10 minutes of mindfulness meditation daily helps manage stress and cravings. Focus on your breath, observe thoughts without judgment, and strengthen self-awareness.",
+  "lifestyleSocial": "Build a Social Support Network",
+  "lifestyleSocialDesc": "Stay connected with people who understand and support you. Consider joining a quit support group. Sharing your experience can provide emotional support and practical advice.",
+
+  // ══════════════════════════════════════════════
+  // Profile
+  // ══════════════════════════════════════════════
+  "profileTitle": "Me",
+  "profileMyData": "My Data",
+  "profileLevel": "My Level",
+  "profileLevelSubtitle": "View level, XP, and battle stats",
+  "profileAnalysis": "High-Risk Scene Analysis",
+  "profileAnalysisSubtitle": "View your craving trigger scene reports",
+  "profileAssessment": "Assessment Report",
+  "profileAssessmentSubtitle": "View your dependency assessment results",
+  "profileBadges": "My Achievements",
+  "profileBadgesSubtitle": "View earned badges",
+  "profileSettingsSection": "Settings",
+  "profileSettings": "Settings",
+  "profileSettingsSubtitle": "Notifications, reminders, preferences",
+  "profileExport": "Export Data",
+  "profileExportSubtitle": "Export your records and reports",
+  "profileAbout": "About",
+  "profileAboutSubtitle": "Version info, privacy policy, disclaimer",
+
+  // ══════════════════════════════════════════════
+  // Settings
+  // ══════════════════════════════════════════════
+  "settingsNotification": "Notification Settings",
+  "settingsDailyReminder": "Daily Reminder",
+  "settingsDailyReminderDesc": "Remind you to log your progress every day",
+  "settingsUrgeReminder": "Craving Peak Reminder",
+  "settingsUrgeReminderDesc": "Remind you during high-relapse-risk times",
+  "settingsReminderTime": "Reminder Time",
+  "settingsDisplay": "Display Settings",
+  "settingsDarkMode": "Dark Mode",
+  "settingsDarkModeDesc": "Manually switch between dark/light themes",
+  "settingsAiCoach": "AI Coach Settings",
+  "settingsLlmEnabled": "Enable LLM Enhancement",
+  "settingsLlmEnabledDescOn": "Use API for smarter responses",
+  "settingsLlmEnabledDescOff": "Use built-in rule engine",
+  "settingsApiUrl": "API URL",
+  "settingsApiKey": "API Key",
+  "settingsApiKeyNotSet": "Not set",
+  "settingsModel": "Model",
+  "settingsTestConnection": "Test Connection",
+  "settingsTestSuccess": "Success",
+  "settingsTestFailed": "Failed",
+  "settingsTestClick": "Tap to test",
+  "settingsLlmHint": "Supports OpenAI, DeepSeek, Ollama, and compatible APIs",
+  "settingsSelectModel": "Select Model",
+  "settingsData": "Data Management",
+  "settingsExport": "Export Data",
+  "settingsExportDesc": "Export all your records",
+  "settingsClearData": "Clear Data",
+  "settingsClearDataDesc": "Delete all local data",
+  "settingsSaved": "Settings saved",
+  "settingsClearConfirmTitle": "Confirm Clear",
+  "settingsClearConfirmMsg": "This action cannot be undone. Are you sure you want to clear all data?\n\nAll records, settings, and personal data will be permanently deleted.",
+  "settingsCleared": "Data cleared",
+
+  // ══════════════════════════════════════════════
+  // Export
+  // ══════════════════════════════════════════════
+  "exportTitle": "Export Data",
+  "exportOptions": "Export Options",
+  "exportJson": "JSON Export",
+  "exportJsonDesc": "Complete data for backup purposes",
+  "exportCsv": "CSV Export",
+  "exportCsvDesc": "Spreadsheet format, openable in Excel",
+  "exportReport": "Report Summary",
+  "exportReportDesc": "Text-format statistical summary",
+  "exportNote": "Notes",
+  "exportNoteLine1": "Exported data is stored locally on your device only",
+  "exportNoteLine2": "You can share it with yourself or back it up to the cloud",
+  "exportNoteLine3": "All data is anonymized and contains no personally identifiable information",
+
+  // ══════════════════════════════════════════════
+  // Badges
+  // ══════════════════════════════════════════════
+  "badgesEarnedCount": "Earned {earned} / {total}",
+  "badgesEmpty": "No badges yet",
+
+  // ══════════════════════════════════════════════
+  // Analysis Report
+  // ══════════════════════════════════════════════
+  "analysisTitle": "High-Risk Scene Analysis",
+  "analysisTotalCravings": "Total Craving Records",
+  "analysisAvgIntensity": "Average Intensity",
+  "analysisTopTriggers": "Common Triggers",
+  "analysisWeeklyTrend": "Weekly Trend",
+  "analysisHourlyHeatmap": "24-Hour Heatmap",
+  "analysisTopCoping": "Top Coping Methods",
+  "analysisWeekOverWeek": "Week-over-Week Change",
+  "analysisSceneBreakdown": "Scene Analysis",
+
+  // ══════════════════════════════════════════════
+  // Game / Gamification
+  // ══════════════════════════════════════════════
+  "gameLevel": "Level {level}",
+  "gameXp": "Experience Points",
+  "gameStreak": "Check-in Streak",
+  "gameBadges": "Badges",
+  "gameCravingsResisted": "Cravings Resisted",
+
+  // ══════════════════════════════════════════════
+  // Level Titles
+  // ══════════════════════════════════════════════
+  "levelNovice": "Novice",
+  "levelAwakener": "Awakener",
+  "levelExplorer": "Explorer",
+  "levelFighter": "Fighter",
+  "levelWarrior": "Warrior",
+  "levelGuardian": "Guardian",
+  "levelConqueror": "Conqueror",
+  "levelLegend": "Legend",
+  "levelHero": "Hero",
+  "levelMaster": "Master",
+
+  // ══════════════════════════════════════════════
+  // Target Types
+  // ══════════════════════════════════════════════
+  "targetSmoking": "Quit Smoking",
+  "targetAlcohol": "Quit Drinking",
+  "targetBoth": "Quit Both",
+  "unitCigarette": "cigarettes",
+  "unitDrink": "drinks",
+  "unitBoth": "cigarettes + drinks",
+
+  // ══════════════════════════════════════════════
+  // Health Milestones
+  // ══════════════════════════════════════════════
+  "milestone20min": "20 min — Heart rate and blood pressure begin to normalize",
+  "milestone8h": "8 hours — Carbon monoxide levels drop",
+  "milestone2d": "2 days — Taste and smell improve",
+  "milestone3d": "3 days — Bronchial tubes begin to relax",
+  "milestone2w": "2 weeks — Circulation improves",
+  "milestone1m": "1 month — Lung cleaning begins",
+  "milestone3m": "3 months — Skin condition improves",
+  "milestone6m": "6 months — Immune system recovers",
+  "milestone1y": "1 year — Lung function significantly improves",
+  "milestone5y": "5 years — Heart disease risk reduced by 50%",
+  "milestone10y": "10 years — Lung cancer risk reduced by 50%",
+  "milestone15y": "15 years — Heart disease risk returns to normal",
+
+  // ══════════════════════════════════════════════
+  // Mood Labels
+  // ══════════════════════════════════════════════
+  "mood1": "Very bad",
+  "mood2": "Bad",
+  "mood3": "Okay",
+  "mood4": "Good",
+  "mood5": "Great",
+
+  // ══════════════════════════════════════════════
+  // Motivational Messages
+  // ══════════════════════════════════════════════
+  "motivationKeepGoing": "Keep going!",
+  "motivationDayOne": "The first day is the most important",
+  "motivationMilestone": "Congratulations on reaching this milestone!",
+  "motivationResistWin": "Every resistance is a victory — you're changing yourself",
+  "motivationFreedom": "You're not giving something up — you're gaining freedom.",
+  "motivationEveryMoment": "Every moment you don't use is a victory.",
+
+  // ══════════════════════════════════════════════
+  // Time Formatting
+  // ══════════════════════════════════════════════
+  "timeMinutesAgo": "{count} min ago",
+  "timeHoursAgo": "{count} hr ago",
+  "timeDaysAgo": "{count} days ago",
+
+  // ══════════════════════════════════════════════
+  // Common Actions
+  // ══════════════════════════════════════════════
+  "commonSave": "Save",
+  "commonCancel": "Cancel",
+  "commonConfirm": "Confirm",
+  "commonConfirmClear": "Confirm Clear",
+  "commonDelete": "Delete",
+  "commonEdit": "Edit",
+  "commonClose": "Close",
+  "commonBack": "Back",
+  "commonDone": "Done",
+  "commonNext": "Next",
+  "commonLoading": "Loading...",
+  "commonError": "Something went wrong",
+  "commonRetry": "Retry",
+  "commonPleaseComplete": "Please complete the initial setup first",
+  "commonPleaseEnter": "Please enter an approximate number",
+  "commonSaveFailed": "Save failed: {error}",
+  "commonErrorPrefix": "Error: {error}",
+  "commonRequired": "Please fill in {field} and {field2}",
+  "commonNotificationTitle": "QuitMate Reminder",
+  "commonNotificationBody": "Remember to log your progress today!",
+  "commonDeleteConfirm": "Confirm Delete"
+}

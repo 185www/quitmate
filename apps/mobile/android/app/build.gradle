@@ -1,0 +1,59 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace = "org.quitmate.app"
+    compileSdk = 36
+    ndkVersion = "25.1.8937393"
+
+    compileOptions {
+        coreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId = "org.quitmate.app"
+        minSdk = 23
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+    }
+
+    signingConfigs {
+        release {
+            def propsFile = rootProject.file("key.properties")
+            if (propsFile.exists()) {
+                def props = new Properties()
+                props.load(propsFile.newInputStream())
+                storeFile file(props.getProperty("storeFile"))
+                storePassword props.getProperty("storePassword")
+                keyAlias props.getProperty("keyAlias")
+                keyPassword props.getProperty("keyPassword")
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.release
+            shrinkResources false
+            minifyEnabled false
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+}

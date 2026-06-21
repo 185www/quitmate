@@ -1,0 +1,515 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../core/di/providers.dart';
+import '../../../core/widgets/widget_service.dart';
+import '../../../core/widgets/widget_service_v2.dart';
+import '../../../core/coach/ai_agent_service.dart';
+import '../../../domain/entity/daily_log.dart';
+
+class DailyLogScreen extends ConsumerStatefulWidget {
+  const DailyLogScreen({super.key});
+
+  @override
+  ConsumerState<DailyLogScreen> createState() => _DailyLogScreenState();
+}
+
+class _DailyLogScreenState extends ConsumerState<DailyLogScreen> {
+  int _mood = 3;
+  int? _urgeLevel;
+  bool _relapsed = false;
+  int? _consumption;
+  final _consumptionController = TextEditingController();
+  final _notesController = TextEditingController();
+  bool _saving = false;
+  bool _loading = true;
+  bool _alreadyLogged = false;
+  DailyLogEntry? _existingLog;
+
+  static const _moodOptions = [
+    {'emoji': '😢', 'value': 1},
+    {'emoji': '😐', 'value': 3},
+    {'emoji': '😊', 'value': 5},
+  ];
+
+  static const _urgeOptions = [
+    {'label': '几乎没有', 'value': 1},
+    {'label': '有一点', 'value': 3},
+    {'label': '非常想', 'value': 5},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _checkTodayLog();
+  }
+
+  @override
+  void dispose() {
+    _consumptionController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _checkTodayLog() async {
+    try {
+      final log = await ref.read(logUseCaseProvider).getTodayLog();
+      if (mounted) {
+        setState(() {
+          _existingLog = log;
+          _alreadyLogged = log != null;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _saveLog() async {
+    if (_urgeLevel == null) return;
+    setState(() => _saving = true);
+    try {
+      await ref.read(logUseCaseProvider).logToday(
+            mood: _mood,
+            urgeLevel: _urgeLevel,
+            relapsed: _relapsed,
+            consumption: _consumption,
+            notes:
+                _notesController.text.isNotEmpty ? _notesController.text : null,
+          );
+      final user = await ref.read(userUseCaseProvider).getCurrentUser();
+      // Use WidgetServiceV2 for enriched widget data
+      final gameProfile = user != null
+          ? await ref.read(gameUseCaseProvider).getGameProfile(user.id)
+          : null;
+      final todayLog = await ref.read(logUseCaseProvider).getTodayLog();
+      await WidgetServiceV2.updateWidgetData(
+        user: user,
+        gameProfile: gameProfile,
+        todayLog: todayLog,
+        cravingIntensity: _urgeLevel ?? 0,
+        llmService: AiAgentService.instance.llmService,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('已保存'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        context.pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('保存失败: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('每日记录'),
+      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : _alreadyLogged
+              ? _buildAlreadyLogged(theme)
+              : _buildForm(theme),
+    );
+  }
+
+  Widget _buildAlreadyLogged(ThemeData theme) {
+    final log = _existingLog!;
+
+    IconData moodIcon;
+    Color moodColor;
+    switch (log.mood) {
+      case 1:
+        moodIcon = Icons.sentiment_very_dissatisfied;
+        moodColor = Colors.blue;
+        break;
+      case 5:
+        moodIcon = Icons.sentiment_very_satisfied;
+        moodColor = Colors.amber;
+        break;
+      default:
+        moodIcon = Icons.sentiment_neutral;
+        moodColor = Colors.grey;
+        break;
+    }
+
+    final urgeLabel = _urgeOptions.firstWhere(
+      (o) => o['value'] == log.urgeLevel,
+      orElse: () => {'label': '', 'value': 0},
+    )['label'] as String;
+
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check_circle_outline,
+              size: 48, color: theme.colorScheme.primary),
+          const SizedBox(height: 12),
+          const Text('今日已记录', style: TextStyle(fontSize: 28)),
+          const SizedBox(height: 32),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.sentiment_very_dissatisfied,
+                  size: 48,
+                  color: log.mood == 1 ? moodColor : Colors.grey.shade300),
+              const SizedBox(width: 24),
+              Icon(Icons.sentiment_neutral,
+                  size: 48,
+                  color: log.mood == 3 ? moodColor : Colors.grey.shade300),
+              const SizedBox(width: 24),
+              Icon(Icons.sentiment_very_satisfied,
+                  size: 48,
+                  color: log.mood == 5 ? moodColor : Colors.grey.shade300),
+            ],
+          ),
+          const SizedBox(height: 16),
+          if (urgeLabel.isNotEmpty)
+            Text(
+              '想抽/喝程度: $urgeLabel',
+              style: theme.textTheme.bodyLarge?.copyWith(color: Colors.grey),
+            ),
+          const SizedBox(height: 48),
+          TextButton(
+            onPressed: () => context.pop(),
+            child: const Text('回去'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildForm(ThemeData theme) {
+    final primary = theme.colorScheme.primary;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // ── Mood section ──
+          Card(
+            elevation: 2,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.sentiment_satisfied_alt, color: primary),
+                      const SizedBox(width: 8),
+                      Text('今天感觉怎么样？', style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: _moodOptions.map((opt) {
+                        final value = opt['value'] as int;
+                        final selected = _mood == value;
+                        Color selectedColor;
+                        Color selectedBg;
+                        switch (value) {
+                          case 1:
+                            selectedColor = Colors.blue;
+                            selectedBg = Colors.blue.shade50;
+                            break;
+                          case 3:
+                            selectedColor = Colors.grey;
+                            selectedBg = Colors.grey.shade100;
+                            break;
+                          case 5:
+                            selectedColor = Colors.amber;
+                            selectedBg = Colors.amber.shade50;
+                            break;
+                          default:
+                            selectedColor = primary;
+                            selectedBg = Colors.white;
+                            break;
+                        }
+                        return GestureDetector(
+                          onTap: () => setState(() => _mood = value),
+                          child: Container(
+                            width: 72,
+                            height: 72,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: selected ? selectedBg : Colors.white,
+                              border: Border.all(
+                                color: selected
+                                    ? selectedColor
+                                    : Colors.grey.shade300,
+                                width: 3,
+                              ),
+                            ),
+                            child: Center(
+                              child: Text(
+                                opt['emoji'] as String,
+                                style: const TextStyle(fontSize: 36),
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // ── Urge level section ──
+          Card(
+            elevation: 2,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.local_fire_department, color: primary),
+                      const SizedBox(width: 8),
+                      Text('今天有想抽/喝吗？', style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: _urgeOptions.map((opt) {
+                        final value = opt['value'] as int;
+                        final selected = _urgeLevel == value;
+                        Color selectedColor;
+                        switch (value) {
+                          case 1:
+                            selectedColor = Colors.green;
+                            break;
+                          case 3:
+                            selectedColor = Colors.orange;
+                            break;
+                          case 5:
+                            selectedColor = Colors.red;
+                            break;
+                          default:
+                            selectedColor = primary;
+                            break;
+                        }
+                        return GestureDetector(
+                          onTap: () => setState(() => _urgeLevel = value),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(24),
+                              color:
+                                  selected ? selectedColor : Colors.transparent,
+                              border: Border.all(
+                                color: selected
+                                    ? selectedColor
+                                    : Colors.grey.shade300,
+                              ),
+                            ),
+                            child: Text(
+                              opt['label'] as String,
+                              style: TextStyle(
+                                color: selected ? Colors.white : Colors.black87,
+                                fontWeight: selected
+                                    ? FontWeight.w500
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // ── Relapse section ──
+          Card(
+            elevation: 2,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.help_outline, color: primary),
+                      const SizedBox(width: 8),
+                      Text('今天有使用吗？', style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => setState(() {
+                          _relapsed = false;
+                          _consumption = null;
+                          _consumptionController.clear();
+                        }),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color:
+                                !_relapsed ? Colors.green : Colors.transparent,
+                            border: Border.all(
+                              color: !_relapsed
+                                  ? Colors.green
+                                  : Colors.grey.shade300,
+                            ),
+                          ),
+                          child: Text(
+                            '没有',
+                            style: TextStyle(
+                              color: !_relapsed ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      GestureDetector(
+                        onTap: () => setState(() => _relapsed = true),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: _relapsed ? Colors.red : Colors.transparent,
+                            border: Border.all(
+                              color:
+                                  _relapsed ? Colors.red : Colors.grey.shade300,
+                            ),
+                          ),
+                          child: Text(
+                            '有',
+                            style: TextStyle(
+                              color: _relapsed ? Colors.white : Colors.black87,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (_relapsed) ...[
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: 140,
+                      child: TextField(
+                        controller: _consumptionController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          hintText: '支/杯',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
+                        ),
+                        onChanged: (v) {
+                          _consumption = int.tryParse(v);
+                        },
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // ── Notes section ──
+          Card(
+            elevation: 2,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.edit_note, color: primary),
+                      const SizedBox(width: 8),
+                      Text('想补充什么吗？', style: theme.textTheme.titleMedium),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _notesController,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      hintText: '可选',
+                      border: OutlineInputBorder(),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 48),
+          Center(
+            child: SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _urgeLevel != null && !_saving ? _saveLog : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: _saving
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Text('完成', style: TextStyle(fontSize: 18)),
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+        ],
+      ),
+    );
+  }
+}
