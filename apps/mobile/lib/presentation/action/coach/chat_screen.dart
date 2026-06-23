@@ -107,12 +107,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // Check if LLM is enabled
     final prefs = await ref.read(userUseCaseProvider).getPreferences();
     final useLlm = prefs['use_llm'] as bool? ?? false;
-    final apiKey = prefs['ai_api_key'] as String? ?? '';
-    final useLlmNow = useLlm && apiKey.isNotEmpty;
+    final encryptedKey = prefs['ai_api_key'] as String? ?? '';
+    final useLlmNow = useLlm && encryptedKey.isNotEmpty;
 
     if (useLlmNow) {
       // Use LLM for response generation
       try {
+        // Decrypt API key through encryption service
+        final encryptionService = ref.read(encryptionServiceProvider);
+        String apiKey;
+        try {
+          apiKey = await encryptionService.decryptText(encryptedKey);
+        } catch (_) {
+          // If decryption fails, the key may be stored in plain text (legacy)
+          // Use it directly but log a warning
+          debugPrint('ChatScreen: API key decryption failed, using as-is (legacy format)');
+          apiKey = encryptedKey;
+        }
+
         final service = LlmService(
           apiKey: apiKey,
           baseUrl:
@@ -139,10 +151,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             await service.chat(history, userContext: contextStr);
 
         // Parse [quick reply] suggestions from the response
-        final quickReplies = <String>[];
-        for (final match in RegExp(r'\[([^\]]+)\]').allMatches(llmResponse)) {
-          quickReplies.add(match.group(1)!);
-        }
+        final quickReplies = _parseQuickReplies(llmResponse);
         final cleanText =
             llmResponse.replaceAll(RegExp(r'\[[^\]]+\]'), '').trim();
 
@@ -609,6 +618,36 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ),
     );
   }
+}
+
+/// Safely parse quick replies from LLM output.
+///
+/// Limits each reply to 100 characters and filters out potentially
+/// dangerous characters (< > & " ') to prevent XSS/injection.
+List<String> _parseQuickReplies(String llmResponse) {
+  final quickReplies = <String>[];
+  for (final match in RegExp(r'\[([^\]]+)\]').allMatches(llmResponse)) {
+    final raw = match.group(1);
+    if (raw == null || raw.isEmpty) continue;
+
+    // Limit length to 100 characters
+    var reply = raw.length > 100 ? raw.substring(0, 100) : raw;
+
+    // Filter dangerous characters (< > & " ')
+    reply = reply
+        .replaceAll('<', '')
+        .replaceAll('>', '')
+        .replaceAll('&', '')
+        .replaceAll('"', '')
+        .replaceAll("'", '');
+
+    // Trim and only add non-empty replies
+    reply = reply.trim();
+    if (reply.isNotEmpty) {
+      quickReplies.add(reply);
+    }
+  }
+  return quickReplies;
 }
 
 /// Animated typing dots indicator
