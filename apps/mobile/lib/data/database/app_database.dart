@@ -328,12 +328,20 @@ class AppDatabase {
   Future<Map<String, dynamic>?> getTodayLog(int userId) async {
     final db = await database;
     final now = DateTime.now();
-    final startOfDay = DateTime(now.year, now.month, now.day).toIso8601String();
-    final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59, 999)
-        .toIso8601String();
+    // Use UTC for consistent date comparison regardless of timezone
+    final nowUtc = now.toUtc();
+    final startOfDayUtc = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day);
+    final endOfDayUtc = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day, 23, 59, 59, 999);
+
+    // Query using date-only format (YYYY-MM-DD) for maximum compatibility
+    // since dates may be stored with or without timezone offset
+    final dateStr = '${startOfDayUtc.year.toString().padLeft(4, '0')}-'
+        '${startOfDayUtc.month.toString().padLeft(2, '0')}-'
+        '${startOfDayUtc.day.toString().padLeft(2, '0')}';
+
     final results = await db.query('daily_log',
-        where: 'user_id = ? AND date >= ? AND date <= ?',
-        whereArgs: [userId, startOfDay, endOfDay],
+        where: 'user_id = ? AND date LIKE ?',
+        whereArgs: [userId, '$dateStr%'],
         limit: 1);
     return results.isNotEmpty ? results.first : null;
   }
