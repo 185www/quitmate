@@ -20,6 +20,7 @@ import 'package:QuitMate/core/coach/pattern_analyzer.dart';
 import 'package:QuitMate/core/coach/llm_prompt_builder.dart';
 import 'package:QuitMate/core/coach/analysis_utils.dart';
 import 'package:QuitMate/core/llm/llm_policy.dart';
+import 'package:flutter/foundation.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // AiAgentService
@@ -143,6 +144,11 @@ class AiAgentService {
     // Generate insight via DailyInsightGenerator (LLM or local fallback)
     DailyInsight insight;
     try {
+      // Validate LLM policy before making any LLM network request
+      if (isReady && _llmPolicy != null) {
+        await _llmPolicy!.validateRequestAsync();
+      }
+
       insight = await _dailyInsightGenerator!.generateDailyInsight(
         user: user,
         gameProfile: gameProfile,
@@ -237,6 +243,9 @@ class AiAgentService {
 
     if (isReady && _promptBuilder != null && _llmPolicy != null) {
       try {
+        // Validate LLM policy before making network request
+        await _llmPolicy!.validateRequestAsync();
+
         final context = _promptBuilder!.buildUserContext(user, gameProfile);
         final sanitized = _llmPolicy!.sanitizeInput(context);
 
@@ -254,6 +263,9 @@ class AiAgentService {
         _cachedMotivation = sanitizedOut;
         _cachedMotivationDate = DateTime.now();
         return sanitizedOut;
+      } on LlmPolicyViolation {
+        // LLM not authorized — fall through to local fallback
+        debugPrint('AiAgentService: LLM policy not met, using local fallback');
       } catch (_) {
         // Fall through to local fallback
       }
