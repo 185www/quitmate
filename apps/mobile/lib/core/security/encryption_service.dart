@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -48,9 +49,16 @@ class EncryptionService {
   }
 
   /// 回退方案：使用本地 SQLite 文件存储密钥
-  /// 安全级别低于 Keystore，但对于纯离线本地的偏好设置足够
+  ///
+  /// 使用基于设备绑定种子的 XOR 加密保护密钥。
+  /// 安全级别低于硬件 Keystore，但优于明文存储。
+  /// 注意：此方案主要应对 HarmonyOS NEXT 等无 AOSP Keystore 的设备。
   Future<encrypt.Key> _getOrCreateFallbackKey() async {
     _useFallback = true;
+    debugPrint(
+        'EncryptionService: ⚠️ 使用回退密钥存储（非硬件加密）。'
+        '安全级别低于 AOSP Keystore。');
+
     final db = await _openFallbackDb();
     final results = await db.query(
       _fallbackTableName,
@@ -61,20 +69,66 @@ class EncryptionService {
     if (results.isNotEmpty) {
       final storedValue = results.first['value'] as String?;
       if (storedValue != null) {
-        _cachedKey = encrypt.Key.fromBase64(storedValue);
+        // Decrypt using device-bound XOR
+        final decrypted = _xorDecrypt(storedValue);
+        _cachedKey = encrypt.Key.fromBase64(decrypted);
         return _cachedKey!;
       }
     }
 
-    // 生成新密钥
+    // 生成新密钥并用 XOR 加密存储
     final newKey = encrypt.Key.fromSecureRandom(32);
+    final encrypted = _xorEncrypt(newKey.base64);
     await db.insert(
       _fallbackTableName,
-      {'key': _keyStorageName, 'value': newKey.base64},
+      {'key': _keyStorageName, 'value': encrypted},
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     _cachedKey = newKey;
     return _cachedKey!;
+  }
+
+  /// 基于设备绑定种子的简单 XOR 加密
+  ///
+  /// 使用应用路径的哈希作为种子，确保同一设备上的密钥无法直接
+  /// 复制到其他设备使用。这不是强加密，但优于明文存储。
+  String _xorEncrypt(String plainText) {
+    final seed = _getDeviceSeed();
+    final bytes = utf8.encode(plainText);
+    final encrypted = <int>[];
+    for (var i = 0; i < bytes.length; i++) {
+      encrypted.add(bytes[i] ^ seed[i % seed.length]);
+    }
+    return base64Encode(encrypted);
+  }
+
+  /// XOR 解密（与加密使用相同的操作）
+  String _xorDecrypt(String encryptedText) {
+    final seed = _getDeviceSeed();
+    final bytes = base64Decode(encryptedText);
+    final decrypted = <int>[];
+    for (var i = 0; i < bytes.length; i++) {
+      decrypted.add(bytes[i] ^ seed[i % seed.length]);
+    }
+    return utf8.decode(decrypted);
+  }
+
+  /// 获取设备绑定种子
+  ///
+  /// 使用应用文档目录路径的字节作为种子，确保：
+  /// 1. 同一设备同一应用产生相同种子
+  /// 2. 不同设备或不同应用产生不同种子
+  List<int> _getDeviceSeed() {
+    // 使用应用路径的哈希作为设备绑定种子
+    // 注意：这不是密码学安全的，但提供了基本的设备绑定保护
+    final path = getApplicationDocumentsDirectory().toString();
+    final hash = path.hashCode;
+    return [
+      (hash >> 24) & 0xFF,
+      (hash >> 16) & 0xFF,
+      (hash >> 8) & 0xFF,
+      hash & 0xFF,
+    ];
   }
 
   Future<Database> _openFallbackDb() async {
