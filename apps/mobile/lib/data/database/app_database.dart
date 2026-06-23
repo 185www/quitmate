@@ -16,7 +16,7 @@ class AppDatabase {
 
     return openDatabase(
       path,
-      version: 9,
+      version: 10,
       onCreate: (db, version) async => _createTables(db),
       onUpgrade: (db, oldV, newV) async {
         if (oldV < 2) {
@@ -53,6 +53,17 @@ class AppDatabase {
         if (oldV < 9) {
           try {
             await db.execute('ALTER TABLE user_profile ADD COLUMN age INTEGER');
+          } catch (_) {}
+        }
+        if (oldV < 10) {
+          try {
+            await db.execute('ALTER TABLE daily_log ADD COLUMN is_awareness_log INTEGER DEFAULT 0');
+          } catch (_) {}
+          try {
+            await db.execute('ALTER TABLE daily_log ADD COLUMN awareness_type TEXT');
+          } catch (_) {}
+          try {
+            await db.execute('ALTER TABLE daily_log ADD COLUMN raw_input TEXT');
           } catch (_) {}
         }
       },

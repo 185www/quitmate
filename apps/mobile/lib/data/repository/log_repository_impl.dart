@@ -29,6 +29,9 @@ class LogRepository {
       'relapsed': log.relapsed ? 1 : 0,
       'consumption': log.consumption,
       'notes': log.notes,
+      'is_awareness_log': log.isAwarenessLog ? 1 : 0,
+      'awareness_type': log.awarenessType,
+      'raw_input': log.rawInput,
     });
   }
 
@@ -77,5 +80,8 @@ class LogRepository {
         relapsed: (log['relapsed'] as int?) == 1,
         consumption: log['consumption'] as int?,
         notes: log['notes'] as String?,
+        isAwarenessLog: (log['is_awareness_log'] as int?) == 1,
+        awarenessType: log['awareness_type'] as String?,
+        rawInput: log['raw_input'] as String?,
       );
 }
